@@ -387,6 +387,17 @@ class TestValidationGate(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             validate_storyboard(scenes, narration=narration)
 
+    def test_natural_pause_gap_healed_without_error(self):
+        # 0.74s pause between sentences (e.g. 9.04s to 9.78s) must be healed,
+        # extending previous scene's end to next scene's start without raising.
+        scenes = [
+            make_scene("003", 7.02, 9.04, prompt="Scene 3 prompt"),
+            make_scene("004", 9.78, 18.86, prompt="Scene 4 prompt"),
+        ]
+        validate_storyboard(scenes)
+        self.assertEqual(scenes[0].end, 9.78)
+        self.assertEqual(scenes[0].duration, round(9.78 - 7.02, 2))
+
 
 # =========================================================================
 # Fix 4: Derived batch size

@@ -73,6 +73,15 @@ class Stage2VisualStoryboard:
         # Enhance scenes with bible references, characters, environments, and visual descriptions
         cls._enrich_scenes_with_intelligence(scenes, story_intelligence)
 
+        # Seamless timeline: heal natural sentence pauses (gaps <= 2.0s) between scenes
+        for i in range(len(scenes) - 1):
+            curr_s = scenes[i]
+            next_s = scenes[i + 1]
+            gap = float(next_s.start) - float(curr_s.end)
+            if 0.0 < gap <= 2.0:
+                curr_s.end = round(float(next_s.start), 2)
+                curr_s.duration = round(float(curr_s.end) - float(curr_s.start), 2)
+
         return scenes
 
     @classmethod
@@ -162,6 +171,15 @@ class Stage2VisualStoryboard:
                     prompt="",
                     generation_status="pending"
                 ))
+
+        # Seamless timeline: heal natural sentence pauses (gaps <= 2.0s) between scenes
+        for i in range(len(scenes) - 1):
+            curr_s = scenes[i]
+            next_s = scenes[i + 1]
+            gap = float(next_s.start) - float(curr_s.end)
+            if 0.0 < gap <= 2.0:
+                curr_s.end = round(float(next_s.start), 2)
+                curr_s.duration = round(float(curr_s.end) - float(curr_s.start), 2)
 
         return scenes
 

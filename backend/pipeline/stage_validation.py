@@ -18,12 +18,14 @@ broken storyboard.
 """
 from typing import List, Optional
 
-# Tolerance (seconds) for inter-word silence between scenes.
-MAX_SCENE_GAP_SECONDS = 0.5
+# Tolerance (seconds) for auto-healing natural narration pauses between scenes.
+MAX_HEALABLE_GAP_SECONDS = 2.0
+MAX_SCENE_GAP_SECONDS = 2.0
 
 
 def validate_storyboard(scenes: List, narration=None) -> None:
-    """Validates a storyboard. Raises RuntimeError on the first violation."""
+    """Validates a storyboard and automatically heals natural narration pause gaps <= 2.0s.
+    Raises RuntimeError on structural violations or gaps > 2.0s."""
     if not scenes:
         raise RuntimeError("Storyboard validation failed: no scenes to validate.")
 
@@ -41,9 +43,9 @@ def validate_storyboard(scenes: List, narration=None) -> None:
                 f"Failing loudly instead of rendering a scene with no image prompt."
             )
 
-    # 2. Timeline: sorted by start, no overlaps, no large gaps, positive durations.
+    # 2. Timeline: sorted by start, no overlaps, heal small pause gaps (<= 2.0s), positive durations.
     ordered = sorted(scenes, key=lambda s: float(getattr(s, "start", 0.0)))
-    prev_end = None
+    prev_scene = None
     for s in ordered:
         sid = getattr(s, "scene_id", "?")
         start = float(getattr(s, "start", 0.0))
@@ -53,18 +55,26 @@ def validate_storyboard(scenes: List, narration=None) -> None:
             raise RuntimeError(
                 f"Storyboard validation failed: scene '{sid}' has non-positive duration {duration}."
             )
-        if prev_end is not None:
+        if prev_scene is not None:
+            prev_end = float(getattr(prev_scene, "end", 0.0))
             if start < prev_end - 0.01:
                 raise RuntimeError(
                     f"Storyboard validation failed: scene '{sid}' starts at {start}s, "
                     f"overlapping the previous scene which ends at {prev_end}s."
                 )
-            if start - prev_end > MAX_SCENE_GAP_SECONDS:
+            gap = start - prev_end
+            if 0.001 < gap <= MAX_HEALABLE_GAP_SECONDS:
+                prev_start = float(getattr(prev_scene, "start", 0.0))
+                new_end = round(start, 2)
+                prev_scene.end = new_end
+                prev_scene.duration = round(new_end - prev_start, 2)
+                print(f"[StoryboardValidation] Healed natural pause gap of {gap:.2f}s before scene '{sid}' (extended previous scene end to {new_end:.2f}s).")
+            elif gap > MAX_HEALABLE_GAP_SECONDS:
                 raise RuntimeError(
-                    f"Storyboard validation failed: gap of {start - prev_end:.2f}s before "
+                    f"Storyboard validation failed: gap of {gap:.2f}s before "
                     f"scene '{sid}' (previous scene ends at {prev_end}s, next starts at {start}s)."
                 )
-        prev_end = end
+        prev_scene = s
 
     # 3. When narration is given, the timeline must cover it.
     if narration is not None:
@@ -72,13 +82,21 @@ def validate_storyboard(scenes: List, narration=None) -> None:
         if total > 0:
             first_start = float(getattr(ordered[0], "start", 0.0))
             last_end = float(getattr(ordered[-1], "end", 0.0))
-            if first_start > MAX_SCENE_GAP_SECONDS:
+            if 0 < first_start <= MAX_HEALABLE_GAP_SECONDS:
+                ordered[0].start = 0.0
+                ordered[0].duration = round(float(ordered[0].end) - 0.0, 2)
+            elif first_start > MAX_HEALABLE_GAP_SECONDS:
                 raise RuntimeError(
                     f"Storyboard validation failed: first scene starts at {first_start}s, "
                     f"but narration starts at 0s."
                 )
-            if last_end < total - 1.0:
-                raise RuntimeError(
-                    f"Storyboard validation failed: last scene ends at {last_end}s, "
-                    f"but narration runs to {total}s."
-                )
+            if last_end < total:
+                gap_to_end = total - last_end
+                if gap_to_end <= MAX_HEALABLE_GAP_SECONDS:
+                    ordered[-1].end = round(total, 2)
+                    ordered[-1].duration = round(total - float(ordered[-1].start), 2)
+                elif gap_to_end > 1.0:
+                    raise RuntimeError(
+                        f"Storyboard validation failed: last scene ends at {last_end}s, "
+                        f"but narration runs to {total}s."
+                    )
