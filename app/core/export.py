@@ -4,17 +4,56 @@ Export engine for generating image_prompts.txt, timeline.json, image_prompts.jso
 import csv
 import json
 import io
+import re
+import sys
+import subprocess
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from app.models.scene import VisualScene
 from app.models.timeline import NarrationData
 
 
+def copy_to_system_clipboard(text: str) -> bool:
+    """
+    Safely copies text to the operating system clipboard using both Qt and
+    native OS fallbacks (Windows clip.exe) to guarantee delivery regardless
+    of window focus or OLE delays.
+    """
+    if not text:
+        return False
+
+    success = False
+
+    # 1. PySide6 / Qt Clipboard
+    try:
+        from PySide6.QtWidgets import QApplication
+        from PySide6.QtGui import QClipboard
+        app = QApplication.instance()
+        if app:
+            cb = app.clipboard()
+            cb.setText(text, mode=QClipboard.Mode.Clipboard)
+            success = True
+    except Exception as e:
+        print(f"[Clipboard] Qt copy notice: {e}")
+
+    # 2. Windows native clip.exe fallback (100% reliable on Windows OS)
+    if sys.platform == "win32":
+        try:
+            p = subprocess.Popen(["clip"], stdin=subprocess.PIPE, shell=False)
+            p.communicate(input=text.encode("utf-16le"))
+            if p.returncode == 0:
+                success = True
+        except Exception as e:
+            print(f"[Clipboard] Windows clip.exe notice: {e}")
+
+    return success
+
+
 class StoryboardExporter:
     """Exports validated timelines and prompts into production-standard file formats."""
 
-    @staticmethod
-    def export_to_text(scenes: List[VisualScene]) -> str:
+    @classmethod
+    def export_to_text(cls, scenes: List[VisualScene]) -> str:
         """
         Generates production-standard image_prompts.txt matching the exact format:
         IMAGE 001
@@ -180,6 +219,7 @@ class StoryboardExporter:
         # Remove /imagine prefixes and parameter flags
         p = re.sub(r"^/imagine\s+prompt:\s*", "", p, flags=re.IGNORECASE)
         p = re.sub(r"^/imagine\s*", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"\[Planned Visual Shot\s*[—-]\s*Awaiting Batch Prompt Gen\]\s*", "", p, flags=re.IGNORECASE)
         p = re.sub(r"--ar\s+\d+:\d+", "", p, flags=re.IGNORECASE)
         p = re.sub(r"--style\s+\w+", "", p, flags=re.IGNORECASE)
         p = re.sub(r"--v\s+[\d\.]+", "", p, flags=re.IGNORECASE)

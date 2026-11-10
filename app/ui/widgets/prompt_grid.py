@@ -539,6 +539,7 @@ class PromptGridWidget(QWidget):
     delete_requested = Signal(str)
     add_scene_requested = Signal()
     export_requested = Signal()
+    open_file_requested = Signal()
     approve_requested = Signal()
     retry_scene_requested = Signal(object)  # VisualScene
 
@@ -680,6 +681,27 @@ class PromptGridWidget(QWidget):
         """)
         self.export_btn.clicked.connect(lambda: self.export_requested.emit())
         top_bar.addWidget(self.export_btn)
+
+        self.open_file_btn = QPushButton("📄 Open Prompts File")
+        self.open_file_btn.setFixedHeight(30)
+        self.open_file_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLOR_GLASS_SURFACE_2};
+                color: #E2E8F0;
+                border: 1px solid {COLOR_BORDER_SUBTLE};
+                border-radius: 6px;
+                padding: 0 12px;
+                font-size: 11px;
+                font-weight: 600;
+            }}
+            QPushButton:hover {{
+                background-color: {COLOR_HOVER_SURFACE};
+                border-color: {COLOR_BRAND_PRIMARY};
+                color: #FFFFFF;
+            }}
+        """)
+        self.open_file_btn.clicked.connect(lambda: self.open_file_requested.emit())
+        top_bar.addWidget(self.open_file_btn)
 
         self.add_btn = QPushButton("➕ Add Scene")
         self.add_btn.setFixedHeight(30)
@@ -1074,17 +1096,8 @@ class PromptGridWidget(QWidget):
                 lines.append(clean_p)
 
         full_text = "\n".join(lines)
-        QApplication.clipboard().setText(full_text)
-
-        # Explicit verification: confirm Windows clipboard matches expected payload
-        verified = QApplication.clipboard().text()
-        if verified != full_text:
-            QMessageBox.critical(
-                self,
-                "Clipboard Copy Error",
-                "Windows clipboard verification failed. Could not copy prompts."
-            )
-            return
+        from app.core.export import copy_to_system_clipboard
+        copy_to_system_clipboard(full_text)
 
         copied_cnt = len(lines)
         self.copy_all_btn.setText(f"✅ Copied {copied_cnt} Prompts ({batch_label})!")

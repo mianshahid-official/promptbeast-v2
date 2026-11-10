@@ -2,6 +2,10 @@
 Export dialog with real-time text/JSON tabbed preview and multi-format save.
 """
 import json
+import os
+import sys
+import subprocess
+from pathlib import Path
 from typing import List, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -18,7 +22,7 @@ from PySide6.QtWidgets import (
 )
 from app.models.scene import VisualScene
 from app.models.timeline import NarrationData
-from app.core.export import StoryboardExporter
+from app.core.export import StoryboardExporter, copy_to_system_clipboard
 
 
 class ExportDialog(QDialog):
@@ -28,15 +32,19 @@ class ExportDialog(QDialog):
         self,
         scenes: List[VisualScene],
         narration: Optional[NarrationData] = None,
+        thumbnail_prompt: Optional[str] = None,
+        project_dir: Optional[str] = None,
         parent=None
     ):
         super().__init__(parent)
         self.setWindowTitle("Export Storyboard & Image Prompts")
-        self.setMinimumWidth(760)
-        self.setMinimumHeight(540)
+        self.setMinimumWidth(820)
+        self.setMinimumHeight(560)
 
         self.scenes = scenes
         self.narration = narration
+        self.thumbnail_prompt = thumbnail_prompt
+        self.project_dir = project_dir
         self._setup_ui()
 
     def _setup_ui(self):
@@ -56,7 +64,10 @@ class ExportDialog(QDialog):
             indent=2
         )
         self.csv_content = StoryboardExporter.export_to_csv(self.scenes)
-        self.prompts_only_content = StoryboardExporter.export_to_prompts_only(self.scenes)
+        self.prompts_only_content = StoryboardExporter.export_to_prompts_only(
+            self.scenes,
+            thumbnail_prompt=self.thumbnail_prompt
+        )
 
         # Tab 1: prompts_only.txt (One Prompt Per Line, Clean)
         self.prompts_only_edit = QPlainTextEdit(self.prompts_only_content)
@@ -68,17 +79,17 @@ class ExportDialog(QDialog):
         self.txt_edit.setReadOnly(True)
         self.tabs.addTab(self.txt_edit, "image_prompts.txt (Detailed)")
 
-        # Tab 2: timeline.json
+        # Tab 3: timeline.json
         self.timeline_edit = QPlainTextEdit(self.timeline_json_content)
         self.timeline_edit.setReadOnly(True)
         self.tabs.addTab(self.timeline_edit, "timeline.json")
 
-        # Tab 3: image_prompts.json
+        # Tab 4: image_prompts.json
         self.prompts_edit = QPlainTextEdit(self.prompts_json_content)
         self.prompts_edit.setReadOnly(True)
         self.tabs.addTab(self.prompts_edit, "image_prompts.json")
 
-        # Tab 4: timeline.csv
+        # Tab 5: timeline.csv
         self.csv_edit = QPlainTextEdit(self.csv_content)
         self.csv_edit.setReadOnly(True)
         self.tabs.addTab(self.csv_edit, "timeline.csv")
@@ -88,14 +99,26 @@ class ExportDialog(QDialog):
         # Actions
         btn_layout = QHBoxLayout()
 
-        self.copy_btn = QPushButton("📋 Copy Current View to Clipboard")
+        self.copy_btn = QPushButton("📋 Copy View to Clipboard")
+        self.copy_btn.setStyleSheet("background-color: #064E3B; color: #34D399; font-weight: 700; border-radius: 4px; padding: 6px 12px;")
         self.copy_btn.clicked.connect(self._on_copy_clipboard)
         btn_layout.addWidget(self.copy_btn)
+
+        self.open_notepad_btn = QPushButton("📄 Open in Notepad")
+        self.open_notepad_btn.setStyleSheet("background-color: #1F2937; color: #E5E7EB; font-weight: 600; border: 1px solid #374151; border-radius: 4px; padding: 6px 12px;")
+        self.open_notepad_btn.clicked.connect(self._on_open_in_notepad)
+        btn_layout.addWidget(self.open_notepad_btn)
+
+        if self.project_dir and Path(self.project_dir).exists():
+            self.open_folder_btn = QPushButton("📂 Open Project Folder")
+            self.open_folder_btn.setStyleSheet("background-color: #1F2937; color: #E5E7EB; font-weight: 600; border: 1px solid #374151; border-radius: 4px; padding: 6px 12px;")
+            self.open_folder_btn.clicked.connect(self._on_open_project_folder)
+            btn_layout.addWidget(self.open_folder_btn)
 
         btn_layout.addStretch()
 
         self.export_all_btn = QPushButton("📁 Export All Files to Folder...")
-        self.export_all_btn.setStyleSheet("background-color: #4F46E5; border: 1px solid #6366F1; color: #FFFFFF; font-weight: 600;")
+        self.export_all_btn.setStyleSheet("background-color: #4F46E5; border: 1px solid #6366F1; color: #FFFFFF; font-weight: 600; padding: 6px 14px; border-radius: 4px;")
         self.export_all_btn.clicked.connect(self._on_export_all)
         btn_layout.addWidget(self.export_all_btn)
 
@@ -118,14 +141,44 @@ class ExportDialog(QDialog):
         else:
             text = self.csv_content
 
-        QApplication.clipboard().setText(text)
-        QMessageBox.information(self, "Copied", "Content copied to clipboard.")
+        copy_to_system_clipboard(text)
+        self.copy_btn.setText("✅ Copied!")
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(2000, lambda: self.copy_btn.setText("📋 Copy View to Clipboard"))
+
+    def _on_open_in_notepad(self):
+        target_file = None
+        if self.project_dir and (Path(self.project_dir) / "prompts_only.txt").exists():
+            target_file = Path(self.project_dir) / "prompts_only.txt"
+        elif Path("prompts_only.txt").exists():
+            target_file = Path("prompts_only.txt")
+        else:
+            target_file = Path("prompts_only.txt")
+            target_file.write_text(self.prompts_only_content, encoding="utf-8")
+
+        if target_file and target_file.exists():
+            if sys.platform == "win32":
+                os.startfile(str(target_file))
+            else:
+                subprocess.Popen(["xdg-open", str(target_file)])
+
+    def _on_open_project_folder(self):
+        if self.project_dir and Path(self.project_dir).exists():
+            if sys.platform == "win32":
+                os.startfile(str(self.project_dir))
+            else:
+                subprocess.Popen(["xdg-open", str(self.project_dir)])
 
     def _on_export_all(self):
         target_dir = QFileDialog.getExistingDirectory(self, "Select Export Directory")
         if target_dir:
             try:
-                saved = StoryboardExporter.save_all_exports(target_dir, self.scenes, self.narration)
+                saved = StoryboardExporter.save_all_exports(
+                    target_dir,
+                    self.scenes,
+                    self.narration,
+                    thumbnail_prompt=self.thumbnail_prompt
+                )
                 QMessageBox.information(
                     self,
                     "Export Successful",

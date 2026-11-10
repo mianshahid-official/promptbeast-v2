@@ -245,6 +245,11 @@ class MainWindow(QMainWindow):
         export_act.triggered.connect(self._on_export_dialog)
         file_menu.addAction(export_act)
 
+        open_prompts_act = QAction("📄 &Open Prompts File (prompts_only.txt)...", self)
+        open_prompts_act.setShortcut(QKeySequence("Ctrl+Shift+P"))
+        open_prompts_act.triggered.connect(self._on_open_prompts_file)
+        file_menu.addAction(open_prompts_act)
+
         file_menu.addSeparator()
 
         exit_act = QAction("E&xit", self)
@@ -788,6 +793,7 @@ class MainWindow(QMainWindow):
         self.prompt_grid.delete_requested.connect(self._on_delete_scene)
         self.prompt_grid.add_scene_requested.connect(self._on_add_manual_scene)
         self.prompt_grid.export_requested.connect(self._on_export_dialog)
+        self.prompt_grid.open_file_requested.connect(self._on_open_prompts_file)
         self.prompt_grid.approve_requested.connect(self._on_approve_plan)
         self.prompt_grid.retry_scene_requested.connect(self._on_retry_single_scene)
         s4_layout.addWidget(self.prompt_grid, 1)
@@ -2350,12 +2356,9 @@ class MainWindow(QMainWindow):
 
                 # Automatically copy canonical image generation payload to Windows clipboard
                 if prompts_clean and prompts_clean.strip():
-                    QApplication.clipboard().setText(prompts_clean.strip())
-                    verified = QApplication.clipboard().text()
-                    if verified.strip() == prompts_clean.strip():
-                        print(f"[Clipboard] Automatically copied {len(resp.scenes)} scene prompts to Windows clipboard.")
-                    else:
-                        print("[Clipboard] Warning: Verification failed after automatic prompt generation copy.")
+                    from app.core.export import copy_to_system_clipboard
+                    copy_to_system_clipboard(prompts_clean.strip())
+                    print(f"[Clipboard] Automatically copied {len(resp.scenes)} scene prompts to Windows clipboard.")
             except Exception as e:
                 print(f"[Export] Root export notice: {e}")
 
@@ -2594,11 +2597,8 @@ class MainWindow(QMainWindow):
             th_p = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
             self.project.state.thumbnail_prompt = th_p
         clean_payload = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
-        QApplication.clipboard().setText(clean_payload)
-        verified = QApplication.clipboard().text()
-        if verified != clean_payload:
-            QMessageBox.critical(self, "Clipboard Error", "Windows clipboard copy verification failed.")
-            return
+        from app.core.export import copy_to_system_clipboard
+        copy_to_system_clipboard(clean_payload)
 
         prompt_count = len([l for l in clean_payload.splitlines() if l.strip()])
         QMessageBox.information(self, "Copied", f"Copied {prompt_count} image prompts to clipboard (1 prompt per scene).")
@@ -2879,5 +2879,42 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Scenes", "There are no generated scenes to export yet.")
             return
 
-        dlg = ExportDialog(self.project.state.scenes, self.project.state.narration, self)
+        th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
+        p_dir = getattr(self.project, "project_dir", None)
+        dlg = ExportDialog(
+            self.project.state.scenes,
+            self.project.state.narration,
+            thumbnail_prompt=th_p,
+            project_dir=p_dir,
+            parent=self
+        )
         dlg.exec()
+
+    def _on_open_prompts_file(self):
+        """Directly opens prompts_only.txt in the system's default text editor (Notepad)."""
+        target_path = None
+        if hasattr(self, "project") and self.project and self.project.project_dir:
+            p_file = Path(self.project.project_dir) / "prompts_only.txt"
+            if p_file.exists():
+                target_path = p_file
+        if not target_path and Path("prompts_only.txt").exists():
+            target_path = Path("prompts_only.txt")
+
+        # If not yet on disk but scenes exist in memory, export immediately
+        if hasattr(self, "project") and self.project and self.project.state.scenes:
+            th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
+            content = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
+            if not target_path:
+                target_path = Path("prompts_only.txt")
+            target_path.write_text(content, encoding="utf-8")
+
+        if target_path and target_path.exists():
+            import os
+            import subprocess
+            if sys.platform == "win32":
+                os.startfile(str(target_path))
+            else:
+                subprocess.Popen(["xdg-open", str(target_path)])
+            self.statusBar().showMessage(f"📄 Opened {target_path.name}", 4000)
+        else:
+            QMessageBox.warning(self, "File Not Found", "No prompts_only.txt file found. Please generate storyboard prompts first.")

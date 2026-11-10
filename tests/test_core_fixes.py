@@ -464,5 +464,41 @@ class TestMasterPromptAndDeadCode(unittest.TestCase):
         self.assertFalse(hasattr(stage2_mod, "Stage4TemporalScheduler"))
 
 
+# =========================================================================
+# Fix 7: StoryboardExporter and Clipboard robustness
+# =========================================================================
+
+class TestStoryboardExporterAndClipboard(unittest.TestCase):
+    def test_clean_prompt_single_line_strips_mj_flags_and_placeholders(self):
+        from app.core.export import StoryboardExporter
+        raw = "/imagine prompt: [Planned Visual Shot - Awaiting Batch Prompt Gen] Wide shot of mall --ar 16:9 --style raw"
+        clean = StoryboardExporter.clean_prompt_single_line(raw)
+        self.assertEqual(clean, "Wide shot of mall")
+
+    def test_export_to_prompts_only_and_text(self):
+        from app.core.export import StoryboardExporter
+        scenes = [
+            make_scene("001", 0.0, 3.5, prompt="/imagine prompt: Scene 1 prompt --ar 16:9"),
+            make_scene("002", 3.5, 7.0, prompt="Scene 2 prompt --style raw"),
+        ]
+        prompts_only = StoryboardExporter.export_to_prompts_only(scenes, thumbnail_prompt="Thumbnail prompt text")
+        lines = prompts_only.strip().splitlines()
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(lines[0], "Thumbnail prompt text")
+        self.assertEqual(lines[1], "Scene 1 prompt")
+        self.assertEqual(lines[2], "Scene 2 prompt")
+
+        text_out = StoryboardExporter.export_to_text(scenes)
+        self.assertIn("IMAGE 001", text_out)
+        self.assertIn("IMAGE 002", text_out)
+        self.assertIn("Scene 1 prompt", text_out)
+        self.assertNotIn("--ar 16:9", text_out)
+
+    def test_copy_to_system_clipboard_handles_text(self):
+        from app.core.export import copy_to_system_clipboard
+        ok = copy_to_system_clipboard("Automated test clipboard payload")
+        self.assertTrue(ok)
+
+
 if __name__ == "__main__":
     unittest.main()

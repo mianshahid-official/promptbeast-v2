@@ -152,7 +152,8 @@ class PromptViewerDialog(QDialog):
         """)
 
         def _do_copy():
-            QApplication.clipboard().setText(prompt_text)
+            from app.core.export import copy_to_system_clipboard
+            copy_to_system_clipboard(prompt_text)
             btn_copy.setText("✓ Copied to Clipboard!")
             btn_copy.setStyleSheet("background-color: #3B82F6; color: #FFFFFF; font-weight: 700; border-radius: 6px; padding: 0 20px;")
 
@@ -1059,7 +1060,8 @@ class NarrationWorkflowPanel(QWidget):
         if p and p.exists():
             try:
                 content = p.read_text(encoding="utf-8")
-                QApplication.clipboard().setText(content)
+                from app.core.export import copy_to_system_clipboard
+                copy_to_system_clipboard(content)
                 if hasattr(self, "lbl_prompt_copy_status"):
                     self.lbl_prompt_copy_status.setText(f"✓ Copied {style_name} prompt to clipboard! Paste into ChatGPT/Claude.")
                     self.lbl_prompt_copy_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")

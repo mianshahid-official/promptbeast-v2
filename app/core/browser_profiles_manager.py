@@ -254,13 +254,8 @@ class BrowserProfilesManager:
         """
         if prompts_text:
             try:
-                from PySide6.QtWidgets import QApplication
-                app = QApplication.instance()
-                if app:
-                    app.clipboard().setText(prompts_text)
-                    verified = app.clipboard().text()
-                    if verified != prompts_text:
-                        print("[BrowserProfilesManager] Warning: Clipboard text verification mismatch.")
+                from app.core.export import copy_to_system_clipboard
+                copy_to_system_clipboard(prompts_text)
             except Exception as e:
                 print(f"[BrowserProfilesManager] Notice copying prompts to clipboard: {e}")
 

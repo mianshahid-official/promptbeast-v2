@@ -812,9 +812,9 @@ class RenderPanel(QWidget):
         if not scenes:
             QMessageBox.warning(self, "No Scenes", "No storyboard scenes available to copy.")
             return
-        from app.core.export import StoryboardExporter
+        from app.core.export import StoryboardExporter, copy_to_system_clipboard
         payload = StoryboardExporter.export_to_prompts_only(scenes, thumbnail_prompt=th_p)
-        QApplication.clipboard().setText(payload)
+        copy_to_system_clipboard(payload)
         if hasattr(self, "copy_all_batch_prompts_btn"):
             self.copy_all_batch_prompts_btn.setText("✓ All Batch Prompts Copied!")
             QTimer.singleShot(2500, lambda: self.copy_all_batch_prompts_btn.setText("📋 Copy All Prompts (Batch: 01 Thumb + 02..N)"))
