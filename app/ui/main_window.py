@@ -2370,9 +2370,6 @@ class MainWindow(QMainWindow):
                     save_story_bibles(p_dir, self.project.state.analysis)
             except Exception as e:
                 print(f"[Export] Project export notice: {e}")
-                    save_story_bibles(p_dir, self.project.state.analysis)
-            except Exception as e:
-                print(f"[Export] Project export notice: {e}")
 
             # If items exceed 100, generate individual batch files for each Google account (e.g. 1-100, 101-200)
             try:
