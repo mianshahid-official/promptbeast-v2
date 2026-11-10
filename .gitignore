@@ -67,6 +67,10 @@ temp/
 exports/temp/
 render_temp/
 *.log
+image_prompts.txt
+prompts_only.txt
+data/
+test script/
 PROMPTBEAST_FORENSIC_DOCUMENTATION.zip
 COMPETITOR_REPOS/
 

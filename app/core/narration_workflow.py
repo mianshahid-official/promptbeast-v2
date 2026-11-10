@@ -646,6 +646,109 @@ def load_image_prompt_system_prompt() -> str:
     return "You are an expert image prompt architect. Generate detailed, style-compliant image prompts in JSON."
 
 
+def robust_extract_scenes_from_llm_output(clean_json: str) -> List[Dict[str, Any]]:
+    """
+    Parses LLM output into a list of scene dictionaries.
+    Handles:
+    1. Perfect JSON: {"scenes": [...]} or [...]
+    2. Markdown wrapped JSON
+    3. Trailing commas or subtle formatting glitches
+    4. Truncated JSON streams (extracts all completed scene objects even if the last one was cut off)
+    5. Regex recovery fallback
+    """
+    if not clean_json or not clean_json.strip():
+        return []
+
+    text = clean_json.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+        text = text.strip()
+
+    # Attempt 1: Direct JSON parse
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict) and "scenes" in parsed and isinstance(parsed["scenes"], list):
+            return parsed["scenes"]
+        elif isinstance(parsed, list):
+            return parsed
+    except Exception:
+        pass
+
+    # Attempt 2: Repair braces and trailing commas
+    first_brace = text.find("{")
+    last_brace = text.rfind("}")
+    if first_brace != -1 and last_brace > first_brace:
+        sub = text[first_brace:last_brace + 1]
+        try:
+            p = json.loads(sub)
+            if isinstance(p, dict) and "scenes" in p:
+                return p["scenes"]
+        except Exception:
+            fixed = re.sub(r",\s*([}\]])", r"\1", sub)
+            try:
+                p = json.loads(fixed)
+                if isinstance(p, dict) and "scenes" in p:
+                    return p["scenes"]
+            except Exception:
+                pass
+
+    # Attempt 3: Truncated stream recovery
+    if first_brace != -1:
+        matches = list(re.finditer(r"\}\s*,?", text))
+        for m in reversed(matches):
+            candidate = text[first_brace:m.end()].rstrip(", \t\r\n")
+            for closing in ["]}", "}", "]}}", "}\n}"]:
+                try:
+                    p = json.loads(candidate + closing)
+                    if isinstance(p, dict) and "scenes" in p and p["scenes"]:
+                        return p["scenes"]
+                    elif isinstance(p, list) and p:
+                        return p
+                except Exception:
+                    pass
+
+    # Attempt 4: Regex extraction of individual completed scene objects
+    scenes = []
+    obj_pattern = re.compile(
+        r'\{\s*"scene_id"\s*:\s*"(?P<id>[^"]+)"\s*,\s*"visual_subject"\s*:\s*"(?P<subj>(?:[^"\\]|\\.)*)"\s*,\s*"prompt"\s*:\s*"(?P<prompt>(?:[^"\\]|\\.)*)"',
+        re.DOTALL
+    )
+    for m in obj_pattern.finditer(text):
+        try:
+            s_id = m.group("id").strip()
+            prompt_str = m.group("prompt").encode('utf-8').decode('unicode_escape', errors='ignore')
+            subj_str = m.group("subj").encode('utf-8').decode('unicode_escape', errors='ignore')
+            scenes.append({
+                "scene_id": s_id,
+                "visual_subject": subj_str,
+                "prompt": prompt_str
+            })
+        except Exception:
+            pass
+
+    if scenes:
+        return scenes
+
+    # Loose fallback regex for scene_id and prompt
+    loose_pattern = re.compile(
+        r'"scene_id"\s*:\s*"([^"]+)"[\s\S]*?"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"',
+        re.DOTALL
+    )
+    for m in loose_pattern.finditer(text):
+        try:
+            s_id = m.group(1).strip()
+            prompt_str = m.group(2).encode('utf-8').decode('unicode_escape', errors='ignore')
+            scenes.append({
+                "scene_id": s_id,
+                "prompt": prompt_str
+            })
+        except Exception:
+            pass
+
+    return scenes
+
+
 def generate_prompts_batch(
     scenes_batch: List[VisualScene],
     bibles: Dict[str, Any],
@@ -734,25 +837,9 @@ INSTRUCTIONS FOR EACH SCENE:
         stage_name=f"PROMPT_EXPANSION_{style_name.upper().replace(' ', '_')}"
     )
 
-    clean_json = resp_text.strip()
-    if clean_json.startswith("```"):
-        clean_json = re.sub(r"^```(?:json)?\s*", "", clean_json)
-        clean_json = re.sub(r"\s*```$", "", clean_json)
+    items = robust_extract_scenes_from_llm_output(resp_text)
+    if not items:
+        clean_snip = resp_text.strip()[:200] if resp_text else "EMPTY_RESPONSE"
+        raise RuntimeError(f"Batch prompt parsing failed: No valid scenes recovered from model output. Snippet: {clean_snip}")
 
-    try:
-        parsed = json.loads(clean_json)
-        if isinstance(parsed, dict) and "scenes" in parsed:
-            return parsed["scenes"]
-        elif isinstance(parsed, list):
-            return parsed
-        return []
-    except Exception as e:
-        m = re.search(r"(\{.*\})", clean_json, re.DOTALL)
-        if m:
-            try:
-                p = json.loads(m.group(1))
-                if isinstance(p, dict) and "scenes" in p:
-                    return p["scenes"]
-            except Exception:
-                pass
-        raise RuntimeError(f"Batch prompt parsing failed: {e}. Snippet: {clean_json[:200]}")
+    return items

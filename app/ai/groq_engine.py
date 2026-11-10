@@ -302,7 +302,8 @@ class GroqEngine(BaseInferenceEngine):
                     if resp.status_code == 200:
                         data = resp.json()
                         choices = data.get("choices", [])
-                        content = choices[0].get("message", {}).get("content", "") if choices else ""
+                        msg = choices[0].get("message", {}) if choices else {}
+                        content = msg.get("content") or msg.get("reasoning_content") or ""
                         out_tok_est = len(content.split())
                         self.request_logs.append({
                             "stage_name": stage,
@@ -323,11 +324,8 @@ class GroqEngine(BaseInferenceEngine):
 
                     # Rate limit or quota exhausted (429) -> Parse real wait time & cooldown key
                     elif resp.status_code == 429:
-                        # If Groq specifically asks to reduce max_tokens (OTPM limit)
-                        if "reduce max_tokens" in resp.text.lower() or "otpm" in resp.text.lower():
-                            max_tok = min(max_tok, 800)
-                            print(f"[GroqEngine] Reduced max_tokens to {max_tok} per Groq OTPM directive.")
-                        wait_sec = parse_groq_retry_after(dict(resp.headers), resp.text)
+                        raw_wait = parse_groq_retry_after(dict(resp.headers), resp.text)
+                        wait_sec = max(3.0, raw_wait + 1.5)  # Safe buffer to ensure token bucket refills
                         self.key_manager.mark_key_cooldown(key, wait_sec)
                         last_error = f"HTTP 429: {resp.text}"
                         self.request_logs.append({
@@ -345,7 +343,7 @@ class GroqEngine(BaseInferenceEngine):
                             "error_type": "RateLimitError",
                             "response_parse_status": "N/A"
                         })
-                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {wait_sec:.1f}s. Switching to next key in pool... (Attempt {attempt+1}/{max_attempts})")
+                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {raw_wait:.1f}s (cooldown {wait_sec:.1f}s). Switching to next key in pool... (Attempt {attempt+1}/{max_attempts})")
                         self.key_manager.rotate_key()
                         continue
 

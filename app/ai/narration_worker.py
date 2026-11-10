@@ -77,7 +77,8 @@ class BatchPromptGenerationWorker(QThread):
         self.custom_style = custom_style
         self.aspect_ratio = aspect_ratio
         self.model = model
-        self.batch_size = max(1, min(batch_size, 25))
+        # Safe batch size clamp: 1 to 4 scenes per call prevents Groq token overflow and truncation
+        self.batch_size = max(1, min(batch_size, 4))
         self.force_regenerate = force_regenerate
         self.engine = GroqEngine(default_model=model)
         self._is_cancelled = False
@@ -153,18 +154,58 @@ class BatchPromptGenerationWorker(QThread):
             if batch_success and items:
                 updated_in_batch = []
                 for item in items:
-                    sid = str(item.get("scene_id") or "")
-                    if sid in scene_map:
-                        sc = scene_map[sid]
-                        sc.prompt = item.get("prompt", sc.prompt)
+                    raw_id = str(item.get("scene_id") or "").strip()
+                    target_sc = None
+                    if raw_id in scene_map:
+                        target_sc = scene_map[raw_id]
+                    elif raw_id.zfill(3) in scene_map:
+                        target_sc = scene_map[raw_id.zfill(3)]
+                    elif raw_id.lstrip("0") in scene_map:
+                        target_sc = scene_map[raw_id.lstrip("0")]
+                    else:
+                        for sid, sc_obj in scene_map.items():
+                            if sid.isdigit() and raw_id.isdigit() and int(sid) == int(raw_id):
+                                target_sc = sc_obj
+                                break
+
+                    if target_sc:
+                        target_sc.prompt = item.get("prompt", target_sc.prompt)
                         if item.get("visual_subject"):
-                            sc.visual_subject = item["visual_subject"]
-                        sc.character_ids = item.get("characters", sc.character_ids)
-                        sc.location_id = item.get("location", sc.location_id)
-                        sc.continuity_tags = item.get("continuity_references", sc.continuity_tags)
-                        sc.generation_status = "generated"
-                        sc.is_validated = True
-                        updated_in_batch.append(sc)
+                            target_sc.visual_subject = item["visual_subject"]
+                        target_sc.character_ids = item.get("characters", target_sc.character_ids)
+                        target_sc.location_id = item.get("location", target_sc.location_id)
+                        target_sc.continuity_tags = item.get("continuity_references", target_sc.continuity_tags)
+                        target_sc.generation_status = "generated"
+                        target_sc.is_validated = True
+                        if target_sc not in updated_in_batch:
+                            updated_in_batch.append(target_sc)
+
+                # Recover any missed scenes in the batch
+                missed = [s for s in batch if s not in updated_in_batch]
+                if missed and not self._is_cancelled:
+                    try:
+                        missed_items = generate_prompts_batch(
+                            scenes_batch=missed,
+                            bibles=self.bibles,
+                            story_context=self.story_context,
+                            visual_style_id=self.visual_style_id,
+                            custom_style=self.custom_style,
+                            aspect_ratio=self.aspect_ratio,
+                            model=self.model,
+                            engine=self.engine
+                        )
+                        for it in missed_items:
+                            rid = str(it.get("scene_id") or "").strip()
+                            for m_sc in missed:
+                                if m_sc.scene_id in (rid, rid.zfill(3), rid.lstrip("0")):
+                                    m_sc.prompt = it.get("prompt", m_sc.prompt)
+                                    m_sc.generation_status = "generated"
+                                    m_sc.is_validated = True
+                                    if m_sc not in updated_in_batch:
+                                        updated_in_batch.append(m_sc)
+                                    break
+                    except Exception as me:
+                        print(f"[BatchPromptWorker] Retry for {len(missed)} missed scenes notice: {me}")
 
                 completed_count += len(batch)
                 self.batch_completed.emit(updated_in_batch)

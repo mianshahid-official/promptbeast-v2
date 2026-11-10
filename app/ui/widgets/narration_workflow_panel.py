@@ -607,8 +607,9 @@ class NarrationWorkflowPanel(QWidget):
 
         self.spin_batch = QSpinBox()
         self.spin_batch.setFixedHeight(28)
-        self.spin_batch.setRange(1, 25)
-        self.spin_batch.setValue(10)
+        self.spin_batch.setRange(1, 6)
+        self.spin_batch.setValue(4)
+        self.spin_batch.setToolTip("4 scenes per batch is optimal for fast, rate-limit-free Groq prompt expansion.")
         opt_row.addWidget(self.spin_batch)
 
         opt_row.addStretch()
