@@ -75,6 +75,7 @@ class Stage3PromptGeneration:
         progress_callback: Optional[Callable[[float, str], None]] = None,
         force_regenerate: bool = False,
         model: str = "qwen/qwen3.8-27b",
+        allow_partial: bool = False,
         **kwargs
     ) -> List[VisualScene]:
         """
@@ -134,10 +135,12 @@ class Stage3PromptGeneration:
         batch_sz = derive_stage3_batch_size(engine, batch_size)
         total_batches = (total_to_process + batch_sz - 1) // batch_sz
 
+        # Pass 1: Run through all batches. If a batch fails or is missing a scene,
+        # skip/postpone it and continue generating subsequent batches.
         for b_idx in range(total_batches):
             batch = scenes_to_process[b_idx * batch_sz : (b_idx + 1) * batch_sz]
             batch_num = b_idx + 1
-            pct = round(10.0 + (b_idx / total_batches) * 85.0, 1)
+            pct = round(10.0 + (b_idx / total_batches) * 75.0, 1)
 
             if progress_callback:
                 progress_callback(pct, f"Generating prompts: batch {batch_num}/{total_batches} ({len(batch)} scenes)...")
@@ -153,8 +156,51 @@ class Stage3PromptGeneration:
                 env_summary=env_summary,
                 style_summary=style_summary,
                 story_context=story_context,
-                max_retries=2
+                max_retries=1,
+                raise_on_failure=False
             )
+
+        # Pass 2: Retry pass for any skipped / missing scenes from Pass 1
+        missing_scenes = [s for s in scenes_to_process if not (s.prompt and s.prompt.strip())]
+        if missing_scenes:
+            total_missing = len(missing_scenes)
+            for m_idx, sc in enumerate(missing_scenes):
+                pct = round(85.0 + ((m_idx + 1) / total_missing) * 12.0, 1)
+                if progress_callback:
+                    progress_callback(pct, f"Retrying skipped scene {m_idx + 1}/{total_missing} (Scene #{sc.scene_id})...")
+
+                cls._generate_batch_with_retry(
+                    engine=engine,
+                    batch=[sc],
+                    system_prompt=system_prompt,
+                    style_name=style_name,
+                    style_instructions=style_instructions,
+                    aspect_ratio=aspect_ratio,
+                    char_summary=char_summary,
+                    env_summary=env_summary,
+                    style_summary=style_summary,
+                    story_context=story_context,
+                    max_retries=2,
+                    raise_on_failure=False
+                )
+
+        # Pass 3: Evaluate completeness
+        still_missing = [s for s in scenes_to_process if not (s.prompt and s.prompt.strip())]
+        if still_missing:
+            for sc in still_missing:
+                sc.generation_status = "error"
+                sc.is_validated = False
+
+            if allow_partial:
+                if progress_callback:
+                    progress_callback(100.0, f"Completed {total_to_process - len(still_missing)}/{total_to_process} prompts ({len(still_missing)} need retry).")
+                return storyboard
+            else:
+                missing_ids = [s.scene_id for s in still_missing]
+                raise RuntimeError(
+                    f"Stage 3 prompt generation failed: no prompt returned for scene(s) "
+                    f"{', '.join(missing_ids)} after retries. Failing loudly instead of filling a template prompt."
+                )
 
         # Validation gate: fail loudly on a broken storyboard (missing prompt,
         # duplicate IDs, timeline gaps/overlaps) instead of rendering it.
@@ -178,7 +224,8 @@ class Stage3PromptGeneration:
         env_summary: str,
         style_summary: str,
         story_context: str,
-        max_retries: int = 2
+        max_retries: int = 2,
+        raise_on_failure: bool = True
     ):
         """
         Executes a single batch prompt generation with automatic retries for missing scenes.
@@ -267,7 +314,7 @@ INSTRUCTIONS:
 
                 if all_assigned:
                     break
-                if attempt == max_retries:
+                if attempt == max_retries and raise_on_failure:
                     missing = [s.scene_id for s in batch if not s.prompt]
                     raise RuntimeError(
                         f"Stage 3 prompt generation failed: no prompt returned for scene(s) "
@@ -276,9 +323,10 @@ INSTRUCTIONS:
                     )
 
             except RuntimeError:
-                raise
+                if raise_on_failure:
+                    raise
             except Exception as e:
-                if attempt == max_retries:
+                if attempt == max_retries and raise_on_failure:
                     missing = [s.scene_id for s in batch if not s.prompt]
                     raise RuntimeError(
                         f"Stage 3 prompt generation failed for scene(s) {', '.join(missing)}: {e}"

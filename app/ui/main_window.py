@@ -789,6 +789,7 @@ class MainWindow(QMainWindow):
         self.prompt_grid.add_scene_requested.connect(self._on_add_manual_scene)
         self.prompt_grid.export_requested.connect(self._on_export_dialog)
         self.prompt_grid.approve_requested.connect(self._on_approve_plan)
+        self.prompt_grid.retry_scene_requested.connect(self._on_retry_single_scene)
         s4_layout.addWidget(self.prompt_grid, 1)
 
         # Step Navigation Button from Studio -> Scene Sync
@@ -2448,12 +2449,21 @@ class MainWindow(QMainWindow):
             ProjectManager.clear_job_in_progress(self.project)
 
             # Elegant Non-Modal In-App Success Banner (Prevents any modal focus collapse)
-            self.plan_summary_lbl.setText(
-                f"🎉 <b>Generation Complete!</b> &nbsp;|&nbsp; "
-                f"<span style='color: #B8F24A;'>{len(resp.scenes)} Scenes Validated</span> &nbsp;|&nbsp; "
-                f"<span style='color: #38BDF8;'>Saved to {p_dir.name} & prompts_only.txt</span> &nbsp;|&nbsp; "
-                f"<span style='color: #A3E635;'>Images Folder: {p_dir.name}/images/</span>"
-            )
+            error_count = sum(1 for s in resp.scenes if getattr(s, "generation_status", "") == "error" or not (s.prompt and s.prompt.strip()))
+            if error_count > 0:
+                self.plan_summary_lbl.setText(
+                    f"⚠️ <b>Generation Complete with Retries Needed!</b> &nbsp;|&nbsp; "
+                    f"<span style='color: #B8F24A;'>{len(resp.scenes) - error_count}/{len(resp.scenes)} Prompts Ready</span> &nbsp;|&nbsp; "
+                    f"<span style='color: #EF4444;'>{error_count} Scene(s) Skipped (click 'Retry Prompt' in red below)</span> &nbsp;|&nbsp; "
+                    f"<span style='color: #38BDF8;'>Saved to {p_dir.name}</span>"
+                )
+            else:
+                self.plan_summary_lbl.setText(
+                    f"🎉 <b>Generation Complete!</b> &nbsp;|&nbsp; "
+                    f"<span style='color: #B8F24A;'>{len(resp.scenes)} Scenes Validated</span> &nbsp;|&nbsp; "
+                    f"<span style='color: #38BDF8;'>Saved to {p_dir.name} & prompts_only.txt</span> &nbsp;|&nbsp; "
+                    f"<span style='color: #A3E635;'>Images Folder: {p_dir.name}/images/</span>"
+                )
             self.plan_approval_banner.setStyleSheet("""
                 QFrame {
                     background-color: #0b1f14;
@@ -2713,6 +2723,62 @@ class MainWindow(QMainWindow):
                 self.scene_editor.load_scene(None)
         except Exception as e:
             QMessageBox.critical(self, "Delete Failed", str(e))
+
+    def _on_retry_single_scene(self, scene: VisualScene):
+        """Retries prompt generation for a single skipped or failed scene via Groq."""
+        active_style = getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "zombie_survival"
+        self.statusBar().showMessage(f"⏳ Generating prompt for Scene #{scene.scene_id} via Groq...", 6000)
+
+        from app.ai.schemas import SceneRegenerateRequest
+        req = SceneRegenerateRequest(
+            scene=scene,
+            story_summary=getattr(self.project.state, "story_raw_text", "")[:800],
+            visual_style_id=active_style,
+            custom_style=getattr(self.project.config, "custom_style", "")
+        )
+        worker = SceneRegenerateWorker(request=req)
+        if not hasattr(self, "_single_retry_workers"):
+            self._single_retry_workers = []
+        self._single_retry_workers.append(worker)
+
+        def _on_success(resp):
+            scene.prompt = resp.prompt
+            scene.generation_status = "generated"
+            scene.is_validated = True
+            if hasattr(self, "prompt_grid"):
+                self.prompt_grid.update_single_scene(scene)
+            self.statusBar().showMessage(f"✅ Scene #{scene.scene_id} prompt generated successfully!", 6000)
+
+            # Update exports and save project
+            try:
+                th_p = getattr(self.project.state, "thumbnail_prompt", "")
+                prompts_clean = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
+                with open("prompts_only.txt", "w", encoding="utf-8") as pf:
+                    pf.write(prompts_clean + "\n")
+                if self.project.project_dir:
+                    p_dir = Path(self.project.project_dir)
+                    with open(p_dir / "prompts_only.txt", "w", encoding="utf-8") as pf:
+                        pf.write(prompts_clean + "\n")
+                    with open(p_dir / "prompts.txt", "w", encoding="utf-8") as pf:
+                        pf.write(prompts_clean + "\n")
+                ProjectManager.save_project(self.project)
+            except Exception as ex:
+                print(f"[RetryScene] Export save notice: {ex}")
+
+            if worker in self._single_retry_workers:
+                self._single_retry_workers.remove(worker)
+
+        def _on_failed(user_msg, tech):
+            scene.generation_status = "error"
+            if hasattr(self, "prompt_grid"):
+                self.prompt_grid.update_single_scene(scene)
+            self.statusBar().showMessage(f"❌ Retry failed for Scene #{scene.scene_id}: {user_msg}", 8000)
+            if worker in self._single_retry_workers:
+                self._single_retry_workers.remove(worker)
+
+        worker.regenerate_completed.connect(_on_success)
+        worker.regenerate_failed.connect(_on_failed)
+        worker.start()
 
     def _on_add_manual_scene(self):
         scenes = self.project.state.scenes

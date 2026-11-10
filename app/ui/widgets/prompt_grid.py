@@ -154,27 +154,66 @@ class PromptCardWidget(QFrame):
     copy_requested = Signal(str)      # prompt text
     edit_requested = Signal(object)   # VisualScene
     delete_requested = Signal(str)    # scene_id
+    retry_requested = Signal(object)   # VisualScene
 
     def __init__(self, scene: VisualScene, parent=None):
         super().__init__(parent)
         self.scene = scene
         self.setObjectName("PromptCard")
-        self.setStyleSheet(f"""
-            QFrame#PromptCard {{
-                background-color: {COLOR_GLASS_SURFACE};
-                border: 1px solid {COLOR_BORDER_GREEN};
-                border-radius: 8px;
-                padding: 10px;
-            }}
-            QFrame#PromptCard:hover {{
-                border: 1px solid {COLOR_BORDER_ACTIVE};
-                background-color: {COLOR_HOVER_SURFACE};
-            }}
-        """)
         self._setup_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
+        self._build_card(layout)
+
+    def update_scene(self, scene: VisualScene):
+        """Refreshes the card in-place with new scene prompt data."""
+        self.scene = scene
+        layout = self.layout()
+        if layout:
+            while layout.count():
+                item = layout.takeAt(0)
+                if item.widget():
+                    item.widget().deleteLater()
+                elif item.layout():
+                    while item.layout().count():
+                        sub = item.layout().takeAt(0)
+                        if sub.widget():
+                            sub.widget().deleteLater()
+            self._build_card(layout)
+        else:
+            self._setup_ui()
+
+    def _build_card(self, layout):
+        is_error = getattr(self.scene, "generation_status", "") == "error"
+
+        if is_error:
+            self.setStyleSheet("""
+                QFrame#PromptCard {
+                    background-color: rgba(36, 12, 12, 0.95);
+                    border: 1px solid #EF4444;
+                    border-radius: 8px;
+                    padding: 10px;
+                }
+                QFrame#PromptCard:hover {
+                    border: 1px solid #F87171;
+                    background-color: rgba(50, 16, 16, 0.95);
+                }
+            """)
+        else:
+            self.setStyleSheet(f"""
+                QFrame#PromptCard {{
+                    background-color: {COLOR_GLASS_SURFACE};
+                    border: 1px solid {COLOR_BORDER_GREEN};
+                    border-radius: 8px;
+                    padding: 10px;
+                }}
+                QFrame#PromptCard:hover {{
+                    border: 1px solid {COLOR_BORDER_ACTIVE};
+                    background-color: {COLOR_HOVER_SURFACE};
+                }}
+            """)
+
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(6)
 
@@ -184,13 +223,13 @@ class PromptCardWidget(QFrame):
 
         num_lbl = QLabel(f"#{self.scene.scene_id}")
         num_lbl.setStyleSheet(f"""
-            background-color: rgba(163, 255, 18, 0.12);
-            color: {COLOR_BRAND_PRIMARY};
+            background-color: {"rgba(239, 68, 68, 0.2)" if is_error else "rgba(163, 255, 18, 0.12)"};
+            color: {"#F87171" if is_error else COLOR_BRAND_PRIMARY};
             font-size: 11px;
             font-weight: 800;
             padding: 2px 6px;
             border-radius: 4px;
-            border: 1px solid rgba(163, 255, 18, 0.25);
+            border: 1px solid {"rgba(239, 68, 68, 0.4)" if is_error else "rgba(163, 255, 18, 0.25)"};
         """)
         hdr.addWidget(num_lbl)
 
@@ -199,6 +238,11 @@ class PromptCardWidget(QFrame):
         hdr.addWidget(tc_lbl)
 
         hdr.addStretch()
+
+        if is_error:
+            err_badge = QLabel("⚠️ RETRY NEEDED")
+            err_badge.setStyleSheet("background-color: #EF4444; color: #FFFFFF; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 3px;")
+            hdr.addWidget(err_badge)
 
         # Modality badge
         mod = getattr(self.scene, "visual_modality", "cinematic_scene") or "cinematic_scene"
@@ -259,8 +303,28 @@ class PromptCardWidget(QFrame):
         self.prompt_box.setReadOnly(True)
         self.prompt_box.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard)
         self.prompt_box.setFixedHeight(84)
-        prompt_content = self.scene.prompt.strip()
-        if prompt_content:
+        prompt_content = (self.scene.prompt or "").strip()
+
+        if is_error:
+            self.prompt_box.setPlainText(
+                f"[Prompt Generation Skipped / Rate Limited]\n"
+                f"Subject: {full_subj}\n\n"
+                f"Click '🔄 Retry Prompt' below to generate this single scene prompt via Groq."
+            )
+            self.prompt_box.setStyleSheet("""
+                QTextEdit {
+                    background-color: #1A0A0A;
+                    color: #F87171;
+                    border: 1px dashed #EF4444;
+                    border-radius: 4px;
+                    padding: 6px;
+                    font-family: 'Consolas', 'JetBrains Mono', monospace;
+                    font-size: 10px;
+                    font-style: italic;
+                    line-height: 1.3;
+                }
+            """)
+        elif prompt_content:
             prompt_content = re.sub(r"^/imagine\s+prompt:\s*", "", prompt_content, flags=re.IGNORECASE)
             prompt_content = re.sub(r"^/imagine\s*", "", prompt_content, flags=re.IGNORECASE)
             prompt_content = re.sub(r"--ar\s+\d+:\d+", "", prompt_content, flags=re.IGNORECASE)
@@ -278,6 +342,7 @@ class PromptCardWidget(QFrame):
                     line-height: 1.3;
                 }}
             """)
+            self.prompt_box.setPlainText(prompt_content)
         else:
             full_idea = getattr(self.scene, "visual_idea", "") or self.scene.visual_subject or "Planned visual scene."
             prompt_content = f"[Planned Visual Shot - Awaiting Batch Prompt Gen]\n{full_idea}"
@@ -294,71 +359,96 @@ class PromptCardWidget(QFrame):
                     line-height: 1.3;
                 }}
             """)
-        self.prompt_box.setPlainText(prompt_content)
+            self.prompt_box.setPlainText(prompt_content)
+
         layout.addWidget(self.prompt_box)
 
         # 5. Card Footer Actions
         footer = QHBoxLayout()
         footer.setSpacing(6)
 
-        self.copy_btn = QPushButton("📋 Copy")
-        self.copy_btn.setFixedHeight(26)
-        self.copy_btn.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {COLOR_GLASS_SURFACE_2};
-                color: {COLOR_BRAND_PRIMARY};
-                border: 1px solid {COLOR_BORDER_GREEN};
-                border-radius: 4px;
-                padding: 0 10px;
-                font-size: 11px;
-                font-weight: 600;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(163, 255, 18, 0.15);
-            }}
-        """)
-        self.copy_btn.clicked.connect(self._on_copy_clicked)
-        footer.addWidget(self.copy_btn)
+        if is_error:
+            self.retry_btn = QPushButton("🔄 Retry Prompt")
+            self.retry_btn.setFixedHeight(26)
+            self.retry_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #DC2626;
+                    color: #FFFFFF;
+                    font-weight: 800;
+                    font-size: 11px;
+                    border-radius: 4px;
+                    border: none;
+                    padding: 0 12px;
+                }
+                QPushButton:hover {
+                    background-color: #EF4444;
+                }
+                QPushButton:disabled {
+                    background-color: #7F1D1D;
+                    color: #D1D5DB;
+                }
+            """)
+            self.retry_btn.clicked.connect(self._on_retry_clicked)
+            footer.addWidget(self.retry_btn)
+        else:
+            self.copy_btn = QPushButton("📋 Copy")
+            self.copy_btn.setFixedHeight(26)
+            self.copy_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {COLOR_GLASS_SURFACE_2};
+                    color: {COLOR_BRAND_PRIMARY};
+                    border: 1px solid {COLOR_BORDER_GREEN};
+                    border-radius: 4px;
+                    padding: 0 10px;
+                    font-size: 11px;
+                    font-weight: 600;
+                }}
+                QPushButton:hover {{
+                    background-color: rgba(163, 255, 18, 0.15);
+                }}
+            """)
+            self.copy_btn.clicked.connect(self._on_copy_clicked)
+            footer.addWidget(self.copy_btn)
 
-        self.edit_btn = QPushButton("✏️ Edit")
-        self.edit_btn.setFixedHeight(26)
-        self.edit_btn.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {COLOR_GLASS_SURFACE_2};
-                color: {COLOR_TEXT_PRIMARY};
-                border: 1px solid {COLOR_BORDER_SUBTLE};
-                border-radius: 4px;
-                padding: 0 10px;
-                font-size: 11px;
-                font-weight: 600;
-            }}
-            QPushButton:hover {{
-                background-color: {COLOR_HOVER_SURFACE};
-                border-color: {COLOR_BORDER_GREEN};
-            }}
-        """)
-        self.edit_btn.clicked.connect(self._on_edit_clicked)
-        footer.addWidget(self.edit_btn)
+            self.edit_btn = QPushButton("✏️ Edit")
+            self.edit_btn.setFixedHeight(26)
+            self.edit_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {COLOR_GLASS_SURFACE_2};
+                    color: {COLOR_TEXT_PRIMARY};
+                    border: 1px solid {COLOR_BORDER_SUBTLE};
+                    border-radius: 4px;
+                    padding: 0 10px;
+                    font-size: 11px;
+                    font-weight: 600;
+                }}
+                QPushButton:hover {{
+                    background-color: {COLOR_HOVER_SURFACE};
+                    border-color: {COLOR_BORDER_GREEN};
+                }}
+            """)
+            self.edit_btn.clicked.connect(self._on_edit_clicked)
+            footer.addWidget(self.edit_btn)
 
-        is_app = getattr(self.scene, "is_approved", False)
-        self.card_approve_btn = QPushButton("★ Approved" if is_app else "✓ Approve")
-        self.card_approve_btn.setFixedHeight(26)
-        self.card_approve_btn.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {"rgba(16, 185, 129, 0.25)" if is_app else COLOR_GLASS_SURFACE_2};
-                color: {"#A3FF12" if is_app else COLOR_TEXT_SECONDARY};
-                border: 1px solid {"#10B981" if is_app else COLOR_BORDER_SUBTLE};
-                border-radius: 4px;
-                padding: 0 8px;
-                font-size: 11px;
-                font-weight: 600;
-            }}
-            QPushButton:hover {{
-                border-color: #A3FF12;
-            }}
-        """)
-        self.card_approve_btn.clicked.connect(self._toggle_approved)
-        footer.addWidget(self.card_approve_btn)
+            is_app = getattr(self.scene, "is_approved", False)
+            self.card_approve_btn = QPushButton("★ Approved" if is_app else "✓ Approve")
+            self.card_approve_btn.setFixedHeight(26)
+            self.card_approve_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {"rgba(16, 185, 129, 0.25)" if is_app else COLOR_GLASS_SURFACE_2};
+                    color: {"#A3FF12" if is_app else COLOR_TEXT_SECONDARY};
+                    border: 1px solid {"#10B981" if is_app else COLOR_BORDER_SUBTLE};
+                    border-radius: 4px;
+                    padding: 0 8px;
+                    font-size: 11px;
+                    font-weight: 600;
+                }}
+                QPushButton:hover {{
+                    border-color: #A3FF12;
+                }}
+            """)
+            self.card_approve_btn.clicked.connect(self._toggle_approved)
+            footer.addWidget(self.card_approve_btn)
 
         footer.addStretch()
 
@@ -378,6 +468,14 @@ class PromptCardWidget(QFrame):
         """)
         del_btn.clicked.connect(lambda: self.delete_requested.emit(self.scene.scene_id))
         footer.addWidget(del_btn)
+
+        layout.addLayout(footer)
+
+    def _on_retry_clicked(self):
+        if hasattr(self, "retry_btn"):
+            self.retry_btn.setEnabled(False)
+            self.retry_btn.setText("⏳ Retrying...")
+        self.retry_requested.emit(self.scene)
 
         layout.addLayout(footer)
 
@@ -442,6 +540,7 @@ class PromptGridWidget(QWidget):
     add_scene_requested = Signal()
     export_requested = Signal()
     approve_requested = Signal()
+    retry_scene_requested = Signal(object)  # VisualScene
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -870,6 +969,7 @@ class PromptGridWidget(QWidget):
             card = PromptCardWidget(sc)
             card.edit_requested.connect(self._on_card_edited)
             card.delete_requested.connect(self._on_card_deleted)
+            card.retry_requested.connect(lambda sc_item: self.retry_scene_requested.emit(sc_item))
             row = start_row + (i // cols)
             col = i % cols
             self.grid_layout.addWidget(card, row, col)
@@ -901,6 +1001,13 @@ class PromptGridWidget(QWidget):
 
     def _on_card_deleted(self, scene_id: str):
         self.delete_requested.emit(scene_id)
+
+    def update_single_scene(self, updated_scene: VisualScene):
+        """Updates a single card in-place when its retry completes or prompt changes."""
+        for card in self._card_widgets:
+            if card.scene.scene_id == updated_scene.scene_id:
+                card.update_scene(updated_scene)
+                break
 
     def _on_copy_all(self):
         if not self.scenes:

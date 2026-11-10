@@ -248,9 +248,18 @@ class CloudJobWorker(QThread):
                 custom_style=self.request.custom_style,
                 batch_size=batch_size,
                 engine=engine,
-                progress_callback=_on_prompt_batch_progress
+                progress_callback=_on_prompt_batch_progress,
+                allow_partial=True
             )
             self.scenes_streamed.emit(list(final_scenes))
+
+            error_count = sum(1 for s in final_scenes if getattr(s, "generation_status", "") == "error" or not (s.prompt and s.prompt.strip()))
+            success_count = len(final_scenes) - error_count
+
+            if error_count > 0:
+                summary_msg = f"Generation finished: {success_count}/{len(final_scenes)} prompts ready ({error_count} need retry - highlighted in red)."
+            else:
+                summary_msg = f"Generation completed successfully! {len(final_scenes)} style-compliant scene prompts ready."
 
             # -------------------------------------------------------------
             # FINISHED (Ready for Stage 4 Image Assignment & Local Video Rendering)
@@ -259,7 +268,7 @@ class CloudJobWorker(QThread):
                 stage=JobStage.COMPLETED,
                 status=JobStatus.COMPLETED,
                 progress_percentage=100.0,
-                message=f"Generation completed successfully! {len(final_scenes)} style-compliant scene prompts ready."
+                message=summary_msg
             ))
 
             response = JobStatusResponse(
@@ -270,7 +279,7 @@ class CloudJobWorker(QThread):
                     stage=JobStage.COMPLETED,
                     status=JobStatus.COMPLETED,
                     progress_percentage=100.0,
-                    message=f"Completed {len(final_scenes)} scenes."
+                    message=summary_msg
                 ),
                 analysis=analysis,
                 scenes=final_scenes

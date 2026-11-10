@@ -282,6 +282,53 @@ class TestStage3FailLoudly(unittest.TestCase):
         for s in updated:
             self.assertTrue(s.prompt.startswith("Real prompt for"))
 
+    def test_allow_partial_marks_missing_scenes_as_error(self):
+        # With allow_partial=True, missing scene 002 is marked with generation_status="error"
+        # without raising an unhandled exception.
+        scenes = self._scenes()
+        result = Stage3PromptGeneration.execute(
+            storyboard=scenes,
+            story_intelligence=self.intel,
+            style_preset=self.style,
+            engine=PartialEngine(["001"]),
+            allow_partial=True,
+        )
+        self.assertEqual(len(result), 2)
+        s1 = next(s for s in result if s.scene_id == "001")
+        s2 = next(s for s in result if s.scene_id == "002")
+        self.assertTrue(s1.prompt.startswith("Real prompt for 001"))
+        self.assertEqual(s2.generation_status, "error")
+        self.assertFalse(s2.is_validated)
+
+    def test_pass2_retry_recovers_missing_scene(self):
+        # Engine fails on first attempt for 002, but in Pass 2 (single scene retry) succeeds.
+        class FlakyEngine:
+            def __init__(self):
+                self.calls = 0
+
+            def generate_text(self, prompt=None, system_prompt=None, temperature=None, max_tokens=None):
+                self.calls += 1
+                if self.calls == 1:
+                    # Pass 1 batch: returns only 001
+                    return json.dumps({"scenes": [{"scene_id": "001", "prompt": "Prompt 001", "negative_prompt": ""}]})
+                else:
+                    # Pass 2 retry for missing scene 002: succeeds
+                    return json.dumps({"scenes": [{"scene_id": "002", "prompt": "Recovered Prompt 002", "negative_prompt": ""}]})
+
+        scenes = self._scenes()
+        result = Stage3PromptGeneration.execute(
+            storyboard=scenes,
+            story_intelligence=self.intel,
+            style_preset=self.style,
+            engine=FlakyEngine(),
+            allow_partial=False,
+        )
+        self.assertEqual(len(result), 2)
+        s1 = next(s for s in result if s.scene_id == "001")
+        s2 = next(s for s in result if s.scene_id == "002")
+        self.assertEqual(s1.prompt, "Prompt 001")
+        self.assertEqual(s2.prompt, "Recovered Prompt 002")
+
 
 # =========================================================================
 # Fix 2: Validation gate
