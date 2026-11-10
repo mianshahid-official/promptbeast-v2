@@ -29,7 +29,7 @@ You must follow these rules strictly:
 ## 5. IMAGE MODEL OPTIMIZATION
 - Avoid unnecessary embedded text or signs inside the image unless explicitly requested as a diegetic document/screen.
 - Avoid vague keywords like "photorealistic, hyperrealistic, 8k". Instead, use concrete rendering descriptors: "sharp focus, tactile surface textures, shallow depth of field, 35mm film grain, volumetric atmosphere".
-- Append model parameter flags when appropriate (e.g. `--ar 16:9 --style raw`).
+- NEVER include "/imagine prompt:" or model parameter flags like "--ar 16:9" or "--style raw". Return clean descriptive prompt text only.
 
 ## 6. STRICT JSON OUTPUT FORMAT
 You must respond ONLY with a valid JSON object matching the following structure:
@@ -39,7 +39,7 @@ You must respond ONLY with a valid JSON object matching the following structure:
     {
       "scene_id": "001",
       "visual_subject": "Brief 1-sentence summary of the focal subject",
-      "prompt": "Full detailed cinematic prompt describing camera, subject, action, environment, lighting, and style parameters.",
+      "prompt": "Full detailed cinematic prompt describing camera, subject, action, environment, lighting, and style parameters without /imagine or model parameter flags.",
       "characters": ["Protagonist"],
       "location": "Department Store Back Corridor",
       "continuity_references": ["Box cutter in hand", "Clean uniform"],

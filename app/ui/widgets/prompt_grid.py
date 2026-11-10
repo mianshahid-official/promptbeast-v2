@@ -108,8 +108,8 @@ class SceneEditDialog(QDialog):
         self.narr_edit.setPlainText(self.scene.narration_excerpt)
         layout.addWidget(self.narr_edit)
 
-        # Full Midjourney Prompt
-        layout.addWidget(QLabel("AI Image Generation Prompt (/imagine prompt: ...):"))
+        # Full Clean AI Generation Prompt
+        layout.addWidget(QLabel("AI Image Generation Prompt:"))
         self.prompt_edit = QTextEdit()
         self.prompt_edit.setFixedHeight(120)
         self.prompt_edit.setStyleSheet("font-family: 'Consolas', monospace; font-size: 11px;")
@@ -259,8 +259,11 @@ class PromptCardWidget(QFrame):
         self.prompt_box.setFixedHeight(84)
         prompt_content = self.scene.prompt.strip()
         if prompt_content:
-            if not prompt_content.startswith("/imagine"):
-                prompt_content = f"/imagine prompt: {prompt_content}"
+            prompt_content = re.sub(r"^/imagine\s+prompt:\s*", "", prompt_content, flags=re.IGNORECASE)
+            prompt_content = re.sub(r"^/imagine\s*", "", prompt_content, flags=re.IGNORECASE)
+            prompt_content = re.sub(r"--ar\s+\d+:\d+", "", prompt_content, flags=re.IGNORECASE)
+            prompt_content = re.sub(r"--style\s+\w+", "", prompt_content, flags=re.IGNORECASE)
+            prompt_content = " ".join(prompt_content.split())
             self.prompt_box.setStyleSheet(f"""
                 QTextEdit {{
                     background-color: {COLOR_BG_MAIN};

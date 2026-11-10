@@ -243,9 +243,11 @@ class Test4StagePipeline(unittest.TestCase):
         # Scene 001 was approved: MUST be preserved exactly!
         self.assertEqual(updated_scenes[0].prompt, "Approved custom prompt by user --ar 16:9")
 
-        # Scene 002 was pending: MUST now have a generated prompt with aspect ratio
+        # Scene 002 was pending: MUST now have a clean generated prompt without Midjourney flags
         self.assertTrue(len(updated_scenes[1].prompt) > 0)
-        self.assertIn("--ar 16:9", updated_scenes[1].prompt)
+        self.assertNotIn("/imagine", updated_scenes[1].prompt)
+        self.assertNotIn("--ar", updated_scenes[1].prompt)
+        self.assertNotIn("--style raw", updated_scenes[1].prompt)
 
     # =========================================================================
     # STAGE 4: ASSET ASSIGNMENT & RENDERING TESTS

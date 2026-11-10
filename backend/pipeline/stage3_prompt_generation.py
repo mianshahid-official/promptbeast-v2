@@ -14,6 +14,7 @@ from app.models.planning import StoryIntelligence, ScriptAnalysis, ScheduledStor
 from app.models.presets import VisualStylePreset
 from app.presets.loader import PresetManager
 from backend.inference.engine import BaseInferenceEngine, GroqInferenceEngine
+from app.core.narration_workflow import robust_extract_scenes_from_llm_output
 
 
 def load_image_prompt_system_prompt() -> str:
@@ -100,8 +101,8 @@ class Stage3PromptGeneration:
                 progress_callback(100.0, "All scenes are approved. No prompt regeneration needed.")
             return storyboard
 
-        # Process in batches
-        batch_sz = max(1, min(batch_size, 15))
+        # Process in batches (safe clamp to 4 prevents Groq token limits and truncation)
+        batch_sz = max(1, min(batch_size, 4))
         total_batches = (total_to_process + batch_sz - 1) // batch_sz
 
         for b_idx in range(total_batches):
@@ -190,7 +191,7 @@ INSTRUCTIONS:
 1. Translate each scene's narration and visual idea into a rich, detailed, concrete image-generation prompt.
 2. STRICT STYLE ENFORCEMENT: Every prompt MUST strictly adhere to the Style Directives for '{style_name}'.
 3. Explicitly describe physical subject, attire, concrete environment, lighting source, camera shot type, and lens.
-4. Append model parameter flags: --ar {aspect_ratio} --style raw
+4. Do NOT include /imagine prompt: or parameter flags like --ar or --style raw. Output clean, descriptive prompt text only.
 5. Return JSON with key "scenes" containing a list of objects with "scene_id", "prompt", and "negative_prompt".
 """
 
@@ -204,30 +205,7 @@ INSTRUCTIONS:
                     max_tokens=3000
                 )
 
-                clean_json = raw_response.strip()
-                if clean_json.startswith("```"):
-                    clean_json = re.sub(r"^```(?:json)?\s*", "", clean_json)
-                    clean_json = re.sub(r"\s*```$", "", clean_json)
-
-                parsed = None
-                try:
-                    parsed = json.loads(clean_json)
-                except Exception:
-                    try:
-                        parsed = BaseInferenceEngine.repair_and_parse_json(clean_json)
-                    except Exception:
-                        m = re.search(r"(\{.*\})", clean_json, re.DOTALL)
-                        if m:
-                            try:
-                                parsed = json.loads(m.group(1))
-                            except Exception:
-                                pass
-
-                items = []
-                if isinstance(parsed, dict) and "scenes" in parsed:
-                    items = parsed["scenes"]
-                elif isinstance(parsed, list):
-                    items = parsed
+                items = robust_extract_scenes_from_llm_output(raw_response)
 
                 # Map items by scene_id
                 items_by_id = {}
@@ -239,12 +217,16 @@ INSTRUCTIONS:
                 # Update scenes
                 all_assigned = True
                 for s in batch:
-                    matched = items_by_id.get(s.scene_id) or items_by_id.get(str(int(s.scene_id) if s.scene_id.isdigit() else -1))
+                    matched = items_by_id.get(s.scene_id) or items_by_id.get(s.scene_id.zfill(3)) or items_by_id.get(str(int(s.scene_id) if s.scene_id.isdigit() else -1))
                     if matched and isinstance(matched, dict) and matched.get("prompt"):
                         p_text = str(matched["prompt"]).strip()
-                        if f"--ar {aspect_ratio}" not in p_text:
-                            p_text = f"{p_text} --ar {aspect_ratio}"
-                        s.prompt = p_text
+                        # Clean any /imagine or model parameter flags
+                        p_text = re.sub(r"^/imagine\s+prompt:\s*", "", p_text, flags=re.IGNORECASE)
+                        p_text = re.sub(r"^/imagine\s*", "", p_text, flags=re.IGNORECASE)
+                        p_text = re.sub(r"--ar\s+\d+:\d+", "", p_text, flags=re.IGNORECASE)
+                        p_text = re.sub(r"--style\s+\w+", "", p_text, flags=re.IGNORECASE)
+                        p_text = re.sub(r"--v\s+[\d\.]+", "", p_text, flags=re.IGNORECASE)
+                        s.prompt = " ".join(p_text.split())
                         s.generation_status = "generated"
                         s.is_validated = True
                     elif not s.prompt:
@@ -254,7 +236,8 @@ INSTRUCTIONS:
                     # Fill any remaining unassigned scene with a concrete descriptive prompt from its visual idea
                     for s in batch:
                         if not s.prompt:
-                            s.prompt = f"{style_name} style depiction: {s.visual_idea or s.visual_subject}. Setting: {s.environment}. Lighting and atmospheric depth matching {style_name}. --ar {aspect_ratio} --style raw"
+                            clean_idea = s.visual_idea or s.visual_subject or "Cinematic scene"
+                            s.prompt = f"{clean_idea}. Setting: {s.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
                             s.generation_status = "generated"
                     break
 
@@ -262,7 +245,8 @@ INSTRUCTIONS:
                 if attempt == max_retries:
                     for s in batch:
                         if not s.prompt:
-                            s.prompt = f"{style_name} style depiction: {s.visual_idea or s.visual_subject}. Setting: {s.environment}. --ar {aspect_ratio} --style raw"
+                            clean_idea = s.visual_idea or s.visual_subject or "Cinematic scene"
+                            s.prompt = f"{clean_idea}. Setting: {s.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
                             s.generation_status = "generated"
 
     @classmethod
@@ -349,14 +333,18 @@ Return JSON with "prompt" and "negative_prompt".
             parsed = json.loads(clean)
             p_text = parsed.get("prompt") or (parsed.get("scenes", [{}])[0].get("prompt") if "scenes" in parsed else "")
             if p_text:
-                if f"--ar {aspect_ratio}" not in p_text:
-                    p_text = f"{p_text} --ar {aspect_ratio}"
-                scene.prompt = p_text
+                p_text = re.sub(r"^/imagine\s+prompt:\s*", "", p_text, flags=re.IGNORECASE)
+                p_text = re.sub(r"^/imagine\s*", "", p_text, flags=re.IGNORECASE)
+                p_text = re.sub(r"--ar\s+\d+:\d+", "", p_text, flags=re.IGNORECASE)
+                p_text = re.sub(r"--style\s+\w+", "", p_text, flags=re.IGNORECASE)
+                p_text = re.sub(r"--v\s+[\d\.]+", "", p_text, flags=re.IGNORECASE)
+                scene.prompt = " ".join(p_text.split())
                 scene.generation_status = "generated"
                 scene.is_manually_edited = False
                 scene.is_validated = True
         except Exception:
-            scene.prompt = f"{style_name} style depiction: {scene.visual_idea or scene.visual_subject}. Setting: {scene.environment}. --ar {aspect_ratio} --style raw"
+            clean_idea = scene.visual_idea or scene.visual_subject or "Cinematic scene"
+            scene.prompt = f"{clean_idea}. Setting: {scene.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
             scene.generation_status = "generated"
 
         return scene

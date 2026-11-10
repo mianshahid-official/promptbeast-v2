@@ -65,13 +65,14 @@ class NavButton(QPushButton):
             self.setStyleSheet(f"""
                 QPushButton {{
                     text-align: center;
+                    padding: 0px;
+                    margin: 2px 0px;
                     color: {COLOR_TEXT_SECONDARY};
-                    font-size: 15px;
+                    font-size: 16px;
                     font-weight: 600;
                     background-color: transparent;
                     border: 1px solid transparent;
                     border-radius: 8px;
-                    margin: 2px 4px;
                 }}
                 QPushButton:hover {{
                     background-color: {COLOR_HOVER_SURFACE};
@@ -79,11 +80,10 @@ class NavButton(QPushButton):
                     border: 1px solid {COLOR_BORDER_SUBTLE};
                 }}
                 QPushButton:checked {{
-                    background-color: rgba(163, 255, 18, 0.12);
+                    background-color: rgba(163, 255, 18, 0.16);
                     color: {COLOR_BRAND_PRIMARY};
                     font-weight: 700;
                     border: 1px solid {COLOR_BORDER_GREEN};
-                    border-left: 3px solid {COLOR_BRAND_PRIMARY};
                 }}
             """)
         else:
@@ -144,21 +144,21 @@ class SidebarNav(QWidget):
                 border-right: 1px solid {COLOR_BORDER_GREEN};
             }}
         """)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 14, 10, 14)
-        layout.setSpacing(4)
+        self._main_layout = QVBoxLayout(self)
+        self._main_layout.setContentsMargins(10, 14, 10, 14)
+        self._main_layout.setSpacing(4)
 
         # App Brand Header
         self.brand_box = QFrame()
         self.brand_box.setStyleSheet("background: transparent; border: none;")
-        b_layout = QVBoxLayout(self.brand_box)
-        b_layout.setContentsMargins(2, 0, 2, 10)
-        b_layout.setSpacing(2)
+        self._brand_b_layout = QVBoxLayout(self.brand_box)
+        self._brand_b_layout.setContentsMargins(2, 0, 2, 10)
+        self._brand_b_layout.setSpacing(2)
 
-        title_row = QHBoxLayout()
-        title_row.setSpacing(6)
-        logo_lbl = QLabel("⚡")
-        logo_lbl.setStyleSheet(f"font-size: 18px; color: {COLOR_BRAND_PRIMARY};")
+        self._title_row = QHBoxLayout()
+        self._title_row.setSpacing(6)
+        self._logo_lbl = QLabel("⚡")
+        self._logo_lbl.setStyleSheet(f"font-size: 18px; color: {COLOR_BRAND_PRIMARY};")
 
         self.name_lbl = QLabel("PROMPTBEAST")
         self.name_lbl.setStyleSheet(f"font-size: 13px; font-weight: 800; color: {COLOR_TEXT_PRIMARY}; letter-spacing: 0.6px;")
@@ -174,28 +174,28 @@ class SidebarNav(QWidget):
             padding: 1px 4px;
         """)
 
-        title_row.addWidget(logo_lbl)
-        title_row.addWidget(self.name_lbl)
-        title_row.addWidget(self.pro_badge)
-        title_row.addStretch()
-        b_layout.addLayout(title_row)
+        self._title_row.addWidget(self._logo_lbl)
+        self._title_row.addWidget(self.name_lbl)
+        self._title_row.addWidget(self.pro_badge)
+        self._title_row.addStretch()
+        self._brand_b_layout.addLayout(self._title_row)
 
         self.sub_lbl = QLabel("Studio Pro · AI Video Engine")
         self.sub_lbl.setStyleSheet(f"font-size: 10px; color: {COLOR_TEXT_MUTED}; font-weight: 500; padding-left: 24px;")
-        b_layout.addWidget(self.sub_lbl)
-        layout.addWidget(self.brand_box)
+        self._brand_b_layout.addWidget(self.sub_lbl)
+        self._main_layout.addWidget(self.brand_box)
 
         # -------------------------------------------------------------
         # UNIFORM NAVIGATION ITEMS (No section divisions, no console)
         # -------------------------------------------------------------
-        self._add_nav_item("production", "Production", "🎬", "01", layout)
-        self._add_nav_item("studio", "Studio", "🎞️", "02", layout)
-        self._add_nav_item("scene_sync", "Scene Sync", "🔄", "03", layout)
-        self._add_nav_item("deliverables", "Deliverables", "⚡", "04", layout)
-        self._add_nav_item("profiles", "Profiles", "👤", "05", layout)
-        self._add_nav_item("settings", "Settings", "⚙️", None, layout)
+        self._add_nav_item("production", "Production", "🎬", "01", self._main_layout)
+        self._add_nav_item("studio", "Studio", "🎞️", "02", self._main_layout)
+        self._add_nav_item("scene_sync", "Scene Sync", "🔄", "03", self._main_layout)
+        self._add_nav_item("deliverables", "Deliverables", "⚡", "04", self._main_layout)
+        self._add_nav_item("profiles", "Profiles", "👤", "05", self._main_layout)
+        self._add_nav_item("settings", "Settings", "⚙️", None, self._main_layout)
 
-        layout.addStretch()
+        self._main_layout.addStretch()
 
         # Bottom Collapse/Expand Toggle
         self.collapse_btn = QPushButton("◀  Collapse Sidebar")
@@ -217,7 +217,7 @@ class SidebarNav(QWidget):
             }}
         """)
         self.collapse_btn.clicked.connect(self.toggle_collapse)
-        layout.addWidget(self.collapse_btn)
+        self._main_layout.addWidget(self.collapse_btn)
 
         # Default active page: Production
         if "production" in self._buttons:
@@ -269,7 +269,13 @@ class SidebarNav(QWidget):
     def toggle_collapse(self):
         self._is_collapsed = not self._is_collapsed
         if self._is_collapsed:
-            self.setFixedWidth(64)
+            self.setFixedWidth(72)
+            if hasattr(self, "_main_layout"):
+                self._main_layout.setContentsMargins(6, 12, 6, 12)
+            if hasattr(self, "_brand_b_layout"):
+                self._brand_b_layout.setContentsMargins(0, 0, 0, 10)
+            if hasattr(self, "_logo_lbl"):
+                self._logo_lbl.setAlignment(Qt.AlignCenter)
             self.name_lbl.setVisible(False)
             self.pro_badge.setVisible(False)
             self.sub_lbl.setVisible(False)
@@ -277,8 +283,31 @@ class SidebarNav(QWidget):
                 h.setVisible(False)
             self.collapse_btn.setText("▶")
             self.collapse_btn.setToolTip("Expand Sidebar")
+            self.collapse_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: transparent;
+                    border: 1px solid {COLOR_BORDER_SUBTLE};
+                    border-radius: 6px;
+                    color: {COLOR_TEXT_MUTED};
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-align: center;
+                    padding: 0px;
+                }}
+                QPushButton:hover {{
+                    background-color: {COLOR_HOVER_SURFACE};
+                    color: {COLOR_TEXT_PRIMARY};
+                    border-color: {COLOR_BORDER_GREEN};
+                }}
+            """)
         else:
             self.setFixedWidth(224)
+            if hasattr(self, "_main_layout"):
+                self._main_layout.setContentsMargins(10, 14, 10, 14)
+            if hasattr(self, "_brand_b_layout"):
+                self._brand_b_layout.setContentsMargins(2, 0, 2, 10)
+            if hasattr(self, "_logo_lbl"):
+                self._logo_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.name_lbl.setVisible(True)
             self.pro_badge.setVisible(True)
             self.sub_lbl.setVisible(True)
@@ -286,6 +315,21 @@ class SidebarNav(QWidget):
                 h.setVisible(True)
             self.collapse_btn.setText("◀  Collapse Sidebar")
             self.collapse_btn.setToolTip("Collapse Sidebar")
+            self.collapse_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: transparent;
+                    border: 1px solid {COLOR_BORDER_SUBTLE};
+                    border-radius: 6px;
+                    color: {COLOR_TEXT_MUTED};
+                    font-size: 11px;
+                    font-weight: 500;
+                }}
+                QPushButton:hover {{
+                    background-color: {COLOR_HOVER_SURFACE};
+                    color: {COLOR_TEXT_PRIMARY};
+                    border-color: {COLOR_BORDER_GREEN};
+                }}
+            """)
 
         for btn in self._buttons.values():
             btn.set_collapsed(self._is_collapsed)

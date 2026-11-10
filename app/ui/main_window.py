@@ -431,6 +431,7 @@ class MainWindow(QMainWindow):
         self.workflow_panel.visual_scenes_aligned.connect(self._on_workflow_scenes_aligned)
         self.workflow_panel.bibles_updated.connect(self._on_workflow_bibles_updated)
         self.workflow_panel.prompts_generated.connect(self._on_workflow_prompts_generated)
+        self.workflow_panel.style_selected.connect(self._on_matrix_style_selected)
         self.workflow_panel.navigate_requested.connect(self._on_sidebar_nav_changed)
         sec1_layout.addWidget(self.workflow_panel)
 
@@ -1062,12 +1063,20 @@ class MainWindow(QMainWindow):
 
     def _on_sidebar_nav_changed(self, key: str):
         k = key.lower()
+        if hasattr(self, "sidebar") and k in self.sidebar._buttons:
+            self.sidebar._buttons[k].setChecked(True)
         if k in ("production", "01"):
             self.stacked_pages.setCurrentWidget(self.main_scroll)
         elif k in ("studio", "02", "scene_studio"):
             self.stacked_pages.setCurrentWidget(self.studio_page)
             if hasattr(self, "project") and self.project and self.project.state.scenes:
                 self.prompt_grid.load_scenes(self.project.state.scenes)
+                if hasattr(self, "plan_approval_banner"):
+                    num = len(self.project.state.scenes)
+                    self.plan_summary_lbl.setText(f"📋 {num} visual scenes planned. Review your storyboard below, then click Approve to expand prompts via Groq.")
+                    self.approve_plan_btn.setText("✓ Approve Plan & Expand Prompts")
+                    self.approve_plan_btn.setEnabled(True)
+                    self.plan_approval_banner.setVisible(True)
         elif k in ("scene_sync", "03"):
             self.stacked_pages.setCurrentWidget(self.scene_sync_panel)
             self._prepare_scene_sync_panel()
@@ -1902,13 +1911,22 @@ class MainWindow(QMainWindow):
                 estimated = TimestampParser.estimate_from_text(story_text)
                 self.project.state.narration = estimated
 
+        active_style = None
+        if hasattr(self, "workflow_panel") and hasattr(self.workflow_panel, "style_matrix"):
+            active_style = self.workflow_panel.style_matrix.current_style_id()
+        if not active_style:
+            active_style = getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "zombie_survival"
+        self.project.config.visual_style_id = active_style
+        if hasattr(self.project, "state") and self.project.state:
+            self.project.state.style_preset_id = active_style
+
         req = JobCreateRequest(
             project_name=self.project.name,
             story_text=story_text,
             narration=self.project.state.narration,
             subject_id=self.project.config.subject_id,
             custom_subject=self.project.config.custom_subject,
-            visual_style_id=self.project.config.visual_style_id,
+            visual_style_id=active_style,
             custom_style=self.project.config.custom_style,
             image_count_mode=self.project.config.image_count_mode,
             target_image_count=self.project.config.target_image_count,
@@ -2082,14 +2100,25 @@ class MainWindow(QMainWindow):
         if hasattr(self, "prompt_grid"):
             self.prompt_grid.show_progress("⚡ Sending requests to Groq API... Initializing batch prompt generation...", 15.0)
 
-        story_text = self.story_text_edit.toPlainText().strip()
+        # Authoritatively resolve active visual style from user selection
+        active_style = None
+        if hasattr(self, "workflow_panel") and hasattr(self.workflow_panel, "style_matrix"):
+            active_style = self.workflow_panel.style_matrix.current_style_id()
+        if not active_style:
+            active_style = getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "zombie_survival"
+
+        self.project.config.visual_style_id = active_style
+        if hasattr(self.project, "state") and self.project.state:
+            self.project.state.style_preset_id = active_style
+
+        story_text = self.story_text_edit.toPlainText().strip() or getattr(self.project.state, "story_raw_text", "")
         req = JobCreateRequest(
             project_name=self.project.name,
             story_text=story_text,
             narration=self.project.state.narration,
             subject_id=self.project.config.subject_id,
             custom_subject=self.project.config.custom_subject,
-            visual_style_id=self.project.config.visual_style_id,
+            visual_style_id=active_style,
             custom_style=self.project.config.custom_style,
             image_count_mode=self.project.config.image_count_mode,
             target_image_count=self.project.config.target_image_count,
@@ -2101,7 +2130,7 @@ class MainWindow(QMainWindow):
             model_name=self.settings.default_model
         )
 
-        # Phase 2: Generate prompts scene-by-scene in [(Story) (Previous) (Type) Scene] format
+        # Phase 2: Generate prompts scene-by-scene with strict adherence to active_style
         self.active_job_worker = CloudJobWorker(
             base_url=self.settings.modal_api_url,
             request=req,
@@ -2109,7 +2138,8 @@ class MainWindow(QMainWindow):
             auth_token=self.settings.auth_token,
             plan_only=False,
             scenes_to_generate=self.project.state.scenes,
-            analysis=self.project.state.analysis
+            analysis=self.project.state.analysis,
+            bibles=getattr(self.project.state, "extracted_bibles", None)
         )
         if not hasattr(self, "_active_workers"):
             self._active_workers = []

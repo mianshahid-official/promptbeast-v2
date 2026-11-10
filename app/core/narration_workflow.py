@@ -824,7 +824,7 @@ INSTRUCTIONS FOR EACH SCENE:
    - If '{style_name}' mandates a pure flat 2D cartoon with a locked hero character (e.g. backwards red cap, charcoal hoodie) and uniform pale olive-green zombie horde, apply those exact design elements!
    - If '{style_name}' mandates photographic or historical styles, apply those exact camera, lens, and lighting directives!
 3. Do not invent contradictory characters or ignore the supplied visual ideas.
-4. Append model parameter flags: --ar {aspect_ratio} --style raw
+4. Do NOT include /imagine prompt: or parameter flags like --ar or --style raw. Return clean, detailed descriptive visual prompts only.
 5. Return JSON matching the schema with the exact scene_ids provided.
 """
 
@@ -841,5 +841,16 @@ INSTRUCTIONS FOR EACH SCENE:
     if not items:
         clean_snip = resp_text.strip()[:200] if resp_text else "EMPTY_RESPONSE"
         raise RuntimeError(f"Batch prompt parsing failed: No valid scenes recovered from model output. Snippet: {clean_snip}")
+
+    # Strip any accidental Midjourney or model flags
+    for it in items:
+        if isinstance(it, dict) and "prompt" in it:
+            p_val = str(it["prompt"]).strip()
+            p_val = re.sub(r"^/imagine\s+prompt:\s*", "", p_val, flags=re.IGNORECASE)
+            p_val = re.sub(r"^/imagine\s*", "", p_val, flags=re.IGNORECASE)
+            p_val = re.sub(r"--ar\s+\d+:\d+", "", p_val, flags=re.IGNORECASE)
+            p_val = re.sub(r"--style\s+\w+", "", p_val, flags=re.IGNORECASE)
+            p_val = re.sub(r"--v\s+[\d\.]+", "", p_val, flags=re.IGNORECASE)
+            it["prompt"] = " ".join(p_val.split())
 
     return items

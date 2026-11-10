@@ -29,7 +29,7 @@ class AppSettings(BaseModel):
     auth_token: Optional[str] = Field(default="")
     default_model: str = Field(default=DEFAULT_MODEL)
     default_subject_id: str = Field(default="history")
-    default_visual_style_id: str = Field(default="century_old_photograph")
+    default_visual_style_id: str = Field(default="zombie_survival")
     default_min_duration: float = Field(default=DEFAULT_MIN_DURATION)
     default_preferred_duration: float = Field(default=4.5)
     default_max_duration: float = Field(default=6.0)

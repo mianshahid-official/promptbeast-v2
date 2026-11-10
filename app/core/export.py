@@ -33,7 +33,8 @@ class StoryboardExporter:
         blocks = []
         for sc in scenes:
             narration_block = sc.narration_excerpt.strip() if sc.narration_excerpt else "[No spoken narration for this segment]"
-            prompt_block = sc.prompt.strip() if sc.prompt else "[No prompt defined]"
+            raw_p = sc.prompt.strip() if sc.prompt else "[No prompt defined]"
+            prompt_block = cls.clean_prompt_single_line(raw_p) if raw_p != "[No prompt defined]" else raw_p
             block = (
                 f"IMAGE {sc.scene_id}\n"
                 f"START: {sc.start:.2f}\n"
@@ -176,10 +177,13 @@ class StoryboardExporter:
         elif p.startswith("[") and p.endswith("]"):
             p = p[1:-1].strip()
 
-        if p.lower().startswith("/imagine prompt:"):
-            p = p[len("/imagine prompt:"):].strip()
-        elif p.lower().startswith("/imagine"):
-            p = p[len("/imagine"):].strip()
+        # Remove /imagine prefixes and parameter flags
+        p = re.sub(r"^/imagine\s+prompt:\s*", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"^/imagine\s*", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"--ar\s+\d+:\d+", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"--style\s+\w+", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"--v\s+[\d\.]+", "", p, flags=re.IGNORECASE)
+        p = re.sub(r"--stylize\s+\d+", "", p, flags=re.IGNORECASE)
 
         return " ".join(p.split())
 

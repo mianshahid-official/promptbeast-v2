@@ -173,6 +173,7 @@ class NarrationWorkflowPanel(QWidget):
     visual_scenes_aligned = Signal(list)          # (List[VisualScene])
     bibles_updated = Signal(dict)                 # (extracted bibles dict)
     prompts_generated = Signal(list)              # (List[VisualScene])
+    style_selected = Signal(str)                  # (style_id)
     navigate_requested = Signal(str)              # page key e.g. "studio", "scene_sync", "deliverables"
 
     def __init__(self, parent=None):
@@ -191,19 +192,12 @@ class NarrationWorkflowPanel(QWidget):
         self._auto_load_default_assets()
 
     def _auto_load_default_assets(self):
-        """Auto-detects and preloads audio and files/speech.json and sample data.txt if present."""
+        """Auto-detects and preloads audio and files/speech.json if present. Leaves visual ideas input empty."""
         sample_json = Path("audio and files/speech.json")
         if sample_json.exists():
             self.load_json_file(str(sample_json.resolve()))
-
-        sample_txt = Path("sample data.txt")
-        if sample_txt.exists():
-            try:
-                txt_content = sample_txt.read_text(encoding="utf-8")
-                self.txt_visual_ideas.setPlainText(txt_content)
-                self._on_align_visuals()
-            except Exception as e:
-                print(f"[NarrationWorkflow] Auto-load notice: {e}")
+        # User requested: Visual ideas box MUST start completely empty
+        self.txt_visual_ideas.setPlainText("")
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -213,8 +207,7 @@ class NarrationWorkflowPanel(QWidget):
         # ---------------------------------------------------------------------
         # STEP 1: IMPORT SCRIPT JSON & AUDIO
         # ---------------------------------------------------------------------
-        step1_box = self._create_card("🎙️ STEP 1: Import Script JSON & Audio File")
-        s1_lay = QVBoxLayout(step1_box)
+        step1_box, s1_lay = self._create_card("🎙️ STEP 1: Import Script JSON & Audio File")
         s1_lay.setSpacing(8)
 
         # File actions row
@@ -284,8 +277,7 @@ class NarrationWorkflowPanel(QWidget):
         # ---------------------------------------------------------------------
         # STEP 2: NARRATION & VISUAL IDEAS INPUT
         # ---------------------------------------------------------------------
-        step2_box = self._create_card("📝 STEP 2: Narration & Visual Ideas Breakdown")
-        s2_lay = QVBoxLayout(step2_box)
+        step2_box, s2_lay = self._create_card("📝 STEP 2: Narration & Visual Ideas Breakdown")
         s2_lay.setSpacing(8)
 
         s2_desc = QLabel("Paste script narration lines, corresponding visual ideas (e.g. Visual 1 Words: ... Visual: ...), scene descriptions, or creative instructions:")
@@ -370,8 +362,7 @@ class NarrationWorkflowPanel(QWidget):
         # ---------------------------------------------------------------------
         # STEP 3: STORY INTELLIGENCE & DYNAMIC BIBLES EXTRACTION
         # ---------------------------------------------------------------------
-        step3_box = self._create_card("📖 STEP 3: Dynamic Story Bibles & Context Extraction")
-        s3_lay = QVBoxLayout(step3_box)
+        step3_box, s3_lay = self._create_card("📖 STEP 3: Dynamic Story Bibles & Context Extraction")
         s3_lay.setSpacing(8)
 
         b_hdr = QHBoxLayout()
@@ -494,8 +485,7 @@ class NarrationWorkflowPanel(QWidget):
         # ---------------------------------------------------------------------
         # STEP 4: VISUAL STYLE & SETTINGS
         # ---------------------------------------------------------------------
-        step4_box = self._create_card("🎨 STEP 4: Visual Art Style Presets & Output Settings")
-        s4_lay = QVBoxLayout(step4_box)
+        step4_box, s4_lay = self._create_card("🎨 STEP 4: Visual Art Style Presets & Output Settings")
         s4_lay.setSpacing(10)
 
         # Visual Style Matrix
@@ -618,24 +608,26 @@ class NarrationWorkflowPanel(QWidget):
         main_layout.addWidget(step4_box)
 
         # ---------------------------------------------------------------------
-        # STEP 5: MASTER PROMPT EXPANSION VIA GROQ
+        # STEP 5: REVIEW STORYBOARD & PROCEED TO STUDIO
         # ---------------------------------------------------------------------
-        step5_box = self._create_card("🚀 STEP 5: Groq Image Prompt Generation & Expansion")
-        s5_lay = QVBoxLayout(step5_box)
-        s5_lay.setSpacing(10)
+        step5_box, s5_lay = self._create_card("➔ STEP 5: Review Storyboard & Proceed to Studio")
 
-        btn_row = QHBoxLayout()
-        btn_row.setSpacing(12)
+        s5_desc = QLabel(
+            "Your visual breakdown and style directives are configured. "
+            "Proceed to Stage 02 (Studio) to review your storyboard scenes and approve prompt expansion."
+        )
+        s5_desc.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        s5_lay.addWidget(s5_desc)
 
-        self.btn_generate_prompts = QPushButton("➔ Generate All Detailed Image Prompts with Groq")
-        self.btn_generate_prompts.setFixedHeight(44)
-        self.btn_generate_prompts.setCursor(Qt.PointingHandCursor)
-        self.btn_generate_prompts.setStyleSheet("""
+        self.btn_next_studio = QPushButton("➔ Next: Review & Approve in Studio")
+        self.btn_next_studio.setFixedHeight(46)
+        self.btn_next_studio.setCursor(Qt.PointingHandCursor)
+        self.btn_next_studio.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #10B981, stop:0.6 #34D399, stop:1 #A3FF12);
                 color: #080D0B;
                 font-weight: 800;
-                font-size: 13px;
+                font-size: 14px;
                 border-radius: 8px;
                 border: none;
                 padding: 0 20px;
@@ -643,100 +635,29 @@ class NarrationWorkflowPanel(QWidget):
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #34D399, stop:0.6 #A3FF12, stop:1 #B8FF24);
             }
-            QPushButton:disabled {
-                background: #1E293B;
-                color: #64748B;
-            }
         """)
-        self.btn_generate_prompts.clicked.connect(self._on_start_prompt_generation)
-        btn_row.addWidget(self.btn_generate_prompts, 2)
-
-        self.btn_stop_prompts = QPushButton("■ Stop")
-        self.btn_stop_prompts.setFixedHeight(44)
-        self.btn_stop_prompts.setEnabled(False)
-        self.btn_stop_prompts.setCursor(Qt.PointingHandCursor)
-        self.btn_stop_prompts.setStyleSheet("""
-            QPushButton {
-                background: rgba(239, 68, 68, 0.16);
-                color: #EF4444;
-                font-weight: 700;
-                font-size: 13px;
-                border: 1px solid rgba(239, 68, 68, 0.45);
-                border-radius: 8px;
-                padding: 0 16px;
-            }
-            QPushButton:hover {
-                background: rgba(239, 68, 68, 0.32);
-                color: #FFFFFF;
-            }
-        """)
-        self.btn_stop_prompts.clicked.connect(self._on_stop_prompt_generation)
-        btn_row.addWidget(self.btn_stop_prompts, 1)
-
-        s5_lay.addLayout(btn_row)
-
-        # Progress bar & status
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setFixedHeight(12)
-        self.progress_bar.setRange(0, 100)
-        self.progress_bar.setValue(0)
-        self.progress_bar.setTextVisible(False)
-        self.progress_bar.setStyleSheet("""
-            QProgressBar {
-                background-color: #0B0F17;
-                border: 1px solid #1E293B;
-                border-radius: 6px;
-            }
-            QProgressBar::chunk {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #10B981, stop:1 #A3FF12);
-                border-radius: 5px;
-            }
-        """)
-        s5_lay.addWidget(self.progress_bar)
-
-        self.lbl_progress_status = QLabel("Ready for prompt generation.")
-        self.lbl_progress_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        s5_lay.addWidget(self.lbl_progress_status)
-
-        # Navigation action to Studio
-        nav_row = QHBoxLayout()
-        self.btn_goto_studio = QPushButton("➔ Open Studio to Review & Edit Prompts (Stage 02)")
-        self.btn_goto_studio.setFixedHeight(38)
-        self.btn_goto_studio.setCursor(Qt.PointingHandCursor)
-        self.btn_goto_studio.setStyleSheet("""
-            QPushButton {
-                background: rgba(163, 255, 18, 0.08);
-                color: #A3FF12;
-                font-size: 12px;
-                font-weight: 700;
-                border: 1px solid rgba(163, 255, 18, 0.35);
-                border-radius: 6px;
-                padding: 0 16px;
-            }
-            QPushButton:hover {
-                background: rgba(163, 255, 18, 0.2);
-            }
-        """)
-        self.btn_goto_studio.clicked.connect(lambda: self.navigate_requested.emit("studio"))
-        nav_row.addWidget(self.btn_goto_studio)
-        s5_lay.addLayout(nav_row)
+        self.btn_next_studio.clicked.connect(self._on_proceed_to_studio)
+        s5_lay.addWidget(self.btn_next_studio)
 
         main_layout.addWidget(step5_box)
 
-    def _create_card(self, title: str) -> QFrame:
+    def _create_card(self, title: str) -> tuple[QFrame, QVBoxLayout]:
         card = QFrame()
         card.setStyleSheet("""
             QFrame {
-                background-color: #111827;
-                border: 1px solid #1F2937;
+                background-color: #0E1522;
+                border: 1px solid #1E293B;
                 border-radius: 10px;
-                padding: 12px;
             }
         """)
-        # Card header title
-        t_lbl = QLabel(title, card)
+        lay = QVBoxLayout(card)
+        lay.setContentsMargins(16, 14, 16, 16)
+        lay.setSpacing(10)
+
+        t_lbl = QLabel(title)
         t_lbl.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 700; border: none; background: transparent;")
-        return card
+        lay.addWidget(t_lbl)
+        return card, lay
 
     # =========================================================================
     # STEP 1 ACTIONS: SCRIPT JSON & AUDIO IMPORT
@@ -1073,6 +994,31 @@ class NarrationWorkflowPanel(QWidget):
         self.lbl_progress_status.setStyleSheet("color: #EF4444; font-size: 11px;")
         QMessageBox.critical(self, "Prompt Generation Error", f"Prompt generation error:\n{error_msg}")
 
+    def _on_proceed_to_studio(self):
+        """Validates alignment, synchronizes state, and navigates to Studio page for approval."""
+        raw_ideas = self.txt_visual_ideas.toPlainText().strip()
+        if raw_ideas and not self.scenes:
+            self._on_align_visuals()
+
+        style_id = self.style_matrix.current_style_id()
+        self.style_selected.emit(style_id)
+
+        if not self.bibles:
+            style_preset = PresetManager.get_style_by_id(style_id)
+            style_name = style_preset.name if style_preset else style_id.replace("_", " ").title()
+            self.bibles = {
+                "story_bible": {"logline": (self.story_text or "Production Story")[:200]},
+                "characters": [{"name": "Protagonist", "physical_description": "Survivor", "clothing_and_gear": "Standard gear"}],
+                "environments": [{"name": "Setting", "architectural_style": "Story environment"}],
+                "visual_style_bible": {"color_palette": f"Consistent with {style_name}"}
+            }
+            self.bibles_updated.emit(self.bibles)
+
+        if self.scenes:
+            self.visual_scenes_aligned.emit(self.scenes)
+
+        self.navigate_requested.emit("studio")
+
     def _get_prompt_path_for_style(self, style_id: str) -> Optional[Path]:
         """Resolves the dedicated Master AI Prompt file for a given style ID."""
         prompts_dir = Path(__file__).resolve().parent.parent.parent.parent / "config" / "ai_prompts"
@@ -1100,6 +1046,8 @@ class NarrationWorkflowPanel(QWidget):
             self.btn_copy_style_prompt.setText(f"📋 Copy Master AI Prompt ({style_name})")
         if hasattr(self, "lbl_prompt_copy_status"):
             self.lbl_prompt_copy_status.setText("")
+
+        self.style_selected.emit(norm_id)
 
     def _on_copy_style_prompt(self):
         """Copies the dedicated Master AI Prompt for the active style to the system clipboard."""

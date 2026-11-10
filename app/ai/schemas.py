@@ -16,7 +16,7 @@ class JobCreateRequest(BaseModel):
     narration: Optional[NarrationData] = None
     subject_id: str = "history"
     custom_subject: Optional[str] = None
-    visual_style_id: str = "century_old_photograph"
+    visual_style_id: str = "zombie_survival"
     custom_style: Optional[str] = None
     image_count_mode: ImageCountMode = ImageCountMode.AUTOMATIC
     target_image_count: int = 30
@@ -69,7 +69,7 @@ class SceneRegenerateRequest(BaseModel):
     story_summary: Optional[str] = ""
     subject_id: str = "history"
     custom_subject: Optional[str] = None
-    visual_style_id: str = "century_old_photograph"
+    visual_style_id: str = "zombie_survival"
     custom_style: Optional[str] = None
     continuity: Optional[StoryContinuity] = None
     model_name: str = "Qwen3-30B-A3B-Instruct-2507"

@@ -67,6 +67,7 @@ class CloudJobWorker(QThread):
         plan_only: bool = False,
         scenes_to_generate: Optional[List[VisualScene]] = None,
         analysis: Optional[StoryAnalysis] = None,
+        bibles: Optional[Dict[str, Any]] = None,
         parent=None
     ):
         super().__init__(parent)
@@ -78,6 +79,7 @@ class CloudJobWorker(QThread):
         self.plan_only = plan_only
         self.scenes_to_generate = scenes_to_generate
         self.analysis = analysis
+        self.bibles = bibles
         self._is_cancelled = False
         self.job_id = f"job_{uuid.uuid4().hex[:8]}"
 
@@ -134,7 +136,16 @@ class CloudJobWorker(QThread):
                 self.job_cancelled.emit()
                 return
 
-            if self.analysis:
+            if self.bibles:
+                story_intel = StoryIntelligence(
+                    story_summary=self.bibles.get("story_bible", {}).get("logline", "") or self.request.story_text[:500],
+                    characters=self.bibles.get("characters", []),
+                    environments=self.bibles.get("environments", []),
+                    objects_and_props=self.bibles.get("key_objects", []),
+                    visual_style_bible=self.bibles.get("visual_style_bible", {})
+                )
+                analysis = self.analysis or story_intel.to_story_analysis()
+            elif self.analysis:
                 analysis = self.analysis
                 story_intel = StoryIntelligence(story_summary=getattr(analysis, "story_summary", ""))
             else:
