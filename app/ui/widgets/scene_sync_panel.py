@@ -1047,18 +1047,8 @@ class SceneSyncPanel(QWidget):
         self._last_image_count = count
 
         if count > 0:
-            if any("thumb" in Path(f).name.lower() for f in self.image_files):
-                thumb_cand = [f for f in self.image_files if "thumb" in Path(f).name.lower()][0]
-                self.thumbnail_image_path = thumb_cand
-                story_cnt = count - 1
-                self.img_count_badge.setText(f"{count} images (1 Thumb + {story_cnt} Scenes)")
-            elif count > 1:
-                self.thumbnail_image_path = self.image_files[0]
-                story_cnt = count - 1
-                self.img_count_badge.setText(f"{count} images (1 Thumb [01] + {story_cnt} Scenes [02..{count:02d}])")
-            else:
-                self.thumbnail_image_path = None
-                self.img_count_badge.setText(f"{count} images ready")
+            self.thumbnail_image_path = None
+            self.img_count_badge.setText(f"{count} images ready")
             self.img_count_badge.setStyleSheet("font-size: 11px; font-weight: 700; color: #A6FF00;")
             self.folder_status_lbl.setText(
                 f"✅ {count} images in {Path(self.images_folder).name} — ready to sync!"
@@ -1263,57 +1253,11 @@ class SceneSyncPanel(QWidget):
         existing_scenes = self.scenes or []
         scenes: List[VisualScene] = []
 
-        # -----------------------------------------------------------------
-        # Separate Thumbnail (Image 1) and Video Scenes (Image 2..N)
-        # -----------------------------------------------------------------
-        if any("thumb" in Path(f).name.lower() for f in self.image_files):
-            thumb_cand = [f for f in self.image_files if "thumb" in Path(f).name.lower()][0]
-            self.thumbnail_image_path = thumb_cand
-            video_images = [f for f in self.image_files if f != thumb_cand]
-        elif len(self.image_files) > 1:
-            # Batch generation contract: Image 01 is always YouTube Thumbnail; story starts from Image 02
-            self.thumbnail_image_path = self.image_files[0]
-            video_images = self.image_files[1:]
-        else:
-            self.thumbnail_image_path = None
-            video_images = self.image_files
-
-        # Overlay thumbnail title typography if thumbnail image is present
-        if self.thumbnail_image_path and Path(self.thumbnail_image_path).exists():
-            try:
-                from app.core.thumbnail_generator import ThumbnailGenerator
-                hl_text = ""
-                win = self.window()
-                proj = getattr(win, "project", None)
-                if proj and hasattr(proj, "state") and getattr(proj.state, "thumbnail_headline", ""):
-                    hl_text = proj.state.thumbnail_headline
-                elif proj and hasattr(proj, "state") and getattr(proj.state, "analysis", None):
-                    hl_text = getattr(proj.state.analysis, "thumbnail_headline", "") or ""
-
-                if not hl_text and self._project_dir:
-                    sb_file = self._project_dir / "story_bible.txt"
-                    if sb_file.exists():
-                        for ln in sb_file.read_text(encoding="utf-8").splitlines():
-                            if "VIRAL THUMBNAIL TEXT:" in ln:
-                                hl_text = ln.split("VIRAL THUMBNAIL TEXT:", 1)[1].strip()
-                                break
-
-                if hl_text:
-                    out_thumb = Path(self.thumbnail_image_path).parent / "thumbnail_rendered.jpg"
-                    rendered_p = ThumbnailGenerator.overlay_headline_on_image(
-                        image_path=self.thumbnail_image_path,
-                        headline_text=hl_text,
-                        output_path=str(out_thumb)
-                    )
-                    self.thumbnail_image_path = rendered_p
-            except Exception as e:
-                print(f"[Thumbnail] Notice rendering title overlay: {e}")
+        # Direct 1-to-1 sync: All scanned images map to story scenes without thumbnail offset
+        video_images = self.image_files
+        self.thumbnail_image_path = None
 
         total_video_images = len(video_images)
-        if total_video_images == 0:
-            video_images = self.image_files
-            total_video_images = len(video_images)
-
         time_per_image = duration / float(max(1, total_video_images))
 
         for idx, img_path in enumerate(video_images):
@@ -1341,57 +1285,21 @@ class SceneSyncPanel(QWidget):
 
         self.scenes = scenes
         self._populate_table()
-        badge_thumb = " + 1 Thumbnail" if self.thumbnail_image_path else ""
-        self.status_badge.setText(f"🟢 {len(scenes)} Scenes Synced{badge_thumb}")
+        self.status_badge.setText(f"🟢 {len(scenes)} Scenes Synced")
         self.summary_sync_lbl.setText(
             f"✅ Paced {len(scenes)} video scenes across {duration:.1f}s "
-            f"({time_per_image:.1f}s/image avg){badge_thumb}. Proceed to Deliverables!"
+            f"({time_per_image:.1f}s/image avg). Proceed to Deliverables!"
         )
         self.sync_completed.emit(self.scenes, self.audio_path, self.narration)
 
     def _populate_table(self):
         total_scenes = len(self.scenes)
-        has_thumb = bool(self.thumbnail_image_path and Path(self.thumbnail_image_path).exists())
-        row_offset = 1 if has_thumb else 0
-        self.table.setRowCount(total_scenes + row_offset)
-
-        if has_thumb:
-            # Row 0: Dedicated YouTube Thumbnail cover
-            it_num = QTableWidgetItem("🎯 THUMB")
-            it_num.setTextAlignment(Qt.AlignCenter)
-            it_num.setForeground(QColor("#F59E0B"))
-            self.table.setItem(0, 0, it_num)
-
-            thumb_lbl = QLabel()
-            thumb_lbl.setFixedSize(50, 45)
-            thumb_lbl.setAlignment(Qt.AlignCenter)
-            pix = QPixmap(self.thumbnail_image_path)
-            if not pix.isNull():
-                thumb_lbl.setPixmap(pix.scaled(50, 45, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            self.table.setCellWidget(0, 1, thumb_lbl)
-
-            fname = f"{Path(self.thumbnail_image_path).name} (YouTube Thumbnail Cover)"
-            it_name = QTableWidgetItem(fname)
-            it_name.setForeground(QColor("#FBBF24"))
-            self.table.setItem(0, 2, it_name)
-
-            it_st = QTableWidgetItem("Cover")
-            it_st.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(0, 3, it_st)
-
-            it_et = QTableWidgetItem("Cover")
-            it_et.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(0, 4, it_et)
-
-            it_dur = QTableWidgetItem("Standalone")
-            it_dur.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(0, 5, it_dur)
+        self.table.setRowCount(total_scenes)
 
         for s_idx, sc in enumerate(self.scenes):
-            row = s_idx + row_offset
             it_num = QTableWidgetItem(f"#{sc.scene_id}")
             it_num.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, it_num)
+            self.table.setItem(s_idx, 0, it_num)
 
             thumb_lbl = QLabel()
             thumb_lbl.setFixedSize(50, 45)
@@ -1400,22 +1308,22 @@ class SceneSyncPanel(QWidget):
                 pix = QPixmap(sc.image_path)
                 if not pix.isNull():
                     thumb_lbl.setPixmap(pix.scaled(50, 45, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            self.table.setCellWidget(row, 1, thumb_lbl)
+            self.table.setCellWidget(s_idx, 1, thumb_lbl)
 
             fname = Path(sc.image_path).name if sc.image_path else "N/A"
-            self.table.setItem(row, 2, QTableWidgetItem(fname))
+            self.table.setItem(s_idx, 2, QTableWidgetItem(fname))
 
             it_st = QTableWidgetItem(f"{sc.start:.2f}s")
             it_st.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 3, it_st)
+            self.table.setItem(s_idx, 3, it_st)
 
             it_et = QTableWidgetItem(f"{sc.end:.2f}s")
             it_et.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 4, it_et)
+            self.table.setItem(s_idx, 4, it_et)
 
             it_dur = QTableWidgetItem(f"{sc.duration:.2f}s")
             it_dur.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 5, it_dur)
+            self.table.setItem(s_idx, 5, it_dur)
 
     def _on_proceed_to_deliverables(self):
         self.navigate_to_deliverables.emit()

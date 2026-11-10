@@ -31,13 +31,11 @@ class AssetManager:
         cls,
         scenes: List[VisualScene],
         images_folder: str,
-        has_batch_thumbnail: Optional[bool] = None
+        has_batch_thumbnail: Optional[bool] = False
     ) -> Tuple[List[VisualScene], int]:
         """
         Matches images in images_folder to scenes based on scene ID numbers or sequential order.
-        Supports YouTube batch generation contract:
-        - Image 01 is the YouTube Thumbnail cover.
-        - Story scenes begin at Image 02 (Scene 1 -> Image 02, Scene 2 -> Image 03, etc.).
+        Direct 1-to-1 mapping: Scene #001 binds directly to the first image (001.png).
         Returns (updated_scenes, bound_count).
         """
         image_files = cls.scan_folder_for_images(images_folder)
@@ -55,12 +53,8 @@ class AssetManager:
                 except ValueError:
                     pass
 
-        # Detect Batch Thumbnail contract:
-        # If user explicitly specifies or if total images >= len(scenes) + 1 and image 1 exists
-        if has_batch_thumbnail is None:
-            has_batch_thumbnail = bool(len(image_files) >= len(scenes) + 1 and 1 in number_map and 2 in number_map)
-
-        offset = 1 if has_batch_thumbnail else 0
+        # Strict 1-to-1 mapping with zero offset
+        offset = 0
 
         bound_count = 0
         updated_scenes = []
@@ -74,15 +68,15 @@ class AssetManager:
             except (IndexError, ValueError):
                 scene_id_num = scene_num
 
-            target_num = scene_id_num + offset
+            target_num = scene_id_num
 
             # 1. Match by extracted number
             if target_num in number_map:
                 sc_copy.image_path = str(number_map[target_num].resolve())
                 bound_count += 1
             # 2. Sequential fallback if within list range
-            elif (i + offset) < len(image_files):
-                sc_copy.image_path = str(image_files[i + offset].resolve())
+            elif i < len(image_files):
+                sc_copy.image_path = str(image_files[i].resolve())
                 bound_count += 1
 
             updated_scenes.append(sc_copy)

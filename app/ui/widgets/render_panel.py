@@ -295,7 +295,7 @@ class RenderPanel(QWidget):
         self.copy_thumb_prompt_btn.clicked.connect(self._copy_thumbnail_prompt)
         tp_hdr.addWidget(self.copy_thumb_prompt_btn)
 
-        self.copy_all_batch_prompts_btn = QPushButton("📋 Copy All Prompts (Batch: 01 Thumb + 02..N)")
+        self.copy_all_batch_prompts_btn = QPushButton("📋 Copy All Prompts")
         self.copy_all_batch_prompts_btn.setFixedHeight(24)
         self.copy_all_batch_prompts_btn.setStyleSheet("""
             QPushButton {
@@ -622,14 +622,7 @@ class RenderPanel(QWidget):
                         except Exception:
                             total_dur = float(len(img_files) * 5.0)
 
-                    # Batch convention: Image 01 is always Thumbnail; Story scenes start from Image 02
-                    thumb_img = None
-                    if len(img_files) > 1:
-                        thumb_img = img_files[0]
-                        story_img_files = img_files[1:]
-                        self.thumbnail_image_path = thumb_img
-                    else:
-                        story_img_files = img_files
+                    story_img_files = img_files
 
                     dur_each = round(total_dur / len(story_img_files), 2) if story_img_files else 5.0
                     dur_each = max(0.5, dur_each)
@@ -738,14 +731,7 @@ class RenderPanel(QWidget):
 
         self.open_vid_btn.setVisible(True)
         self.open_folder_btn.setVisible(True)
-        self.make_thumb_btn.setVisible(True)
         self.qr_share_btn.setVisible(True)
-        if hasattr(self, "thumb_widget"):
-            self.thumb_widget.setVisible(True)
-            if hasattr(self, "thumb_headline_edit"):
-                cur_h = self.thumb_headline_edit.text().strip()
-                if not cur_h or not is_valid_thumbnail_headline(cur_h):
-                    self.thumb_headline_edit.setText(self._auto_extract_story_headline())
         self.render_completed.emit(out_path)
 
     def set_thumbnail_headline(self, text: str):
@@ -804,7 +790,6 @@ class RenderPanel(QWidget):
             QTimer.singleShot(2000, lambda: self.copy_thumb_prompt_btn.setText("📋 Copy Thumb Prompt"))
 
     def _copy_all_batch_prompts(self):
-        th_p = self.get_thumbnail_prompt()
         win = self.window()
         scenes = self.scenes
         if not scenes and win and hasattr(win, "project") and win.project and getattr(win.project.state, "scenes", None):
@@ -813,11 +798,11 @@ class RenderPanel(QWidget):
             QMessageBox.warning(self, "No Scenes", "No storyboard scenes available to copy.")
             return
         from app.core.export import StoryboardExporter, copy_to_system_clipboard
-        payload = StoryboardExporter.export_to_prompts_only(scenes, thumbnail_prompt=th_p)
+        payload = StoryboardExporter.export_to_prompts_only(scenes)
         copy_to_system_clipboard(payload)
         if hasattr(self, "copy_all_batch_prompts_btn"):
-            self.copy_all_batch_prompts_btn.setText("✓ All Batch Prompts Copied!")
-            QTimer.singleShot(2500, lambda: self.copy_all_batch_prompts_btn.setText("📋 Copy All Prompts (Batch: 01 Thumb + 02..N)"))
+            self.copy_all_batch_prompts_btn.setText("✓ All Prompts Copied!")
+            QTimer.singleShot(2500, lambda: self.copy_all_batch_prompts_btn.setText("📋 Copy All Prompts"))
 
     def _on_generate_thumbnail(self):
         if not self._output_video_path or not Path(self._output_video_path).exists():

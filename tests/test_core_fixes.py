@@ -492,12 +492,11 @@ class TestStoryboardExporterAndClipboard(unittest.TestCase):
             make_scene("001", 0.0, 3.5, prompt="/imagine prompt: Scene 1 prompt --ar 16:9"),
             make_scene("002", 3.5, 7.0, prompt="Scene 2 prompt --style raw"),
         ]
-        prompts_only = StoryboardExporter.export_to_prompts_only(scenes, thumbnail_prompt="Thumbnail prompt text")
+        prompts_only = StoryboardExporter.export_to_prompts_only(scenes)
         lines = prompts_only.strip().splitlines()
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[0], "Thumbnail prompt text")
-        self.assertEqual(lines[1], "Scene 1 prompt")
-        self.assertEqual(lines[2], "Scene 2 prompt")
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(lines[0], "Scene 1 prompt")
+        self.assertEqual(lines[1], "Scene 2 prompt")
 
         text_out = StoryboardExporter.export_to_text(scenes)
         self.assertIn("IMAGE 001", text_out)

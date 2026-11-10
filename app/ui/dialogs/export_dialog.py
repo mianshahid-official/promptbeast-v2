@@ -64,10 +64,7 @@ class ExportDialog(QDialog):
             indent=2
         )
         self.csv_content = StoryboardExporter.export_to_csv(self.scenes)
-        self.prompts_only_content = StoryboardExporter.export_to_prompts_only(
-            self.scenes,
-            thumbnail_prompt=self.thumbnail_prompt
-        )
+        self.prompts_only_content = StoryboardExporter.export_to_prompts_only(self.scenes)
 
         # Tab 1: prompts_only.txt (One Prompt Per Line, Clean)
         self.prompts_only_edit = QPlainTextEdit(self.prompts_only_content)
@@ -176,8 +173,7 @@ class ExportDialog(QDialog):
                 saved = StoryboardExporter.save_all_exports(
                     target_dir,
                     self.scenes,
-                    self.narration,
-                    thumbnail_prompt=self.thumbnail_prompt
+                    self.narration
                 )
                 QMessageBox.information(
                     self,

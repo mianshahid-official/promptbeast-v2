@@ -2328,26 +2328,7 @@ class MainWindow(QMainWindow):
 
             # 1. Save clean prompts_only.txt & image_prompts.txt to workspace root
             try:
-                from app.core.thumbnail_prompt_builder import (
-                    build_viral_thumbnail_prompt,
-                    derive_story_thumbnail_headline,
-                    is_valid_thumbnail_headline
-                )
-                sid = getattr(self.project.state, "style_preset_id", "zombie_survival") or "zombie_survival"
-                raw_th_h = getattr(self.project.state, "thumbnail_headline", "") or ""
-                th_head = derive_story_thumbnail_headline(
-                    headline=raw_th_h,
-                    story_text=getattr(self.project.state, "story_raw_text", "") or "",
-                    scenes=resp.scenes,
-                    style_id=sid
-                )
-                self.project.state.thumbnail_headline = th_head
-
-                th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
-                if not th_p or th_head not in th_p or (sid == "zombie_survival" and "zombie" not in th_p.lower()):
-                    th_p = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
-                    self.project.state.thumbnail_prompt = th_p
-                prompts_clean = StoryboardExporter.export_to_prompts_only(resp.scenes, thumbnail_prompt=th_p)
+                prompts_clean = StoryboardExporter.export_to_prompts_only(resp.scenes)
                 with open("prompts_only.txt", "w", encoding="utf-8") as pf:
                     pf.write(prompts_clean + "\n")
                 full_text = StoryboardExporter.export_to_text(resp.scenes)
@@ -2382,22 +2363,13 @@ class MainWindow(QMainWindow):
                     pf.write(prompts_clean + "\n")
                 with open(p_dir / "image_prompts.txt", "w", encoding="utf-8") as pf:
                     pf.write(full_text)
-                if th_p or th_head:
-                    th_info = (
-                        "==========================================================\n"
-                        "🎯 YOUTUBE THUMBNAIL INSTRUCTIONS\n"
-                        f"TEXT ON THUMBNAIL: {th_head}\n\n"
-                        f"GEMINI PROMPT (Image 1):\n{th_p}\n"
-                        "==========================================================\n"
-                    )
-                    with open(p_dir / "thumbnail_prompt.txt", "w", encoding="utf-8") as tf:
-                        tf.write(th_info)
-                    with open(img_dir / "thumbnail_prompt.txt", "w", encoding="utf-8") as tf:
-                        tf.write(th_info)
 
                 # Save Character Bible, Location Bible, Time & Period Bible
                 if self.project.state.analysis:
                     from backend.pipeline.stage1_story_intelligence import save_story_bibles
+                    save_story_bibles(p_dir, self.project.state.analysis)
+            except Exception as e:
+                print(f"[Export] Project export notice: {e}")
                     save_story_bibles(p_dir, self.project.state.analysis)
             except Exception as e:
                 print(f"[Export] Project export notice: {e}")
@@ -2589,14 +2561,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Prompts", "No generated prompts to copy.")
             return
 
-        th_head = getattr(self.project.state, "thumbnail_headline", "") or ""
-        th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
-        if (not th_p or th_head not in th_p) and th_head:
-            from app.core.thumbnail_prompt_builder import build_viral_thumbnail_prompt
-            sid = getattr(self.project.state, "style_preset_id", "3d_red_blue_stickman") or "3d_red_blue_stickman"
-            th_p = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
-            self.project.state.thumbnail_prompt = th_p
-        clean_payload = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
+        clean_payload = StoryboardExporter.export_to_prompts_only(self.project.state.scenes)
         from app.core.export import copy_to_system_clipboard
         copy_to_system_clipboard(clean_payload)
 
@@ -2751,8 +2716,7 @@ class MainWindow(QMainWindow):
 
             # Update exports and save project
             try:
-                th_p = getattr(self.project.state, "thumbnail_prompt", "")
-                prompts_clean = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
+                prompts_clean = StoryboardExporter.export_to_prompts_only(self.project.state.scenes)
                 with open("prompts_only.txt", "w", encoding="utf-8") as pf:
                     pf.write(prompts_clean + "\n")
                 if self.project.project_dir:
@@ -2879,12 +2843,10 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Scenes", "There are no generated scenes to export yet.")
             return
 
-        th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
         p_dir = getattr(self.project, "project_dir", None)
         dlg = ExportDialog(
             self.project.state.scenes,
             self.project.state.narration,
-            thumbnail_prompt=th_p,
             project_dir=p_dir,
             parent=self
         )
@@ -2902,8 +2864,7 @@ class MainWindow(QMainWindow):
 
         # If not yet on disk but scenes exist in memory, export immediately
         if hasattr(self, "project") and self.project and self.project.state.scenes:
-            th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
-            content = StoryboardExporter.export_to_prompts_only(self.project.state.scenes, thumbnail_prompt=th_p)
+            content = StoryboardExporter.export_to_prompts_only(self.project.state.scenes)
             if not target_path:
                 target_path = Path("prompts_only.txt")
             target_path.write_text(content, encoding="utf-8")

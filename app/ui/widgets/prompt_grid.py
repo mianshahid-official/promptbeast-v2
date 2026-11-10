@@ -910,89 +910,13 @@ class PromptGridWidget(QWidget):
             return
 
         cols = 3  # Responsive 3 cards per row
-        start_row = 0
-
-        # Dedicated YouTube Thumbnail Banner at the top of the Studio Matrix
-        win = self.window()
-        proj = getattr(win, "project", None)
-        from app.core.thumbnail_prompt_builder import (
-            build_viral_thumbnail_prompt,
-            derive_story_thumbnail_headline,
-            is_valid_thumbnail_headline
-        )
-        sid = getattr(proj.state, "style_preset_id", "zombie_survival") if proj and hasattr(proj, "state") else "zombie_survival"
-        raw_th_h = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
-        th_head = derive_story_thumbnail_headline(
-            headline=raw_th_h,
-            story_text=getattr(proj.state, "story_raw_text", "") if proj and hasattr(proj, "state") else "",
-            scenes=self.scenes,
-            style_id=sid
-        )
-        if proj and hasattr(proj, "state") and th_head:
-            proj.state.thumbnail_headline = th_head
-
-        th_prompt = getattr(proj.state, "thumbnail_prompt", "") if proj and hasattr(proj, "state") else ""
-        if not th_prompt or th_head not in th_prompt or (sid == "zombie_survival" and "zombie" not in th_prompt.lower()):
-            try:
-                th_prompt = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
-                if proj and hasattr(proj, "state"):
-                    proj.state.thumbnail_prompt = th_prompt
-            except Exception as e:
-                print(f"[Studio] Notice generating thumbnail prompt: {e}")
-
-        if th_head or th_prompt:
-            th_frame = QFrame()
-            th_frame.setObjectName("ThumbnailBanner")
-            th_frame.setFixedHeight(46)
-            th_frame.setStyleSheet(f"""
-                QFrame#ThumbnailBanner {{
-                    background-color: {COLOR_GLASS_SURFACE};
-                    border: 1px solid {COLOR_BORDER_GREEN};
-                    border-radius: 8px;
-                    padding: 4px 12px;
-                }}
-            """)
-            th_lay = QHBoxLayout(th_frame)
-            th_lay.setContentsMargins(12, 4, 12, 4)
-            th_lay.setSpacing(12)
-
-            t_icon = QLabel("🎯 <b>YOUTUBE THUMBNAIL</b>")
-            t_icon.setStyleSheet(f"color: {COLOR_BRAND_PRIMARY}; font-size: 11px; font-weight: 800; border: none; background: transparent;")
-            th_lay.addWidget(t_icon)
-
-            if th_head:
-                h_lbl = QLabel(f"<b>TEXT:</b> <span style='color: {COLOR_TEXT_PRIMARY}; font-weight: 700;'>{th_head}</span>")
-                h_lbl.setStyleSheet(f"color: {COLOR_TEXT_SECONDARY}; font-size: 11px; border: none; background: transparent;")
-                th_lay.addWidget(h_lbl)
-
-            th_lay.addStretch()
-
-            if th_prompt:
-                btn_copy_th = QPushButton("📋 Copy Thumbnail Prompt")
-                btn_copy_th.setFixedHeight(26)
-                btn_copy_th.setStyleSheet(f"""
-                    QPushButton {{
-                        background-color: {COLOR_GLASS_SURFACE_2}; color: {COLOR_BRAND_PRIMARY}; font-size: 10px; font-weight: 700;
-                        border: 1px solid {COLOR_BORDER_GREEN}; border-radius: 4px; padding: 0 10px;
-                    }}
-                    QPushButton:hover {{ background-color: rgba(163, 255, 18, 0.15); }}
-                """)
-                def _do_copy():
-                    QApplication.clipboard().setText(th_prompt)
-                    btn_copy_th.setText("✓ Copied!")
-                    QTimer.singleShot(2000, lambda: btn_copy_th.setText("📋 Copy Thumbnail Prompt"))
-                btn_copy_th.clicked.connect(_do_copy)
-                th_lay.addWidget(btn_copy_th)
-
-            self.grid_layout.addWidget(th_frame, 0, 0, 1, cols)
-            start_row = 1
 
         for i, sc in enumerate(self.scenes):
             card = PromptCardWidget(sc)
             card.edit_requested.connect(self._on_card_edited)
             card.delete_requested.connect(self._on_card_deleted)
             card.retry_requested.connect(lambda sc_item: self.retry_scene_requested.emit(sc_item))
-            row = start_row + (i // cols)
+            row = i // cols
             col = i % cols
             self.grid_layout.addWidget(card, row, col)
             self._card_widgets.append(card)
@@ -1048,42 +972,8 @@ class PromptGridWidget(QWidget):
                 if s_idx > 0:
                     is_first_batch = False
 
-        win = self.window()
-        proj = getattr(win, "project", None)
-        from app.core.thumbnail_prompt_builder import (
-            build_viral_thumbnail_prompt,
-            derive_story_thumbnail_headline,
-            is_valid_thumbnail_headline
-        )
-        sid = getattr(proj.state, "style_preset_id", "zombie_survival") if proj and hasattr(proj, "state") else "zombie_survival"
-        raw_th_h = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
-        th_h = derive_story_thumbnail_headline(
-            headline=raw_th_h,
-            story_text=getattr(proj.state, "story_raw_text", "") if proj and hasattr(proj, "state") else "",
-            scenes=self.scenes,
-            style_id=sid
-        )
-        if proj and hasattr(proj, "state") and th_h:
-            proj.state.thumbnail_headline = th_h
-
-        th_p = getattr(proj.state, "thumbnail_prompt", "") if proj and hasattr(proj, "state") else ""
-        if is_first_batch:
-            if not th_p or th_h not in th_p or (sid == "zombie_survival" and "zombie" not in th_p.lower()):
-                try:
-                    th_p = build_viral_thumbnail_prompt(headline=th_h, style_id=sid)
-                    if proj and hasattr(proj, "state"):
-                        proj.state.thumbnail_prompt = th_p
-                except Exception as e:
-                    print(f"[Studio] Notice generating thumbnail prompt for batch: {e}")
-
         lines = []
         from app.core.export import StoryboardExporter
-
-        # YouTube Thumbnail is ALWAYS placed at #1 (Batch Image 01)
-        if is_first_batch and th_p:
-            clean_th = StoryboardExporter.clean_prompt_single_line(th_p)
-            if clean_th:
-                lines.append(clean_th)
 
         for s in target_scenes:
             raw_p = s.prompt.strip() if s.prompt else (s.visual_subject or "")

@@ -231,17 +231,11 @@ class StoryboardExporter:
     def export_to_prompts_only(cls, scenes: List[VisualScene], thumbnail_prompt: Optional[str] = None) -> str:
         """
         Generates clean prompts_only.txt:
-        If thumbnail_prompt is provided, it is placed at line #1 (Image 1: Thumbnail).
         Each prompt is strictly on a single clean line (1 scene = 1 line), extracting the pure
-        visual prompt ready for direct generation in Gemini Canvas, Midjourney, or SDXL.
+        visual prompt starting directly from Scene 001. No thumbnail prompt.
         Strict contract: No metadata, no headers, no delimiters, no internal newlines.
         """
         lines = []
-        if thumbnail_prompt and thumbnail_prompt.strip():
-            clean_th = cls.clean_prompt_single_line(thumbnail_prompt)
-            if clean_th:
-                lines.append(clean_th)
-
         for sc in scenes:
             raw = sc.prompt.strip() if sc.prompt else (sc.visual_subject or "")
             clean_p = cls.clean_prompt_single_line(raw)
