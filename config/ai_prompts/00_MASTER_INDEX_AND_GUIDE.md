@@ -81,3 +81,4 @@ Within PromptBeast:
 - **In-App Prompt Viewer**: Click `👁️ View Full Style Prompt & Directives` to inspect the full prompt and guidelines in a dedicated high-contrast dialog.
 - **Dynamic Directive Highlights**: When switching styles in the visual matrix, a neon-accented banner instantly highlights that style's locked character attire, faction logic, and color hex codes.
 - **Groq Prompt Expansion**: When generating detailed prompts in Step 5, Groq strictly injects the active style's system instructions and bibles, guaranteeing full style fidelity across all scenes.
+

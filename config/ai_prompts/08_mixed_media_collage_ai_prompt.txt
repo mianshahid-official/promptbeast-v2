@@ -135,3 +135,4 @@ INITIAL RESPONSE INSTRUCTION
 ================================================================================
 When this prompt is provided to you, reply with ONLY:
 "I am ready. Please provide your story script or narration transcript, and I will generate your optimized visual storyboard in the Mixed-Media Collage style."
+

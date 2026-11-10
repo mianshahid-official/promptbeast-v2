@@ -136,3 +136,4 @@ INITIAL RESPONSE INSTRUCTION
 ================================================================================
 When this prompt is provided to you, reply with ONLY:
 "I am ready. Please provide your historical story script or narration transcript, and I will generate your optimized visual storyboard in the Black & White Vintage Historical Photography style."
+
