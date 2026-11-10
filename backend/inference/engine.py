@@ -207,7 +207,7 @@ class MockInferenceEngine(BaseInferenceEngine):
                     "environment": "Authentic historical setting",
                     "subject": subj_pair[0]
                 })
-            return json.dumps({"prompts": items})
+            return json.dumps({"scenes": items})
         elif "AUDIT" in prompt or "COMPLETE STORYBOARD TO AUDIT" in prompt:
             return json.dumps({
                 "overall_score": 92.0,
@@ -371,6 +371,13 @@ class GroqInferenceEngine(BaseInferenceEngine):
         from app.ai.groq_engine import get_groq_engine
         self.groq = get_groq_engine()
         self.model_name = default_model or model_name
+
+    def current_effective_max_tokens(self, baseline: int = 950) -> int:
+        """Delegates to the underlying Groq engine's effective output cap."""
+        accessor = getattr(self.groq, "current_effective_max_tokens", None)
+        if callable(accessor):
+            return int(accessor(baseline))
+        return baseline
 
     def generate_text(self, prompt: str, system_prompt: Optional[str] = None, temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
         temp = temperature if temperature is not None else 0.4

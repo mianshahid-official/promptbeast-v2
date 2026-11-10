@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 
 from app.models.scene import VisualScene
-from app.models.planning import StoryIntelligence, ScheduledStoryboard, ScheduledScene, ScriptAnalysis
+from app.models.planning import StoryIntelligence, ScriptAnalysis
 from app.models.timeline import NarrationData
 from app.models.presets import VisualStylePreset
 from app.models.project import ProjectConfig
@@ -215,28 +215,4 @@ class Stage2VisualStoryboard:
                     "Over-the-shoulder perspective framing subject against environment"
                 ]
                 scene.composition = shot_rotations[idx % len(shot_rotations)]
-
-
-# Backwards compatibility wrappers
-class Stage4TemporalScheduler:
-    @classmethod
-    def execute(cls, visual_plan=None, narration=None, story_text="", total_audio_duration=None, **kwargs):
-        # Wraps scenes into ScheduledStoryboard
-        scenes = []
-        if visual_plan and hasattr(visual_plan, "visual_beats"):
-            for i, vb in enumerate(visual_plan.visual_beats):
-                s_id = f"{i+1:03d}"
-                scenes.append(ScheduledScene(
-                    scene_id=s_id,
-                    beat_id=getattr(vb, "beat_id", f"VB-{s_id}"),
-                    start_time=float(i * 3.5),
-                    end_time=float((i + 1) * 3.5),
-                    duration=3.5,
-                    narration_text=getattr(vb, "exact_narration_segment", ""),
-                    visual_summary=getattr(vb, "primary_visual_concept", "")
-                ))
-        return ScheduledStoryboard(
-            scenes=scenes,
-            total_duration=scenes[-1].end_time if scenes else (total_audio_duration or 0.0)
-        )
 

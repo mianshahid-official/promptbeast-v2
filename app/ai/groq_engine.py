@@ -47,34 +47,44 @@ def _parse_duration_string(val: str) -> Optional[float]:
     return total if matched else None
 
 
-def parse_groq_retry_after(headers: Optional[Dict[str, str]] = None, text: Optional[str] = None) -> float:
+def parse_groq_retry_after(headers: Optional[Dict[str, str]] = None, text: Optional[str] = None) -> Optional[float]:
     """
     Extracts the real wait time in seconds from Groq rate limit responses.
     Checks explicit error body ('try again in Xs' or 'try again in Xms') or HTTP 'retry-after' header.
     Does NOT use x-ratelimit-reset-tokens (which is rolling 60s quota window, not retry delay).
+    Returns None when no wait can be parsed (caller must treat it as an unknown/long wait).
     """
     if text:
         m_s = re.search(r'try again in ([\d\.]+)\s*s', text, re.IGNORECASE)
         if m_s:
-            return max(0.5, float(m_s.group(1)))
+            return max(0.1, float(m_s.group(1)))
         m_ms = re.search(r'try again in ([\d\.]+)\s*ms', text, re.IGNORECASE)
         if m_ms:
-            return max(0.5, float(m_ms.group(1)) / 1000.0)
+            return max(0.1, float(m_ms.group(1)) / 1000.0)
 
     if headers:
         ra = headers.get("retry-after") or headers.get("Retry-After")
         if ra:
             try:
-                return max(0.5, float(ra))
+                return max(0.1, float(ra))
             except ValueError:
                 pass
         reset_req = headers.get("x-ratelimit-reset-requests") or headers.get("X-RateLimit-Reset-Requests")
         if reset_req:
             dur = _parse_duration_string(reset_req)
             if dur is not None and dur > 0:
-                return max(0.5, dur)
+                return max(0.1, dur)
 
-    return 2.0
+    return None
+
+
+def parse_groq_reduced_max_tokens(text: Optional[str] = None) -> Optional[int]:
+    """Extracts a 'reduce max_tokens to N' directive from a Groq 429 body, if present."""
+    if text:
+        m = re.search(r'reduce max_tokens to (\d+)', text, re.IGNORECASE)
+        if m:
+            return int(m.group(1))
+    return None
 
 
 class GroqMultiKeyManager:
@@ -188,6 +198,18 @@ class GroqEngine(BaseInferenceEngine):
 
     API_BASE = "https://api.groq.com/openai/v1"
 
+    # Groq free-tier output-token protection: Qwen output is capped at 950
+    # tokens (the safety ceiling under Groq's ~1000 output-tokens/min limit).
+    # A 429 can lower the effective cap (Groq directive "reduce max_tokens
+    # to N", else 800) for 60 seconds; it is enforced on every call.
+    BASELINE_MAX_TOKENS = 950
+    REDUCED_MAX_TOKENS = 800
+    EFFECTIVE_CAP_RECOVERY_SECONDS = 60.0
+    # 2-second pacing between requests (429/cooldown waits satisfy the gap).
+    REQUEST_PACING_SECONDS = 2.0
+    # Key-wait rule: a 429 wait at or under this is retried on the SAME key.
+    SHORT_DELAY_RETRY_SECONDS = 3.0
+
     def __init__(
         self,
         key_manager: Optional[GroqMultiKeyManager] = None,
@@ -198,6 +220,15 @@ class GroqEngine(BaseInferenceEngine):
         self.default_model = default_model
         self.timeout = timeout
         self.request_logs: List[Dict[str, Any]] = []
+        self._effective_cap = self.BASELINE_MAX_TOKENS
+        self._effective_cap_until = 0.0
+        self._last_request_time = 0.0
+
+    def current_effective_max_tokens(self, baseline: int = 950) -> int:
+        """Current output-token cap: the reduced cap while a 429 recovery window is active, else the baseline."""
+        if time.time() < self._effective_cap_until:
+            return self._effective_cap
+        return baseline
 
     @property
     def api_keys(self) -> List[str]:
@@ -228,8 +259,6 @@ class GroqEngine(BaseInferenceEngine):
         stage = stage_name or "INFERENCE"
         target_model = model or self.default_model
         temp = temperature if temperature is not None else 0.3
-        # Safe token reservation: 1200 tokens is plenty for 4 scene prompts and prevents Groq 8000 TPM overflow
-        max_tok = min(max_tokens or 1200, 1500)
 
         input_tok_est = len(prompt.split()) + (len(system_prompt.split()) if system_prompt else 0)
         num_keys = max(1, self.key_manager.total_keys())
@@ -263,11 +292,18 @@ class GroqEngine(BaseInferenceEngine):
             # If all keys were in cooldown, wait the real remaining time for earliest key
             if wait_needed > 0.0:
                 if accumulated_wait + wait_needed > max_wait_budget:
-                    print(f"[GroqEngine] Rate limit wait budget ({max_wait_budget}s) exceeded. Proceeding to fallback.")
+                    print(f"[GroqEngine] Rate limit wait budget ({max_wait_budget}s) exceeded. Aborting request.")
                     break
                 print(f"[GroqEngine] All {self.key_manager.total_keys()} keys in cooldown. Waiting {wait_needed:.1f}s for key {key_id} to become available (real-time Groq retry)...")
                 time.sleep(wait_needed)
                 accumulated_wait += wait_needed
+
+            # 2-second pacing between requests. 429/cooldown waits above satisfy
+            # the gap, so this only sleeps when the last request was recent.
+            # Pacing sleeps do NOT count toward max_wait_budget.
+            gap = time.monotonic() - self._last_request_time
+            if gap < self.REQUEST_PACING_SECONDS:
+                time.sleep(self.REQUEST_PACING_SECONDS - gap)
 
             headers = {
                 "Authorization": f"Bearer {key}",
@@ -277,6 +313,15 @@ class GroqEngine(BaseInferenceEngine):
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
+
+            # Enforce the effective output cap on EVERY attempt (a 429 in a
+            # previous attempt may have lowered it). 950 baseline; lower while
+            # a 429 recovery window is active. This is the Groq free-tier
+            # safety ceiling.
+            max_tok = min(
+                max_tokens if max_tokens is not None else 2500,
+                self.current_effective_max_tokens(self.BASELINE_MAX_TOKENS),
+            )
 
             payload = {
                 "model": target_model,
@@ -288,6 +333,7 @@ class GroqEngine(BaseInferenceEngine):
             req_start = time.perf_counter()
             try:
                 with httpx.Client(timeout=self.timeout) as client:
+                    self._last_request_time = time.monotonic()
                     resp = client.post(
                         f"{self.API_BASE}/chat/completions",
                         headers=headers,
@@ -319,10 +365,15 @@ class GroqEngine(BaseInferenceEngine):
                         })
                         return content
 
-                    # Rate limit or quota exhausted (429) -> Pause to allow token bucket to refill
+                    # Rate limit (429): short wait -> retry the SAME key; long/unknown wait -> rotate.
                     elif resp.status_code == 429:
                         raw_wait = parse_groq_retry_after(dict(resp.headers), resp.text)
-                        sleep_time = max(1.2, min(raw_wait + 0.5, 6.0))
+                        # Effective-cap memory: a 429 lowers the output cap (Groq directive
+                        # "reduce max_tokens to N", else 800) for 60s; enforced on every call.
+                        reduced = parse_groq_reduced_max_tokens(resp.text)
+                        self._effective_cap = reduced if reduced is not None else self.REDUCED_MAX_TOKENS
+                        self._effective_cap_until = time.time() + self.EFFECTIVE_CAP_RECOVERY_SECONDS
+                        print(f"[GroqEngine] Reduced max_tokens to {self._effective_cap} per Groq OTPM directive (recovery in 60s).")
                         last_error = f"HTTP 429: {resp.text}"
                         self.request_logs.append({
                             "stage_name": stage,
@@ -334,15 +385,24 @@ class GroqEngine(BaseInferenceEngine):
                             "input_token_estimate": input_tok_est,
                             "output_token_estimate": 0,
                             "response_status": "HTTP_429",
-                            "retry_reason": f"Rate limit; paused {sleep_time:.1f}s",
+                            "retry_reason": f"Rate limit; Groq wait {raw_wait if raw_wait is not None else 'unknown'}s",
                             "validation_status": "RETRYING",
                             "error_type": "RateLimitError",
                             "response_parse_status": "N/A"
                         })
-                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {raw_wait:.1f}s. Pausing {sleep_time:.1f}s for tokens to refill before retry... (Attempt {attempt+1}/{max_attempts})")
-                        time.sleep(sleep_time)
-                        accumulated_wait += sleep_time
-                        self.key_manager.mark_key_cooldown(key, sleep_time + 1.0)
+                        if raw_wait is not None and raw_wait <= self.SHORT_DELAY_RETRY_SECONDS:
+                            # Short delay: wait and retry the SAME key (no cooldown, no rotation).
+                            if accumulated_wait + raw_wait > max_wait_budget:
+                                print(f"[GroqEngine] Rate limit wait budget ({max_wait_budget}s) exceeded. Aborting request.")
+                                break
+                            print(f"[GroqEngine] Key {key_id} rate-limited with short delay ({raw_wait:.1f}s <= 3.0s). Retrying same key after wait...")
+                            time.sleep(raw_wait)
+                            accumulated_wait += raw_wait
+                            continue
+                        # Long or unparseable wait: cooldown this key and rotate to the next.
+                        wait_sec = max(3.0, (raw_wait or 0.0) + 1.5)
+                        self.key_manager.mark_key_cooldown(key, wait_sec)
+                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {raw_wait if raw_wait is not None else 'unknown'}s (cooldown {wait_sec:.1f}s). Switching to next key in pool... (Attempt {attempt+1}/{max_attempts})")
                         self.key_manager.rotate_key()
                         continue
 
@@ -411,6 +471,8 @@ class GroqEngine(BaseInferenceEngine):
                 self.key_manager.rotate_key()
                 time.sleep(1.0)
 
+        # No silent model fallback: when qwen keys are exhausted, fail loudly
+        # instead of quietly switching models (the model must not change mid-run).
         raise RuntimeError(f"All Groq API keys failed or were rate-limited. Last error: {last_error}")
 
     # =========================================================================

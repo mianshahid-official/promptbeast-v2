@@ -14,6 +14,7 @@ from app.models.planning import StoryIntelligence, ScriptAnalysis, ScheduledStor
 from app.models.presets import VisualStylePreset
 from app.presets.loader import PresetManager
 from backend.inference.engine import BaseInferenceEngine, GroqInferenceEngine
+from backend.pipeline.stage_validation import validate_storyboard
 from app.core.narration_workflow import robust_extract_scenes_from_llm_output
 
 
@@ -26,6 +27,32 @@ def load_image_prompt_system_prompt() -> str:
         except Exception:
             pass
     return "You are an expert image prompt architect. Generate detailed, style-compliant image prompts in JSON."
+
+
+# Measured per-scene output cost for one image prompt (prompt + negative_prompt
+# + JSON scaffolding). Measured in the vidroa F5 derivation for the same
+# image-prompt output shape; used here to derive the batch size from the
+# engine's effective output cap instead of guessing a batch size.
+PROMPT_TOKENS_PER_SCENE = 350
+
+
+def derive_stage3_batch_size(engine: Any, requested_batch_size: int) -> int:
+    """Derives the batch size from the engine's effective output cap.
+
+    batch_size = effective_cap // PROMPT_TOKENS_PER_SCENE, clamped to
+    [1, requested]. With the 950-token baseline cap this gives 2 scenes per
+    batch; with a reduced 800 cap it stays at 2. Never exceeds the requested
+    size and never exceeds what fits in the output budget.
+    """
+    cap = 950
+    accessor = getattr(engine, "current_effective_max_tokens", None)
+    if callable(accessor):
+        try:
+            cap = int(accessor(950))
+        except Exception:
+            cap = 950
+    derived = max(1, cap // PROMPT_TOKENS_PER_SCENE)
+    return max(1, min(int(requested_batch_size), derived))
 
 
 class Stage3PromptGeneration:
@@ -101,8 +128,10 @@ class Stage3PromptGeneration:
                 progress_callback(100.0, "All scenes are approved. No prompt regeneration needed.")
             return storyboard
 
-        # Process in batches (safe clamp to 4 prevents Groq token limits and truncation)
-        batch_sz = max(1, min(batch_size, 4))
+        # Process in batches. The batch size is derived from the engine's
+        # effective output cap and the measured per-prompt cost, so a batch
+        # always fits in the output budget (never truncate to fit).
+        batch_sz = derive_stage3_batch_size(engine, batch_size)
         total_batches = (total_to_process + batch_sz - 1) // batch_sz
 
         for b_idx in range(total_batches):
@@ -126,6 +155,10 @@ class Stage3PromptGeneration:
                 story_context=story_context,
                 max_retries=2
             )
+
+        # Validation gate: fail loudly on a broken storyboard (missing prompt,
+        # duplicate IDs, timeline gaps/overlaps) instead of rendering it.
+        validate_storyboard(storyboard)
 
         if progress_callback:
             progress_callback(100.0, f"Prompt generation complete for {total_to_process} scenes.")
@@ -202,7 +235,7 @@ INSTRUCTIONS:
                     prompt=user_prompt,
                     system_prompt=system_prompt,
                     temperature=0.3,
-                    max_tokens=1000
+                    max_tokens=len(batch) * PROMPT_TOKENS_PER_SCENE + 80
                 )
 
                 items = robust_extract_scenes_from_llm_output(raw_response)
@@ -232,22 +265,24 @@ INSTRUCTIONS:
                     elif not s.prompt:
                         all_assigned = False
 
-                if all_assigned or attempt == max_retries:
-                    # Fill any remaining unassigned scene with a concrete descriptive prompt from its visual idea
-                    for s in batch:
-                        if not s.prompt:
-                            clean_idea = s.visual_idea or s.visual_subject or "Cinematic scene"
-                            s.prompt = f"{clean_idea}. Setting: {s.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
-                            s.generation_status = "generated"
+                if all_assigned:
                     break
+                if attempt == max_retries:
+                    missing = [s.scene_id for s in batch if not s.prompt]
+                    raise RuntimeError(
+                        f"Stage 3 prompt generation failed: no prompt returned for scene(s) "
+                        f"{', '.join(missing)} after {max_retries + 1} attempt(s). "
+                        f"Failing loudly instead of filling a template prompt."
+                    )
 
+            except RuntimeError:
+                raise
             except Exception as e:
                 if attempt == max_retries:
-                    for s in batch:
-                        if not s.prompt:
-                            clean_idea = s.visual_idea or s.visual_subject or "Cinematic scene"
-                            s.prompt = f"{clean_idea}. Setting: {s.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
-                            s.generation_status = "generated"
+                    missing = [s.scene_id for s in batch if not s.prompt]
+                    raise RuntimeError(
+                        f"Stage 3 prompt generation failed for scene(s) {', '.join(missing)}: {e}"
+                    ) from e
 
     @classmethod
     def regenerate_single_scene(

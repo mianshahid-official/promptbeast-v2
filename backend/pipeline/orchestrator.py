@@ -26,6 +26,7 @@ from backend.pipeline.stage1_story_intelligence import Stage1StoryIntelligence
 from backend.pipeline.stage2_visual_storyboard import Stage2VisualStoryboard
 from backend.pipeline.stage3_prompt_generation import Stage3PromptGeneration
 from backend.pipeline.stage4_rendering import Stage4RenderingManager
+from backend.pipeline.stage_validation import validate_storyboard
 
 
 class PipelineOrchestrator:
@@ -263,6 +264,9 @@ class PipelineOrchestrator:
                 engine=engine,
                 progress_callback=prompt_cb
             )
+
+            # Validation gate (with narration): fail loudly before rendering.
+            validate_storyboard(final_scenes, narration=request.narration)
 
             store.set_scenes(job_id, final_scenes)
 

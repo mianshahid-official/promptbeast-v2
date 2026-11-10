@@ -33,12 +33,12 @@ CRITICAL RULES FOR THE STORYBOARD:
    - NO abstract metaphors, emotional commentary, or narration repetition (e.g. NEVER write "A shot representing the sorrow and hopelessness of the situation" — ALWAYS write "Close-up of the protagonist's exhausted face lit by a dying flashlight beam as rain drips from the broken ceiling").
 5. NO PROMPT CODES: Do NOT add Midjourney or FLUX parameters (e.g. do not add `--ar 16:9` or `--v 6`). PromptBeast's engine injects model parameters automatically.
 
---- EXAMPLE STORYBOARD FORMAT ---
-Visual 1 Words: Sixty people were locked inside this mall on the first night. Visual: Wide establishing view of a massive modern shopping mall at night, with sixty trapped survivors visible behind sealed glass entrances and heavy steel security shutters.
+--- EXAMPLE STORYBOARD FORMAT (format illustration only — use YOUR script's own words, never a fixed story) ---
+Visual 1 Words: [First sentence of YOUR script, word for word] Visual: [Concrete physical description of what the camera sees in this shot]
 
-Visual 2 Words: By Day 20, you will find proof that one of them is still alive. Visual: A lone infected figure wandering through a dark underground mall tunnel, with a calendar indicating twenty days have passed.
+Visual 2 Words: [Second sentence of YOUR script, word for word] Visual: [Concrete physical description of what the camera sees in this shot]
 
-Visual 3 Words: And that is the least dangerous thing down there. Visual: Deep underground service tunnels disappearing into darkness, with indistinct human-like silhouettes barely visible in the distance.
+Visual 3 Words: [Third sentence of YOUR script, word for word] Visual: [Concrete physical description of what the camera sees in this shot]
 ---------------------------------
 
 ================================================================================
