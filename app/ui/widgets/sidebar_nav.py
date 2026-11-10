@@ -31,7 +31,7 @@ from app.ui.theme import (
 
 
 class NavButton(QPushButton):
-    """Custom styled sidebar button with stage number, icon, and electric lime indicator."""
+    """Custom styled sidebar button with icon, label, and electric lime active indicator."""
 
     def __init__(
         self,
@@ -45,14 +45,14 @@ class NavButton(QPushButton):
         self.key = key
         self.title = title
         self.icon_str = icon_str
-        self.num_str = num_str
+        self.num_str = None
         self._is_collapsed = False
 
         self.setCheckable(True)
         self.setAutoExclusive(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setFixedHeight(40)
-        self.setToolTip(f"{num_str + ' — ' if num_str else ''}{title}")
+        self.setToolTip(title)
         self._update_display()
 
     def set_collapsed(self, collapsed: bool):
@@ -68,8 +68,8 @@ class NavButton(QPushButton):
                     padding: 0px;
                     margin: 2px 0px;
                     color: {COLOR_TEXT_SECONDARY};
-                    font-size: 16px;
-                    font-weight: 600;
+                    font-size: 18px;
+                    font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
                     background-color: transparent;
                     border: 1px solid transparent;
                     border-radius: 8px;
@@ -87,15 +87,15 @@ class NavButton(QPushButton):
                 }}
             """)
         else:
-            num_part = f"{self.num_str}  " if self.num_str else "    "
-            self.setText(f"  {self.icon_str}   {num_part}{self.title}")
+            self.setText(f"{self.icon_str}   {self.title}")
             self.setStyleSheet(f"""
                 QPushButton {{
                     text-align: left;
-                    padding-left: 10px;
+                    padding-left: 14px;
+                    padding-right: 10px;
                     color: {COLOR_TEXT_SECONDARY};
                     font-size: 13px;
-                    font-weight: 500;
+                    font-weight: 600;
                     background-color: transparent;
                     border: 1px solid transparent;
                     border-radius: 8px;
@@ -109,7 +109,7 @@ class NavButton(QPushButton):
                 QPushButton:checked {{
                     background-color: rgba(163, 255, 18, 0.12);
                     color: {COLOR_BRAND_PRIMARY};
-                    font-weight: 600;
+                    font-weight: 700;
                     border: 1px solid {COLOR_BORDER_GREEN};
                     border-left: 3px solid {COLOR_BRAND_PRIMARY};
                 }}
@@ -188,11 +188,11 @@ class SidebarNav(QWidget):
         # -------------------------------------------------------------
         # UNIFORM NAVIGATION ITEMS (No section divisions, no console)
         # -------------------------------------------------------------
-        self._add_nav_item("production", "Production", "🎬", "01", self._main_layout)
-        self._add_nav_item("studio", "Studio", "🎞️", "02", self._main_layout)
-        self._add_nav_item("scene_sync", "Scene Sync", "🔄", "03", self._main_layout)
-        self._add_nav_item("deliverables", "Deliverables", "⚡", "04", self._main_layout)
-        self._add_nav_item("profiles", "Profiles", "👤", "05", self._main_layout)
+        self._add_nav_item("production", "Production", "🎬", None, self._main_layout)
+        self._add_nav_item("studio", "Studio", "🎞️", None, self._main_layout)
+        self._add_nav_item("scene_sync", "Scene Sync", "🔄", None, self._main_layout)
+        self._add_nav_item("deliverables", "Deliverables", "⚡", None, self._main_layout)
+        self._add_nav_item("profiles", "Profiles", "👤", None, self._main_layout)
         self._add_nav_item("settings", "Settings", "⚙️", None, self._main_layout)
 
         self._main_layout.addStretch()
@@ -269,7 +269,7 @@ class SidebarNav(QWidget):
     def toggle_collapse(self):
         self._is_collapsed = not self._is_collapsed
         if self._is_collapsed:
-            self.setFixedWidth(72)
+            self.setFixedWidth(68)
             if hasattr(self, "_main_layout"):
                 self._main_layout.setContentsMargins(6, 12, 6, 12)
             if hasattr(self, "_brand_b_layout"):

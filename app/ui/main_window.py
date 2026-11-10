@@ -1050,6 +1050,7 @@ class MainWindow(QMainWindow):
                 self.scene_sync_panel.narration = self.project.state.narration
             if self.project.state.scenes:
                 self.scene_sync_panel.scenes = self.project.state.scenes
+            self.scene_sync_panel._auto_sync_pipeline()
 
     def _load_project_from_dir(self, dir_path: str):
         """Loads a project directly from disk directory path."""
