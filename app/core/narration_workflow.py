@@ -341,7 +341,7 @@ def align_visuals_with_timestamps(
                 end=round(end_time, 2),
                 duration=round(end_time - start_time, 2),
                 narration_excerpt=v_words,
-                visual_subject=v_vis[:80],
+                visual_subject=v_vis,
                 visual_idea=v_vis,
                 prompt="",
                 generation_status="pending",
@@ -371,7 +371,7 @@ def align_visuals_with_timestamps(
                 end=round(end_t, 2),
                 duration=round(avg_dur, 2),
                 narration_excerpt=item["words"],
-                visual_subject=item["visual_idea"][:80],
+                visual_subject=item["visual_idea"],
                 visual_idea=item["visual_idea"],
                 prompt="",
                 generation_status="pending"

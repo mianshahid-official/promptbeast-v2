@@ -228,15 +228,12 @@ class GroqEngine(BaseInferenceEngine):
         stage = stage_name or "INFERENCE"
         target_model = model or self.default_model
         temp = temperature if temperature is not None else 0.3
-        max_tok = max_tokens if max_tokens is not None else 2500
-
-        # Support generous token budget for detailed bibles and batch prompts (up to 4096)
-        if "qwen" in target_model.lower():
-            max_tok = min(max_tok, 4096)
+        # Safe token reservation: 1200 tokens is plenty for 4 scene prompts and prevents Groq 8000 TPM overflow
+        max_tok = min(max_tokens or 1200, 1500)
 
         input_tok_est = len(prompt.split()) + (len(system_prompt.split()) if system_prompt else 0)
         num_keys = max(1, self.key_manager.total_keys())
-        max_attempts = max(15, num_keys * 3)
+        max_attempts = min(8, num_keys * 2)
         max_wait_budget = 120.0  # Allow waiting up to 120 seconds total for rate limit resets
         accumulated_wait = 0.0
         last_error = None
@@ -322,11 +319,10 @@ class GroqEngine(BaseInferenceEngine):
                         })
                         return content
 
-                    # Rate limit or quota exhausted (429) -> Parse real wait time & cooldown key
+                    # Rate limit or quota exhausted (429) -> Pause to allow token bucket to refill
                     elif resp.status_code == 429:
                         raw_wait = parse_groq_retry_after(dict(resp.headers), resp.text)
-                        wait_sec = max(3.0, raw_wait + 1.5)  # Safe buffer to ensure token bucket refills
-                        self.key_manager.mark_key_cooldown(key, wait_sec)
+                        sleep_time = max(1.2, min(raw_wait + 0.5, 6.0))
                         last_error = f"HTTP 429: {resp.text}"
                         self.request_logs.append({
                             "stage_name": stage,
@@ -338,12 +334,15 @@ class GroqEngine(BaseInferenceEngine):
                             "input_token_estimate": input_tok_est,
                             "output_token_estimate": 0,
                             "response_status": "HTTP_429",
-                            "retry_reason": f"Rate limit; wait {wait_sec:.1f}s",
+                            "retry_reason": f"Rate limit; paused {sleep_time:.1f}s",
                             "validation_status": "RETRYING",
                             "error_type": "RateLimitError",
                             "response_parse_status": "N/A"
                         })
-                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {raw_wait:.1f}s (cooldown {wait_sec:.1f}s). Switching to next key in pool... (Attempt {attempt+1}/{max_attempts})")
+                        print(f"[GroqEngine] Key {key_id} rate-limited (HTTP 429). Groq requested wait: {raw_wait:.1f}s. Pausing {sleep_time:.1f}s for tokens to refill before retry... (Attempt {attempt+1}/{max_attempts})")
+                        time.sleep(sleep_time)
+                        accumulated_wait += sleep_time
+                        self.key_manager.mark_key_cooldown(key, sleep_time + 1.0)
                         self.key_manager.rotate_key()
                         continue
 
@@ -411,22 +410,6 @@ class GroqEngine(BaseInferenceEngine):
                 })
                 self.key_manager.rotate_key()
                 time.sleep(1.0)
-
-        # Resilient fallback: If qwen hits quota across all keys, attempt real Groq fallback models
-        if "qwen" in target_model.lower() and stage != "FALLBACK_RETRY":
-            for fallback_model in ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]:
-                try:
-                    print(f"[GroqEngine] Retrying with available fallback model: {fallback_model}...")
-                    return self.generate_text(
-                        prompt,
-                        system_prompt=system_prompt,
-                        temperature=temp,
-                        max_tokens=min(max_tokens or 2048, 2048),
-                        model=fallback_model,
-                        stage_name="FALLBACK_RETRY"
-                    )
-                except Exception as fb_err:
-                    last_error = f"{last_error} | Fallback {fallback_model} failed: {fb_err}"
 
         raise RuntimeError(f"All Groq API keys failed or were rate-limited. Last error: {last_error}")
 

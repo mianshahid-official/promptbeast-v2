@@ -231,7 +231,8 @@ class PromptCardWidget(QFrame):
         # 2. Visual Subject & Tags
         title_box = QHBoxLayout()
         title_box.setSpacing(4)
-        subj_lbl = QLabel(self.scene.visual_subject or f"Scene {self.scene.scene_id}")
+        full_subj = getattr(self.scene, "visual_idea", "") or self.scene.visual_subject or f"Scene {self.scene.scene_id}"
+        subj_lbl = QLabel(full_subj)
         subj_lbl.setStyleSheet(f"color: {COLOR_TEXT_PRIMARY}; font-weight: 700; font-size: 12px;")
         subj_lbl.setWordWrap(True)
         title_box.addWidget(subj_lbl, 1)
@@ -277,7 +278,8 @@ class PromptCardWidget(QFrame):
                 }}
             """)
         else:
-            prompt_content = f"[Planned Visual Shot - Awaiting Batch Prompt Gen]\n{self.scene.visual_subject}"
+            full_idea = getattr(self.scene, "visual_idea", "") or self.scene.visual_subject or "Planned visual scene."
+            prompt_content = f"[Planned Visual Shot - Awaiting Batch Prompt Gen]\n{full_idea}"
             self.prompt_box.setStyleSheet(f"""
                 QTextEdit {{
                     background-color: {COLOR_BG_MAIN};
@@ -763,7 +765,8 @@ class PromptGridWidget(QWidget):
             "Awaiting Batch Prompt Gen" in (s.prompt or "")
             for s in self.scenes
         )
-        self.approve_btn.setVisible(count > 0 and has_unprompted)
+        # Studio approval is unified in the top banner (MainWindow.plan_approval_banner); keep toolbar button hidden
+        self.approve_btn.setVisible(False)
 
         if count == 0:
             self.empty_label = QLabel(

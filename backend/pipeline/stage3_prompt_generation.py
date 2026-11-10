@@ -202,7 +202,7 @@ INSTRUCTIONS:
                     prompt=user_prompt,
                     system_prompt=system_prompt,
                     temperature=0.3,
-                    max_tokens=3000
+                    max_tokens=1000
                 )
 
                 items = robust_extract_scenes_from_llm_output(raw_response)

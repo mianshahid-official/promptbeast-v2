@@ -677,7 +677,7 @@ class MainWindow(QMainWindow):
         self.plan_summary_lbl.setStyleSheet(f"color: {COLOR_TEXT_PRIMARY}; font-size: 12px; font-weight: 600;")
         pab_lay.addWidget(self.plan_summary_lbl, 1)
 
-        self.approve_plan_btn = QPushButton("✓ Approve & Generate All Prompts")
+        self.approve_plan_btn = QPushButton("✓ Approve Plan and Expand Prompts")
         self.approve_plan_btn.setFixedHeight(34)
         self.approve_plan_btn.setCursor(Qt.PointingHandCursor)
         self.approve_plan_btn.setStyleSheet(f"""
@@ -1074,7 +1074,7 @@ class MainWindow(QMainWindow):
                 if hasattr(self, "plan_approval_banner"):
                     num = len(self.project.state.scenes)
                     self.plan_summary_lbl.setText(f"📋 {num} visual scenes planned. Review your storyboard below, then click Approve to expand prompts via Groq.")
-                    self.approve_plan_btn.setText("✓ Approve Plan & Expand Prompts")
+                    self.approve_plan_btn.setText("✓ Approve Plan and Expand Prompts")
                     self.approve_plan_btn.setEnabled(True)
                     self.plan_approval_banner.setVisible(True)
         elif k in ("scene_sync", "03"):
