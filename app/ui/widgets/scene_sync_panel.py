@@ -614,7 +614,12 @@ class SceneSyncPanel(QWidget):
                 pass
 
         if not prompts_list and self.scenes:
-            prompts_list = [s.image_prompt for s in self.scenes if getattr(s, "image_prompt", None)]
+            prompts_list = [
+                s.prompt.strip() for s in self.scenes
+                if getattr(s, "prompt", None) and s.prompt.strip() and "[Planned Visual Shot" not in s.prompt
+            ]
+            if not prompts_list:
+                prompts_list = [s.visual_subject for s in self.scenes if getattr(s, "visual_subject", None)]
 
         if not prompts_list:
             QMessageBox.warning(

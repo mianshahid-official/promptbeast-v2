@@ -3,6 +3,7 @@ Prompt Grid and Prompt Card Matrix widget for PromptBeast Studio.
 Renders generated scenes as a responsive grid of visual prompt cards matching
 the modern production dashboard specification.
 """
+import re
 from typing import List, Optional
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont
@@ -793,13 +794,25 @@ class PromptGridWidget(QWidget):
         # Dedicated YouTube Thumbnail Banner at the top of the Studio Matrix
         win = self.window()
         proj = getattr(win, "project", None)
-        th_head = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
-        th_prompt = getattr(proj.state, "thumbnail_prompt", "") if proj and hasattr(proj, "state") else ""
+        from app.core.thumbnail_prompt_builder import (
+            build_viral_thumbnail_prompt,
+            derive_story_thumbnail_headline,
+            is_valid_thumbnail_headline
+        )
+        sid = getattr(proj.state, "style_preset_id", "zombie_survival") if proj and hasattr(proj, "state") else "zombie_survival"
+        raw_th_h = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
+        th_head = derive_story_thumbnail_headline(
+            headline=raw_th_h,
+            story_text=getattr(proj.state, "story_raw_text", "") if proj and hasattr(proj, "state") else "",
+            scenes=self.scenes,
+            style_id=sid
+        )
+        if proj and hasattr(proj, "state") and th_head:
+            proj.state.thumbnail_headline = th_head
 
-        if th_head and (not th_prompt or th_head not in th_prompt):
+        th_prompt = getattr(proj.state, "thumbnail_prompt", "") if proj and hasattr(proj, "state") else ""
+        if not th_prompt or th_head not in th_prompt or (sid == "zombie_survival" and "zombie" not in th_prompt.lower()):
             try:
-                from app.core.thumbnail_prompt_builder import build_viral_thumbnail_prompt
-                sid = getattr(proj.state, "style_preset_id", "3d_red_blue_stickman") if proj and hasattr(proj, "state") else "3d_red_blue_stickman"
                 th_prompt = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
                 if proj and hasattr(proj, "state"):
                     proj.state.thumbnail_prompt = th_prompt
@@ -808,26 +821,27 @@ class PromptGridWidget(QWidget):
 
         if th_head or th_prompt:
             th_frame = QFrame()
+            th_frame.setObjectName("ThumbnailBanner")
+            th_frame.setFixedHeight(46)
             th_frame.setStyleSheet(f"""
-                QFrame {{
+                QFrame#ThumbnailBanner {{
                     background-color: {COLOR_GLASS_SURFACE};
                     border: 1px solid {COLOR_BORDER_GREEN};
                     border-radius: 8px;
-                    padding: 8px 12px;
-                    margin-bottom: 6px;
+                    padding: 4px 12px;
                 }}
             """)
             th_lay = QHBoxLayout(th_frame)
-            th_lay.setContentsMargins(8, 6, 8, 6)
-            th_lay.setSpacing(10)
+            th_lay.setContentsMargins(12, 4, 12, 4)
+            th_lay.setSpacing(12)
 
             t_icon = QLabel("🎯 <b>YOUTUBE THUMBNAIL</b>")
-            t_icon.setStyleSheet(f"color: {COLOR_BRAND_PRIMARY}; font-size: 11px; font-weight: 800;")
+            t_icon.setStyleSheet(f"color: {COLOR_BRAND_PRIMARY}; font-size: 11px; font-weight: 800; border: none; background: transparent;")
             th_lay.addWidget(t_icon)
 
             if th_head:
-                h_lbl = QLabel(f"<b>TEXT:</b> <span style='color: {COLOR_TEXT_PRIMARY};'>{th_head}</span>")
-                h_lbl.setStyleSheet(f"color: {COLOR_TEXT_SECONDARY}; font-size: 11px;")
+                h_lbl = QLabel(f"<b>TEXT:</b> <span style='color: {COLOR_TEXT_PRIMARY}; font-weight: 700;'>{th_head}</span>")
+                h_lbl.setStyleSheet(f"color: {COLOR_TEXT_SECONDARY}; font-size: 11px; border: none; background: transparent;")
                 th_lay.addWidget(h_lbl)
 
             th_lay.addStretch()
@@ -907,28 +921,31 @@ class PromptGridWidget(QWidget):
 
         win = self.window()
         proj = getattr(win, "project", None)
+        from app.core.thumbnail_prompt_builder import (
+            build_viral_thumbnail_prompt,
+            derive_story_thumbnail_headline,
+            is_valid_thumbnail_headline
+        )
+        sid = getattr(proj.state, "style_preset_id", "zombie_survival") if proj and hasattr(proj, "state") else "zombie_survival"
+        raw_th_h = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
+        th_h = derive_story_thumbnail_headline(
+            headline=raw_th_h,
+            story_text=getattr(proj.state, "story_raw_text", "") if proj and hasattr(proj, "state") else "",
+            scenes=self.scenes,
+            style_id=sid
+        )
+        if proj and hasattr(proj, "state") and th_h:
+            proj.state.thumbnail_headline = th_h
+
         th_p = getattr(proj.state, "thumbnail_prompt", "") if proj and hasattr(proj, "state") else ""
-        th_h = getattr(proj.state, "thumbnail_headline", "") if proj and hasattr(proj, "state") else ""
-        sid = getattr(proj.state, "style_preset_id", "3d_red_blue_stickman") if proj and hasattr(proj, "state") else "3d_red_blue_stickman"
-
-        if not th_h:
-            if proj and hasattr(proj, "state") and getattr(proj.state, "analysis", None):
-                th_h = getattr(proj.state.analysis, "thumbnail_headline", "")
-            if not th_h:
-                th_h = (proj.name.upper() if proj and proj.name else "EPIC STORY")
-
         if is_first_batch:
-            try:
-                from app.core.thumbnail_prompt_builder import build_viral_thumbnail_prompt
-                is_stickman = "stickman" in sid.lower() or "3d_red_blue" in sid.lower()
-                th_p_is_stickman = "stickman" in th_p.lower() if th_p else False
-                if not th_p or (is_stickman != th_p_is_stickman) or (th_h not in th_p):
+            if not th_p or th_h not in th_p or (sid == "zombie_survival" and "zombie" not in th_p.lower()):
+                try:
                     th_p = build_viral_thumbnail_prompt(headline=th_h, style_id=sid)
                     if proj and hasattr(proj, "state"):
-                        proj.state.thumbnail_headline = th_h
                         proj.state.thumbnail_prompt = th_p
-            except Exception as e:
-                print(f"[Studio] Notice generating thumbnail prompt for batch: {e}")
+                except Exception as e:
+                    print(f"[Studio] Notice generating thumbnail prompt for batch: {e}")
 
         lines = []
         from app.core.export import StoryboardExporter

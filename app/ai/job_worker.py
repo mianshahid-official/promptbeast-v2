@@ -276,7 +276,6 @@ class CloudJobWorker(QThread):
                 scenes=final_scenes
             )
             self.job_completed.emit(response)
-            self.job_completed.emit(response)
 
         except Exception as e:
             tb = traceback.format_exc()

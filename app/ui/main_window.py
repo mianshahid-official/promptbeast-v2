@@ -2321,11 +2321,23 @@ class MainWindow(QMainWindow):
 
             # 1. Save clean prompts_only.txt & image_prompts.txt to workspace root
             try:
-                th_head = getattr(self.project.state, "thumbnail_headline", "") or ""
+                from app.core.thumbnail_prompt_builder import (
+                    build_viral_thumbnail_prompt,
+                    derive_story_thumbnail_headline,
+                    is_valid_thumbnail_headline
+                )
+                sid = getattr(self.project.state, "style_preset_id", "zombie_survival") or "zombie_survival"
+                raw_th_h = getattr(self.project.state, "thumbnail_headline", "") or ""
+                th_head = derive_story_thumbnail_headline(
+                    headline=raw_th_h,
+                    story_text=getattr(self.project.state, "story_raw_text", "") or "",
+                    scenes=resp.scenes,
+                    style_id=sid
+                )
+                self.project.state.thumbnail_headline = th_head
+
                 th_p = getattr(self.project.state, "thumbnail_prompt", "") or ""
-                if (not th_p or th_head not in th_p) and th_head:
-                    from app.core.thumbnail_prompt_builder import build_viral_thumbnail_prompt
-                    sid = getattr(self.project.state, "style_preset_id", "3d_red_blue_stickman") or "3d_red_blue_stickman"
+                if not th_p or th_head not in th_p or (sid == "zombie_survival" and "zombie" not in th_p.lower()):
                     th_p = build_viral_thumbnail_prompt(headline=th_head, style_id=sid)
                     self.project.state.thumbnail_prompt = th_p
                 prompts_clean = StoryboardExporter.export_to_prompts_only(resp.scenes, thumbnail_prompt=th_p)
@@ -2451,6 +2463,7 @@ class MainWindow(QMainWindow):
                 }
             """)
             self.approve_plan_btn.setText("➔ Next Step: Scene Sync & Image Pacing")
+            self.approve_plan_btn.setEnabled(True)
             self.approve_plan_btn.setStyleSheet("""
                 QPushButton {
                     background-color: #10b981;
