@@ -459,15 +459,14 @@ Return ONLY valid JSON.
 def parse_custom_bible_text(bible_text: str) -> Dict[str, Any]:
     """
     Parses human-readable/markdown production bibles into structured dictionaries.
-    Directly supports sections:
-    1. CHARACTER BIBLE (CHARACTER X: NAME, Role, Appearance, Clothing, Important Props, Visual Continuity)
-    2. ENVIRONMENT BIBLE (LOCATION X: NAME, Architecture, Interior, Progression, Details)
-    3. OBJECT AND PROP BIBLE (Equipment, Food & Water, Personal Items, Structural)
-    4. CINEMATIC STYLE BIBLE (Genre, Lighting, Color, Composition)
-    5. CHRONOLOGY AND CONTINUITY BIBLE (Timeline events)
-    6. IMPORTANT VISUAL CONTINUITY RULES
-    7. FINAL STORY VISUAL IDENTITY
+    Uses BibleManager for flexible, robust extraction of Characters, Environments, Props, and Style.
     """
+    from app.core.bible_manager import BibleManager
+    return BibleManager.parse_single_bible_text(bible_text)
+
+
+def _legacy_parse_custom_bible_text(bible_text: str) -> Dict[str, Any]:
+    """Legacy parser retained for fallback reference."""
     bibles: Dict[str, Any] = {
         "story_bible": {
             "premise": "Realistic survival horror documentary.",

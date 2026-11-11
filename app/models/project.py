@@ -77,3 +77,7 @@ class StoryProject(BaseModel):
                 return self.state.narration.duration_seconds
             return 0.0
         return round(self.state.scenes[-1].end - self.state.scenes[0].start, 3)
+
+
+# Convenience alias
+Project = StoryProject

@@ -42,7 +42,8 @@ from app.core.narration_workflow import (
     align_visuals_with_timestamps,
     parse_custom_bible_text,
 )
-from app.ai.narration_worker import BibleExtractionWorker, BatchPromptGenerationWorker
+from app.core.bible_manager import BibleManager
+from app.ai.narration_worker import BatchPromptGenerationWorker
 from app.ui.widgets.style_thumbnail_matrix import StyleThumbnailMatrix
 from app.presets.loader import PresetManager
 
@@ -183,20 +184,23 @@ class NarrationWorkflowPanel(QWidget):
         self.narration: Optional[NarrationData] = None
         self.scenes: List[VisualScene] = []
         self.bibles: Dict[str, Any] = {}
+        self.loaded_bibles: Dict[str, Dict[str, Any]] = {}
         self.json_path: Optional[str] = None
         self.audio_path: Optional[str] = None
 
-        self._bible_worker: Optional[BibleExtractionWorker] = None
         self._prompt_worker: Optional[BatchPromptGenerationWorker] = None
 
         self._init_ui()
         self._auto_load_default_assets()
 
     def _auto_load_default_assets(self):
-        """Auto-detects and preloads audio and files/speech.json if present. Leaves visual ideas input empty."""
+        """Auto-detects and preloads audio and files/speech.json and Bibles.txt if present. Leaves visual ideas input empty."""
         sample_json = Path("audio and files/speech.json")
         if sample_json.exists():
             self.load_json_file(str(sample_json.resolve()))
+        sample_bibles = Path("audio and files/Bibles.txt")
+        if sample_bibles.exists():
+            self.load_bibles_from_path(str(sample_bibles.resolve()))
         # User requested: Visual ideas box MUST start completely empty
         self.txt_visual_ideas.setPlainText("")
 
@@ -310,6 +314,26 @@ class NarrationWorkflowPanel(QWidget):
 
         # Alignment Action Row
         align_row = QHBoxLayout()
+        self.btn_load_storyboard = QPushButton("📑 Load Storyboard File...")
+        self.btn_load_storyboard.setFixedHeight(34)
+        self.btn_load_storyboard.setCursor(Qt.PointingHandCursor)
+        self.btn_load_storyboard.setStyleSheet("""
+            QPushButton {
+                background-color: #1A2433;
+                color: #A3FF12;
+                font-weight: 700;
+                font-size: 12px;
+                border: 1px solid rgba(163, 255, 18, 0.4);
+                border-radius: 6px;
+                padding: 0 14px;
+            }
+            QPushButton:hover {
+                background-color: rgba(163, 255, 18, 0.2);
+            }
+        """)
+        self.btn_load_storyboard.clicked.connect(self._on_load_storyboard_dialog)
+        align_row.addWidget(self.btn_load_storyboard)
+
         self.btn_align_visuals = QPushButton("⚡ Parse & Synchronize Visual Ideas with Audio Timestamps")
         self.btn_align_visuals.setFixedHeight(34)
         self.btn_align_visuals.setCursor(Qt.PointingHandCursor)
@@ -361,33 +385,35 @@ class NarrationWorkflowPanel(QWidget):
         main_layout.addWidget(step2_box)
 
         # ---------------------------------------------------------------------
-        # STEP 3: STORY INTELLIGENCE & DYNAMIC BIBLES EXTRACTION
+        # STEP 3: USER-PROVIDED PRODUCTION BIBLES (FLEXIBLE BULK / SINGLE)
         # ---------------------------------------------------------------------
-        step3_box, s3_lay = self._create_card("📖 STEP 3: Dynamic Story Bibles & Context Extraction")
+        step3_box, s3_lay = self._create_card("📖 STEP 3: User Production Bibles & Context (Flexible Bulk / Single)")
         s3_lay.setSpacing(8)
 
         b_hdr = QHBoxLayout()
-        self.btn_extract_bibles = QPushButton("🧠 Extract Story Bibles via Groq AI")
-        self.btn_extract_bibles.setFixedHeight(34)
-        self.btn_extract_bibles.setCursor(Qt.PointingHandCursor)
-        self.btn_extract_bibles.setStyleSheet("""
+        b_hdr.setSpacing(10)
+
+        self.btn_load_bibles = QPushButton("📁 Load Bible File / Folder...")
+        self.btn_load_bibles.setFixedHeight(34)
+        self.btn_load_bibles.setCursor(Qt.PointingHandCursor)
+        self.btn_load_bibles.setStyleSheet("""
             QPushButton {
-                background-color: rgba(192, 132, 252, 0.18);
-                color: #C084FC;
+                background-color: rgba(163, 255, 18, 0.15);
+                color: #A3FF12;
                 font-weight: 700;
                 font-size: 12px;
-                border: 1px solid rgba(192, 132, 252, 0.5);
+                border: 1px solid rgba(163, 255, 18, 0.45);
                 border-radius: 6px;
-                padding: 0 16px;
+                padding: 0 14px;
             }
             QPushButton:hover {
-                background-color: rgba(192, 132, 252, 0.32);
+                background-color: rgba(163, 255, 18, 0.28);
             }
         """)
-        self.btn_extract_bibles.clicked.connect(self._on_extract_bibles)
-        b_hdr.addWidget(self.btn_extract_bibles)
+        self.btn_load_bibles.clicked.connect(self._on_load_bibles_dialog)
+        b_hdr.addWidget(self.btn_load_bibles)
 
-        self.btn_paste_bibles = QPushButton("📋 Paste Custom Bibles (Text Format)")
+        self.btn_paste_bibles = QPushButton("📋 Paste Custom Bible")
         self.btn_paste_bibles.setFixedHeight(34)
         self.btn_paste_bibles.setCursor(Qt.PointingHandCursor)
         self.btn_paste_bibles.setStyleSheet("""
@@ -407,9 +433,33 @@ class NarrationWorkflowPanel(QWidget):
         self.btn_paste_bibles.clicked.connect(self._on_paste_custom_bibles)
         b_hdr.addWidget(self.btn_paste_bibles)
 
-        self.lbl_bible_status = QLabel("Dynamic bibles not yet extracted.")
-        self.lbl_bible_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        b_hdr.addWidget(self.lbl_bible_status)
+        lbl_active_bible = QLabel("Active Bible:")
+        lbl_active_bible.setStyleSheet("color: #CBD5E1; font-size: 12px; font-weight: 600; margin-left: 6px;")
+        b_hdr.addWidget(lbl_active_bible)
+
+        self.combo_active_bible = QComboBox()
+        self.combo_active_bible.setFixedHeight(32)
+        self.combo_active_bible.setMinimumWidth(180)
+        self.combo_active_bible.setStyleSheet("""
+            QComboBox {
+                background-color: #0F172A;
+                color: #F8FAFC;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                padding: 4px 10px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QComboBox:hover {
+                border-color: #38BDF8;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+        """)
+        self.combo_active_bible.currentIndexChanged.connect(self._on_active_bible_changed)
+        b_hdr.addWidget(self.combo_active_bible)
 
         b_hdr.addStretch()
 
@@ -431,6 +481,14 @@ class NarrationWorkflowPanel(QWidget):
         self.btn_save_bibles.clicked.connect(self._on_save_bibles_clicked)
         b_hdr.addWidget(self.btn_save_bibles)
         s3_lay.addLayout(b_hdr)
+
+        # Status row for bibles
+        b_status_row = QHBoxLayout()
+        self.lbl_bible_status = QLabel("No bibles loaded. Click 'Load Bible File / Folder' or 'Paste Custom Bible'.")
+        self.lbl_bible_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        b_status_row.addWidget(self.lbl_bible_status)
+        b_status_row.addStretch()
+        s3_lay.addLayout(b_status_row)
 
         # Tabbed Bible Editors
         self.bible_tabs = QTabWidget()
@@ -772,62 +830,124 @@ class NarrationWorkflowPanel(QWidget):
 
         self.visual_scenes_aligned.emit(self.scenes)
 
-    # =========================================================================
-    # STEP 3 ACTIONS: STORY INTELLIGENCE & DYNAMIC BIBLES
-    # =========================================================================
-
-    def _on_extract_bibles(self):
-        script_text = self.story_text or self.txt_visual_ideas.toPlainText()
-        if not script_text.strip():
-            QMessageBox.warning(self, "Missing Script", "Please import a script JSON or paste narration first.")
+    def _on_load_storyboard_dialog(self):
+        """Allows 1-click loading of a storyboard file (.txt or .json) into Step 2."""
+        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Storyboard File",
+            start_dir,
+            "Storyboard Files (*.txt *.json);;All Files (*.*)"
+        )
+        if not path:
             return
 
-        self.btn_extract_bibles.setEnabled(False)
-        self.lbl_bible_status.setText("Extracting dynamic story context & bibles via Groq...")
-        self.lbl_bible_status.setStyleSheet("color: #F59E0B; font-size: 11px;")
+        try:
+            content = Path(path).read_text(encoding="utf-8")
+        except Exception:
+            try:
+                content = Path(path).read_text(encoding="latin-1")
+            except Exception as e:
+                QMessageBox.critical(self, "Read Error", f"Could not read storyboard file:\n{e}")
+                return
 
-        ideas_summary = self.txt_visual_ideas.toPlainText()[:4000]
-        model = self.combo_model.currentText()
+        self.txt_visual_ideas.setPlainText(content)
+        self._on_align_visuals()
 
-        self._bible_worker = BibleExtractionWorker(
-            story_text=script_text,
-            visual_ideas_summary=ideas_summary,
-            model=model,
-            parent=self
-        )
-        self._bible_worker.extraction_finished.connect(self._on_bibles_extracted)
-        self._bible_worker.extraction_failed.connect(self._on_bibles_failed)
-        self._bible_worker.start()
+    # =========================================================================
+    # STEP 3 ACTIONS: USER PRODUCTION BIBLES (FLEXIBLE BULK / SINGLE)
+    # =========================================================================
 
-    def _on_bibles_extracted(self, bibles_data: dict):
-        self.btn_extract_bibles.setEnabled(True)
-        self.bibles = bibles_data
-        self.lbl_bible_status.setText(f"✅ Bibles extracted ({len(bibles_data.get('characters', []))} characters, {len(bibles_data.get('environments', []))} environments)")
-        self.lbl_bible_status.setStyleSheet("color: #34D399; font-size: 11px; font-weight: 600;")
+    def load_bibles_from_path(self, path: str) -> bool:
+        """Loads single or bulk bibles from a file or folder path using BibleManager."""
+        loaded = BibleManager.load_bibles_from_path(path)
+        if not loaded:
+            return False
 
-        # Populate tabs
-        story_b = bibles_data.get("story_bible", {})
+        self.loaded_bibles.update(loaded)
+        first_name = list(loaded.keys())[0] if loaded else None
+        self._refresh_bible_selector(selected_name=first_name)
+        return True
+
+    def _refresh_bible_selector(self, selected_name: Optional[str] = None):
+        """Populates the Active Bible dropdown with all loaded bibles and selects the active one."""
+        self.combo_active_bible.blockSignals(True)
+        self.combo_active_bible.clear()
+        names = sorted(self.loaded_bibles.keys())
+        for name in names:
+            self.combo_active_bible.addItem(name)
+
+        target = selected_name or (names[0] if names else None)
+        if target and target in self.loaded_bibles:
+            idx = self.combo_active_bible.findText(target)
+            if idx >= 0:
+                self.combo_active_bible.setCurrentIndex(idx)
+            self._apply_active_bible(target)
+        self.combo_active_bible.blockSignals(False)
+
+    def _apply_active_bible(self, name: str):
+        """Applies the selected bible to the active workspace tabs and emits bibles_updated."""
+        if name not in self.loaded_bibles:
+            return
+
+        self.bibles = self.loaded_bibles[name]
+        chars = self.bibles.get("characters", [])
+        envs = self.bibles.get("environments", [])
+        props = self.bibles.get("key_objects", [])
+
+        story_b = self.bibles.get("story_bible", {})
         self.txt_story_bible.setPlainText(json.dumps(story_b, indent=2))
-
-        chars_b = bibles_data.get("characters", [])
-        self.txt_char_bible.setPlainText(json.dumps(chars_b, indent=2))
-
-        envs_b = bibles_data.get("environments", [])
-        self.txt_env_bible.setPlainText(json.dumps(envs_b, indent=2))
-
-        objs_b = bibles_data.get("key_objects", [])
-        self.txt_objects_bible.setPlainText(json.dumps(objs_b, indent=2))
-
-        style_b = bibles_data.get("visual_style_bible", {})
+        self.txt_char_bible.setPlainText(json.dumps(chars, indent=2))
+        self.txt_env_bible.setPlainText(json.dumps(envs, indent=2))
+        self.txt_objects_bible.setPlainText(json.dumps(props, indent=2))
+        style_b = self.bibles.get("visual_style_bible", {})
         self.txt_style_bible.setPlainText(json.dumps(style_b, indent=2))
 
+        self.lbl_bible_status.setText(
+            f"✅ Active Bible: '{name}' ({len(chars)} characters, {len(envs)} locations, {len(props)} props)"
+        )
+        self.lbl_bible_status.setStyleSheet("color: #34D399; font-size: 11px; font-weight: 600;")
         self.bibles_updated.emit(self.bibles)
 
-    def _on_bibles_failed(self, error_msg: str):
-        self.btn_extract_bibles.setEnabled(True)
-        self.lbl_bible_status.setText(f"❌ Extraction error: {error_msg[:60]}")
-        self.lbl_bible_status.setStyleSheet("color: #EF4444; font-size: 11px;")
-        QMessageBox.critical(self, "Bible Extraction Failed", f"Groq Bible extraction failed:\n{error_msg}")
+    def _on_active_bible_changed(self, index: int):
+        """Handles user selecting a different bible from the active bible dropdown."""
+        active_name = self.combo_active_bible.currentText()
+        if active_name:
+            self._apply_active_bible(active_name)
+
+    def _on_load_bibles_dialog(self):
+        """Prompts user to select a Bible file or a folder containing multiple bibles."""
+        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
+        choice = QMessageBox.question(
+            self,
+            "Load Production Bibles",
+            "Click 'Yes' to select a single Bible file (e.g. Bibles.txt, .json, .md),\n"
+            "or 'No' to select a folder containing multiple Bible files.",
+            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+            QMessageBox.Yes
+        )
+        if choice == QMessageBox.Cancel:
+            return
+        elif choice == QMessageBox.Yes:
+            path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select Production Bible File",
+                start_dir,
+                "Bible Files (*.txt *.json *.md);;All Files (*.*)"
+            )
+        else:
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "Select Folder Containing Production Bibles",
+                start_dir
+            )
+
+        if not path:
+            return
+
+        success = self.load_bibles_from_path(path)
+        if not success:
+            QMessageBox.warning(self, "Load Warning", f"No valid bibles could be extracted from:\n{path}")
 
     def _on_save_bibles_clicked(self):
         try:
@@ -836,7 +956,9 @@ class NarrationWorkflowPanel(QWidget):
             self.bibles["environments"] = json.loads(self.txt_env_bible.toPlainText() or "[]")
             self.bibles["key_objects"] = json.loads(self.txt_objects_bible.toPlainText() or "[]")
             self.bibles["visual_style_bible"] = json.loads(self.txt_style_bible.toPlainText() or "{}")
-            self.lbl_bible_status.setText("✅ Edited bibles saved successfully!")
+            active_name = self.combo_active_bible.currentText() or "Custom Bible"
+            self.loaded_bibles[active_name] = self.bibles
+            self.lbl_bible_status.setText(f"✅ Saved edited bible: '{active_name}'")
             self.lbl_bible_status.setStyleSheet("color: #A3FF12; font-size: 11px; font-weight: 600;")
             self.bibles_updated.emit(self.bibles)
         except Exception as e:
@@ -911,10 +1033,14 @@ class NarrationWorkflowPanel(QWidget):
             if not raw_text:
                 return
 
-            parsed = parse_custom_bible_text(raw_text)
-            self._on_bibles_extracted(parsed)
-            self.lbl_bible_status.setText(
-                f"✅ Custom Bibles Loaded ({len(parsed.get('characters', []))} characters, "
+            parsed_bulk = BibleManager.parse_bulk_bibles_text(raw_text, default_name="Pasted Bible")
+            if parsed_bulk:
+                self.loaded_bibles.update(parsed_bulk)
+                first_name = list(parsed_bulk.keys())[0]
+                self._refresh_bible_selector(selected_name=first_name)
+                total_chars = sum(len(b.get("characters", [])) for b in parsed_bulk.values())
+                self.lbl_bible_status.setText(f"✅ Loaded {len(parsed_bulk)} Bible(s) with {total_chars} total characters.")
+                self.lbl_bible_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 700;")
                 f"{len(parsed.get('environments', []))} locations, "
                 f"{len(parsed.get('key_objects', []))} props)"
             )

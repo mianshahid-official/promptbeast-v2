@@ -2,6 +2,7 @@
 Settings dialog for configuring Groq Multi-Key Engine, models, Whisper transcription, and generation defaults.
 """
 from pathlib import Path
+from typing import List
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -19,6 +20,7 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QMessageBox,
     QFrame,
+    QPlainTextEdit,
 )
 from app.config.settings import AppSettings, SettingsManager
 from app.ai.api_client import ConnectionCheckWorker
@@ -32,11 +34,24 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("PromptBeast Settings")
-        self.setMinimumWidth(640)
-        self.setMinimumHeight(500)
+        self.setMinimumWidth(680)
+        self.setMinimumHeight(560)
 
         self._worker = None
+        self._keys_revealed = False
         self.settings = SettingsManager.load_settings()
+
+        # Load API keys
+        self.raw_api_keys: List[str] = []
+        groq = get_groq_engine()
+        for k in groq.api_keys:
+            if k and k.strip() and k.strip() not in self.raw_api_keys:
+                self.raw_api_keys.append(k.strip())
+        if self.settings.api_key and self.settings.api_key.strip():
+            k = self.settings.api_key.strip()
+            if k not in self.raw_api_keys:
+                self.raw_api_keys.append(k)
+
         self._setup_ui()
 
     def _setup_ui(self):
@@ -59,7 +74,7 @@ class SettingsDialog(QDialog):
 
         # Active Keys Info
         groq = get_groq_engine()
-        key_count = len(groq.api_keys)
+        key_count = len(self.raw_api_keys)
         info_lbl = QLabel(
             f"<b>Active Key Pool:</b> {key_count} Groq API keys loaded from "
             f"<code>d:/AntiGravity/groq api.txt</code>.<br>"
@@ -68,6 +83,21 @@ class SettingsDialog(QDialog):
         info_lbl.setStyleSheet("color: #94a3b8; font-size: 11px; line-height: 1.4;")
         info_lbl.setWordWrap(True)
         gg_layout.addWidget(info_lbl)
+
+        # Selected Model Banner
+        self.selected_model_banner = QLabel()
+        self.selected_model_banner.setStyleSheet("""
+            QLabel {
+                background-color: #0F172A;
+                color: #A3FF12;
+                font-size: 12px;
+                font-weight: 700;
+                border: 1px solid rgba(163, 255, 18, 0.4);
+                border-radius: 6px;
+                padding: 8px 12px;
+            }
+        """)
+        gg_layout.addWidget(self.selected_model_banner)
 
         # Primary Storyboard Model
         gg_layout.addWidget(QLabel("Primary Storyboard LLM Model:"))
@@ -82,7 +112,62 @@ class SettingsDialog(QDialog):
             self.model_combo.setCurrentText(current_model)
         else:
             self.model_combo.setCurrentText("qwen/qwen3.8-27b")
+        self.model_combo.currentTextChanged.connect(self._update_model_display)
+        self._update_model_display(self.model_combo.currentText())
         gg_layout.addWidget(self.model_combo)
+
+        # Saved Groq API Keys Section
+        keys_box = QGroupBox("🔑 Saved Groq API Keys")
+        kb_layout = QVBoxLayout(keys_box)
+        kb_layout.setSpacing(6)
+
+        kb_hdr = QHBoxLayout()
+        self.lbl_keys_count = QLabel(f"<b>Key Pool:</b> {len(self.raw_api_keys)} saved keys (Rotation & Failover Active)")
+        self.lbl_keys_count.setStyleSheet("color: #38BDF8; font-size: 11px;")
+        kb_hdr.addWidget(self.lbl_keys_count)
+        kb_hdr.addStretch()
+
+        self.btn_toggle_keys = QPushButton("👁️ Show API Keys")
+        self.btn_toggle_keys.setFixedHeight(26)
+        self.btn_toggle_keys.setCursor(Qt.PointingHandCursor)
+        self.btn_toggle_keys.setStyleSheet("""
+            QPushButton {
+                background-color: #1E293B;
+                color: #CBD5E1;
+                font-size: 11px;
+                font-weight: 600;
+                border: 1px solid #334155;
+                border-radius: 4px;
+                padding: 0 10px;
+            }
+            QPushButton:hover {
+                background-color: #334155;
+                color: #FFFFFF;
+                border-color: #38BDF8;
+            }
+        """)
+        self.btn_toggle_keys.clicked.connect(self._on_toggle_api_keys)
+        kb_hdr.addWidget(self.btn_toggle_keys)
+        kb_layout.addLayout(kb_hdr)
+
+        self.keys_text_edit = QPlainTextEdit()
+        self.keys_text_edit.setMinimumHeight(90)
+        self.keys_text_edit.setMaximumHeight(130)
+        self.keys_text_edit.setStyleSheet("""
+            QPlainTextEdit {
+                background-color: #0B0F17;
+                color: #CBD5E1;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 11px;
+                border: 1px solid #1E293B;
+                border-radius: 6px;
+                padding: 6px 8px;
+            }
+        """)
+        self._render_keys_display()
+        kb_layout.addWidget(self.keys_text_edit)
+
+        gg_layout.addWidget(keys_box)
 
         # Audio Transcription Engine
         gg_layout.addWidget(QLabel("Default Audio Transcription Engine:"))
@@ -251,8 +336,50 @@ class SettingsDialog(QDialog):
         if dir_path:
             self.ws_input.setText(dir_path)
 
+    def _update_model_display(self, model_name: str):
+        self.selected_model_banner.setText(f"🎯 Currently Selected Model: {model_name}")
+
+    def _mask_key(self, key: str) -> str:
+        k = key.strip()
+        if len(k) <= 10:
+            return "••••••••"
+        return f"{k[:4]}••••••••••••{k[-6:]}"
+
+    def _render_keys_display(self):
+        if self._keys_revealed:
+            self.keys_text_edit.setPlainText("\n".join(self.raw_api_keys))
+            self.btn_toggle_keys.setText("🔒 Hide API Keys")
+        else:
+            masked = [self._mask_key(k) for k in self.raw_api_keys]
+            self.keys_text_edit.setPlainText("\n".join(masked))
+            self.btn_toggle_keys.setText("👁️ Show API Keys")
+
+    def _on_toggle_api_keys(self):
+        if self._keys_revealed:
+            edited = [line.strip() for line in self.keys_text_edit.toPlainText().splitlines() if line.strip()]
+            self.raw_api_keys = edited
+        self._keys_revealed = not self._keys_revealed
+        self._render_keys_display()
+
     def _on_save(self):
         self._cleanup_worker()
+
+        # Capture edited keys if user had them revealed
+        if self._keys_revealed:
+            edited = [line.strip() for line in self.keys_text_edit.toPlainText().splitlines() if line.strip()]
+            self.raw_api_keys = edited
+
+        if self.raw_api_keys:
+            self.settings.api_key = self.raw_api_keys[0]
+            groq = get_groq_engine()
+            groq.api_keys = list(self.raw_api_keys)
+            groq_file = Path("d:/AntiGravity/groq api.txt")
+            if groq_file.exists():
+                try:
+                    groq_file.write_text("\n".join(self.raw_api_keys), encoding="utf-8")
+                except Exception:
+                    pass
+
         self.settings.default_model = self.model_combo.currentText()
         self.settings.default_min_duration = self.min_spin.value()
         self.settings.default_preferred_duration = self.pref_spin.value()

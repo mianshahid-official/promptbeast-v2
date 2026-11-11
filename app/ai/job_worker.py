@@ -130,7 +130,7 @@ class CloudJobWorker(QThread):
             )
 
             # -------------------------------------------------------------
-            # STAGE 1: Story Intelligence
+            # STAGE 1: Story Intelligence & Bible Context (User-Provided)
             # -------------------------------------------------------------
             if self._is_cancelled:
                 self.job_cancelled.emit()
@@ -149,28 +149,19 @@ class CloudJobWorker(QThread):
                 analysis = self.analysis
                 story_intel = StoryIntelligence(story_summary=getattr(analysis, "story_summary", ""))
             else:
-                self.stage_changed.emit("Stage 1/4: Extracting Story, Character, and Environment Bibles...")
-                self.progress_updated.emit(ProgressInfo(
-                    stage=JobStage.STORY_INTELLIGENCE,
-                    status=JobStatus.RUNNING,
-                    progress_percentage=15.0,
-                    message="Extracting Story, Character, and Environment Bibles..."
-                ))
-                story_intel = Stage1StoryIntelligence.execute(
-                    engine=engine,
-                    story_text=self.request.story_text,
-                    narration=self.request.narration,
-                    user_visual_ideas=getattr(self.request, "user_visual_ideas", None),
-                    subject_preset=subject_preset,
-                    custom_subject=self.request.custom_subject,
-                    style_preset=style_preset,
-                    custom_style=self.request.custom_style
+                # Per architecture requirements: Bibles are user-provided, never generated via Groq
+                story_intel = StoryIntelligence(
+                    story_summary=self.request.story_text[:500] if self.request.story_text else "Production Story",
+                    characters=[{"name": "Protagonist", "physical_description": "Main character", "clothing_and_gear": "Standard clothing"}],
+                    environments=[{"name": "Setting", "architectural_style": "Story environment"}],
+                    objects_and_props=[],
+                    visual_style_bible={"color_palette": f"Consistent with {style_preset.name}"}
                 )
                 analysis = story_intel.to_story_analysis()
                 self.analysis_ready.emit(analysis)
 
             # -------------------------------------------------------------
-            # STAGE 2: Visual Storyboard
+            # STAGE 2: Visual Storyboard (User-Provided)
             # -------------------------------------------------------------
             if self._is_cancelled:
                 self.job_cancelled.emit()
@@ -179,33 +170,22 @@ class CloudJobWorker(QThread):
             if self.scenes_to_generate:
                 planned_scenes = self.scenes_to_generate
             else:
-                self.stage_changed.emit("Stage 2/4: Structuring narration-aligned visual storyboard...")
-                self.progress_updated.emit(ProgressInfo(
-                    stage=JobStage.VISUAL_STORYBOARD,
-                    status=JobStatus.RUNNING,
-                    progress_percentage=35.0,
-                    message="Structuring narration-aligned visual storyboard..."
-                ))
-                planned_scenes = Stage2VisualStoryboard.execute(
-                    story_intelligence=story_intel,
-                    narration=self.request.narration,
-                    story_text=self.request.story_text,
-                    user_visual_ideas=getattr(self.request, "user_visual_ideas", None),
-                    style_preset=style_preset,
-                    config=config,
-                    engine=engine
+                # Per architecture requirements: Storyboards are user-provided, never generated via Groq
+                raise ValueError(
+                    "No storyboard scenes provided. Storyboards must be provided by the user. "
+                    "Please import or paste storyboard scenes before running prompt expansion."
                 )
 
             total_scenes = len(planned_scenes)
             self.scenes_streamed.emit(planned_scenes)
 
             if self.plan_only:
-                self.stage_changed.emit("Story Bible & Visual Scenes planned. Awaiting your approval.")
+                self.stage_changed.emit("User storyboard scenes and bible loaded. Ready for prompt expansion.")
                 self.progress_updated.emit(ProgressInfo(
                     stage=JobStage.VISUAL_STORYBOARD,
                     status=JobStatus.COMPLETED,
                     progress_percentage=100.0,
-                    message=f"Planning complete: {total_scenes} scenes ready for approval.",
+                    message=f"Storyboard ready: {total_scenes} scenes ready for prompt expansion.",
                     total_scenes_target=total_scenes
                 ))
                 self.planning_ready.emit(analysis, planned_scenes)

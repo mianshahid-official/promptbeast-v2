@@ -289,3 +289,8 @@ class StoryboardExporter:
             "csv": str(csv_file),
             "prompts_only": str(prompts_only_file)
         }
+
+
+# Aliases for backwards compatibility and ease of import
+ExportManager = StoryboardExporter
+save_all_exports = StoryboardExporter.save_all_exports

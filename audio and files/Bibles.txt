@@ -1,0 +1,823 @@
+1. CHARACTER BIBLE
+
+HERO NARRATOR ("YOU")
+
+Role & Identity:
+
+- Main protagonist and narrator of the zombie survival story.
+- A resourceful survivor trapped inside a massive shopping mall during the outbreak.
+- Strategic, observant, cautious and highly disciplined.
+- Relies on planning, resource management, stealth and controlled defensive actions rather than unnecessary confrontation.
+
+Anatomy & Head Proportions:
+
+- Standardized 2D stick-figure anatomy.
+- Large round off-white head (#F5F5F0), approximately one-third of total body height.
+- Two small solid black circular eyes.
+- Short, straight black mouth.
+- No nose, ears or realistic facial anatomy.
+- Short black hair tufts visible around the forehead and behind the ears.
+- Thin black stick arms and legs with simple joints and minimal extremities.
+
+Locked Wardrobe & Colors:
+
+- Backwards flat-red baseball cap (#D63A2A).
+- Dark curved cap brim pointing behind the head.
+- Small black adjustment strap detail at the front brow.
+- Dark charcoal-grey zip-up hoodie (#333333).
+- Pure-white undershirt (#FFFFFF).
+- Dark brown cross-body messenger bag strap (#4A2E1B), running from right shoulder to left hip.
+- Small silver key clip attached to the waistband.
+
+Important Props & Tools:
+
+- Box cutter.
+- Clipboard.
+- Yellow survival notepad.
+- Flashlight.
+- Crowbar.
+- Water containers.
+- Survival backpack.
+- Metal security keys.
+- Small inventory lists and maps.
+
+Visual Expression & Demeanor:
+
+- Neutral straight-line mouth during routine activities.
+- Slightly lowered head when concentrating.
+- Wide dot eyes when surprised or alarmed.
+- Controlled body posture during dangerous situations.
+- Avoid exaggerated facial expressions.
+
+Visual Continuity Rules:
+
+- The backwards red cap must always remain visible.
+- Hoodie and messenger bag strap colors never change.
+- Head proportions and stick anatomy remain identical.
+- The hero never develops realistic facial features.
+- Props must appear only when relevant to the current scene.
+- The hero must look identical across all 60 days of the story.
+
+MILLER — SECONDARY SURVIVOR
+
+Role & Identity:
+
+- Delivery driver trapped inside the mall loading bay during the initial lockdown.
+- Survives alone for 42 days before encountering the hero.
+- Becomes the second human survivor in the fortified mall.
+- Emotionally vulnerable, talkative under pressure and deeply attached to his daughter.
+
+Anatomy & Head Proportions:
+
+- Round off-white stick-figure head (#F5F5F0).
+- Two small black dot eyes.
+- Simple straight-line mouth.
+- Thin black stick arms and legs.
+- Same standardized proportions as the hero.
+
+Locked Wardrobe & Colors:
+
+- Faded denim-blue jacket (#3B5372).
+- Pale-grey undershirt.
+- Dark charcoal trousers.
+- Simple dark footwear represented through flat shapes.
+- No cap or cross-body messenger bag.
+
+Important Props & Tools:
+
+- Metal pipe.
+- Delivery backpack.
+- Five-gallon water jug.
+- Daughter's framed photograph.
+- Paperback book.
+- Small personal belongings.
+
+Visual Expression & Demeanor:
+
+- Nervous posture with slightly hunched shoulders.
+- Frequently moving arms while speaking.
+- Shaking posture during moments of extreme fear.
+- Protective grip on his daughter's photograph.
+- Later scenes show a tired, injured survivor with limited mobility.
+
+Visual Continuity Rules:
+
+- Blue jacket remains identical throughout the story.
+- Miller's face and body proportions never change.
+- His daughter's photograph must remain visually consistent.
+- His calf injury appears after the Day 57 glass accident.
+- The injury remains bandaged throughout the remaining scenes.
+- Miller cannot walk normally after the injury.
+
+UNIFORM ZOMBIE HORDE
+
+Role & Identity:
+
+- Former shoppers, employees and other infected people trapped inside the mall.
+- Primary external threat throughout the story.
+- All zombies share one standardized visual design.
+
+Anatomy & Head Proportions:
+
+- Round stick-figure heads.
+- Dull pale olive-green skin (#8A9A66).
+- Alternative consistent shadow fill: #7A8B58.
+- Large circular white eyes (#FFFFFF).
+- Tiny centered black pupils.
+- Wide open mouths with jagged white teeth along both jaws.
+- Sparse black hair tufts sticking upward.
+- Thin black stick arms and legs.
+
+Locked Wardrobe & Colors:
+
+- Oversized tattered dark-brown jackets (#5C4033).
+- Frayed pale-grey or off-white undershirts.
+- Dark-grey torn trousers.
+- Shredded jacket hems and simple knee holes.
+- Heavy black outlines around all clothing.
+
+Visual Expression & Demeanor:
+
+- Permanently open mouths.
+- Unblinking circular eyes.
+- Hunched posture.
+- Arms extended forward.
+- Slow dragging movements when alone.
+- Dense shoulder-to-shoulder formations when moving as a horde.
+
+Visual Continuity Rules:
+
+- Every zombie uses the same olive-green skin palette.
+- No special infected, mutants or monster variations.
+- No glowing supernatural eyes.
+- No realistic facial anatomy.
+- No blood, exposed wounds or graphic gore.
+- All zombies maintain the same brown jacket and dark-trouser design.
+
+2. ENVIRONMENT BIBLE
+
+UPPER MALL CONCOURSE
+
+Primary Setting & Layout:
+
+- Large central shopping area connecting multiple retail stores.
+- Two main floors with open mezzanine walkways.
+- Central fountain beneath a large glass skylight.
+- Jewelry stores, boutiques and department stores surround the concourse.
+
+2D Architectural Style:
+
+- Flat rectangular architectural shapes.
+- Heavy black outlines.
+- Simple geometric storefronts.
+- Consistent floor and ceiling proportions.
+- Repeating balcony railings and storefront windows.
+
+Flat Asset Blocks:
+
+- Store signs.
+- Shopping carts.
+- Display cases.
+- Benches.
+- Escalators.
+- Decorative planters.
+- Central fountain.
+- Security shutters.
+
+Lighting:
+
+- Day 1: Bright commercial white lighting.
+- Early outbreak: Intermittent emergency lighting.
+- Middle survival period: Dark navy shadows and flashlight illumination.
+- Late outbreak: Moonlight entering through the damaged skylight.
+
+Visual Progression:
+
+- Day 1: Clean, crowded and brightly illuminated.
+- Day 4: Abandoned merchandise and neglected storefronts.
+- Day 20: Dusty corridors and isolated infected.
+- Day 57: Destroyed lower concourse and scattered merchandise.
+- Day 60: Ground floor devastated, second floor relatively intact.
+
+SPORTING GOODS STORE — MAIN BASE
+
+Primary Setting & Layout:
+
+- Second-floor retail store selected as the hero's primary shelter.
+- One main entrance.
+- No outside-facing windows.
+- Access to maintenance catwalks through an internal ladder.
+- Direct access to the second-floor mezzanine.
+
+Flat Asset Blocks:
+
+- Sports equipment shelves.
+- Camping equipment.
+- Storage boxes.
+- Water containers.
+- Canned food.
+- Metal stock carts.
+- Heavy security grate.
+- Yellow planning notepad.
+- Reinforced entrance barricades.
+
+Lighting:
+
+- Early period: Weak overhead fluorescent lighting.
+- Middle period: Handheld flashlight.
+- Late period: Complete darkness during the horde attack.
+
+Visual Progression:
+
+- Day 3: Empty retail store selected as a base.
+- Day 4–15: Increasingly organized supplies and defensive barriers.
+- Day 20–42: Established survival headquarters.
+- Day 57: Fully sealed emergency vault.
+- Day 60: Intact shelter with reduced food and water reserves.
+
+UNDERGROUND SERVICE TUNNELS
+
+Primary Setting & Layout:
+
+- Concrete maintenance tunnels underneath the shopping mall.
+- Connected to electrical rooms, loading areas and service ramps.
+- Narrow passages with multiple blind corners.
+- Several staircases connect the basement to the ground floor.
+
+Flat Asset Blocks:
+
+- Concrete walls.
+- Exposed electrical pipes.
+- Maintenance doors.
+- Electrical panels.
+- Floor drainage channels.
+- Abandoned equipment.
+- Soda cans and fishing-line traps.
+- Ration tins and discarded flashlights.
+
+Lighting:
+
+- Almost complete darkness.
+- Narrow yellow flashlight cones.
+- Red flare illumination during Miller's appearance.
+
+Visual Progression:
+
+- Day 1–3: Dark and largely unexplored.
+- Day 20: Dusty corridors with evidence of human activity.
+- Day 42: Fishing-line warning traps and Miller's first appearance.
+- Day 57 onward: Increasing zombie activity near the connected lower floors.
+
+DEPARTMENT STORE CORRIDORS
+
+Primary Setting & Layout:
+
+- Rear service corridors behind retail departments.
+- Connect storage rooms, security facilities and public shopping areas.
+
+Flat Asset Blocks:
+
+- Metal storage carts.
+- Display cases.
+- Cardboard boxes.
+- Staff-only doors.
+- Ventilation grilles.
+- Security cameras.
+
+Lighting:
+
+- Initially bright fluorescent lights.
+- Later emergency lighting and flashlight illumination.
+
+Visual Progression:
+
+- Day 1: Busy retail environment.
+- Day 3: Abandoned and dark.
+- Day 4 onward: Barricaded and used for supply transportation.
+
+SECURITY CONTROL ROOM
+
+Primary Setting & Layout:
+
+- Small enclosed security facility.
+- Wall of CCTV monitors.
+- Control desk with surveillance equipment.
+- Backup battery system.
+
+Flat Asset Blocks:
+
+- Rectangular CCTV screens.
+- Security keyboards.
+- Control panels.
+- Office chairs.
+- Communication equipment.
+
+Lighting:
+
+- Blue-white monitor illumination.
+- Dim overhead lights.
+- Complete darkness after battery failure.
+
+Visual Progression:
+
+- Day 1: Fully operational.
+- Day 3: Backup batteries fail.
+- After Day 3: Screens remain permanently inactive.
+
+LOADING BAY AND WEST-WING SHOE STORE
+
+Primary Setting & Layout:
+
+- Ground-floor loading area connected to the service corridors.
+- West-wing shoe store becomes Miller's temporary shelter.
+- The store has a metal security gate and glass storefront.
+
+Flat Asset Blocks:
+
+- Delivery crates.
+- Storage pallets.
+- Shoe shelves.
+- Display platforms.
+- Metal security gate.
+- Five-gallon water jug.
+- Canned food.
+- Daughter's framed photograph.
+
+Lighting:
+
+- Mostly dark.
+- Occasional flashlight illumination.
+- Candlelight during Miller's mistake five days after their first meeting.
+
+Visual Progression:
+
+- Initial outbreak: Abandoned loading bay.
+- Day 42: Miller emerges from the basement.
+- Day 42–47: Shoe store becomes his assigned shelter.
+- Day 47: Brief orange candlelight incident.
+- Day 57: Emergency evacuation and glass accident.
+
+ROOFTOP AND CENTRAL SKYLIGHT
+
+Primary Setting & Layout:
+
+- Large flat commercial rooftop.
+- Rainwater drainage pipes.
+- Central glass dome above the mall atrium.
+- Roof maintenance access.
+
+Flat Asset Blocks:
+
+- Drainage pipes.
+- Rain buckets.
+- Water collection containers.
+- HVAC equipment.
+- Skylight frames.
+- Insulation panels.
+- Large oak branch after the storm.
+
+Lighting:
+
+- Dark navy-purple nighttime skies (#12182E).
+- Flat white lightning flashes.
+- Rain and storm silhouettes.
+
+Visual Progression:
+
+- Early days: Intact rooftop with functional drainage.
+- Day 15: Active rainwater collection.
+- Day 51: Major skylight destruction.
+- Day 56 onward: Exposed insulation and open roof damage.
+
+3. OBJECT AND PROP BIBLE
+
+SURVIVAL AND DEFENSE EQUIPMENT
+
+- Crowbar: Heavy dark-grey metal tool with a simple curved end and thick black outline.
+- Box cutter: Small rectangular utility knife with a red or dark-grey handle.
+- Flashlight: Cylindrical dark-grey body with a flat yellow beam.
+- Rope: Simple brown or beige coiled line.
+- Heavy padlock: Rectangular dark-metal lock with a curved steel shackle.
+- Duct tape: Flat grey cylindrical roll.
+- Steel pins: Four identical cylindrical metal pins used to secure the shelter entrance.
+- Fishing line: Thin grey line stretched across doorways.
+- Flare: Bright red cylindrical emergency flare producing a flat red light effect.
+- Bandages: Flat white cloth strips wrapped around Miller's calf.
+
+FOOD, WATER AND SUSTENANCE
+
+- Canned goods: Small cylindrical cans with simple colored labels.
+- Rice bags: Rectangular off-white sacks.
+- Beans: Flat brown or beige packages.
+- Canned chicken: Metal food tins.
+- Peanut butter: Small brown jars.
+- Water jugs: Transparent pale-blue containers.
+- Commercial water heater: Large cylindrical industrial tank.
+- Rain buckets: Simple plastic buckets in dark blue or grey.
+- Water filtration setup: Separate containers holding carbon, sand and cotton.
+- Plastic crates: Rectangular storage containers in blue, grey or green.
+- Survival food cache: Neatly arranged food packages and water containers.
+
+COMMUNICATIONS AND TECHNOLOGY
+
+- Smartphones: Simple black rectangular devices with illuminated screens.
+- Ceiling speakers: Small rectangular black speakers attached to the ceiling.
+- CCTV monitors: Rectangular screens with simple surveillance images.
+- Security camera: Small black camera mounted in a corner.
+- Two-way radios: Compact rectangular communication devices.
+- Backup batteries: Flat industrial battery units.
+- Emergency lighting: Red rectangular light fixtures.
+
+STRUCTURAL BARRIERS
+
+- Steel roll-down shutters: Heavy grey metal panels with horizontal divisions.
+- Plywood barricades: Flat brown wooden boards with heavy outlines.
+- Chain-link gates: Geometric steel mesh structures.
+- Sporting goods store grate: Heavy dark-grey security barrier.
+- Stairwell chains: Thick grey metal chains with oversized padlocks.
+- Escalator release mechanism: Steel cables, landing plates and one central release pin.
+- Floor security pins: Four matching cylindrical pins.
+- Plastic sheeting: Large translucent pale-grey sheets.
+- Display-case barricades: Large rectangular glass-and-metal retail fixtures.
+
+PERSONAL AND STORY-SPECIFIC PROPS
+
+- Yellow notepad: Bright yellow rectangular notebook used for all calculations and survival plans.
+- Clipboard: Grey board with a white sheet and metal clip.
+- Miller's photograph: Small rectangular framed picture of his daughter.
+- Paperback book: Simple rectangular book with a colored cover.
+- Lighter: Small metallic rectangular lighter.
+- Metal pipe: Plain dark-grey cylindrical pipe.
+- Delivery backpack: Dark brown or charcoal backpack.
+- Stock cart: Metal shopping cart with wheels wrapped in fabric.
+
+PROP CONTINUITY:
+
+- Every recurring object must retain the same shape and color.
+- The yellow notepad remains the primary planning object.
+- Miller's photograph must be recognizable whenever it appears.
+- The four steel pins must always be represented as four separate matching pieces.
+- The crowbar, flashlight and box cutter must never change design between scenes.
+
+4. CINEMATIC STYLE BIBLE
+
+AESTHETIC DEFINITION
+
+The entire production uses pure flat 2D vector cartoon artwork.
+
+Mandatory visual characteristics:
+
+- Flat solid-color fills.
+- Heavy uniform near-black outlines (#1A1A1A).
+- Simple stick-figure anatomy.
+- Geometric architectural backgrounds.
+- Minimal facial details.
+- Consistent character proportions.
+- Clear silhouettes.
+- Clean vector-style shapes.
+
+Strictly prohibited:
+
+- 3D rendering.
+- Photorealism.
+- CGI effects.
+- Gradients.
+- Volumetric lighting.
+- Realistic skin textures.
+- Realistic anatomy.
+- Graphic blood or gore.
+- Detailed wounds.
+- Inconsistent character designs.
+
+GLOBAL COLOR PALETTE
+
+| Element | Locked Color |
+| --- | --- |
+| Hero head | #F5F5F0 |
+| Hero cap | #D63A2A |
+| Hero hoodie | #333333 |
+| Hero shirt | #FFFFFF |
+| Hero bag strap | #4A2E1B |
+| Zombie skin | #8A9A66 |
+| Zombie alternative shadow | #7A8B58 |
+| Zombie jacket | #5C4033 |
+| Secondary survivor jacket | #3B5372 |
+| Main outlines | #1A1A1A |
+| Night sky | #12182E |
+| Emergency red | #D63A2A |
+| Candlelight | #F2A23A |
+
+COLOR PALETTE PROGRESSION
+
+- Day 1–3: Bright commercial whites, pale floors, colorful store displays and clean architectural surfaces.
+- Day 4–15: Muted retail colors, dark corridors and yellow flashlight illumination.
+- Day 19–42: Deep navy shadows, olive-green zombies and isolated red or yellow light sources.
+- Day 43–50: Darker interiors with small amber lighting incidents.
+- Day 51–56: Stormy navy skies, cold grey interiors and exposed rooftop structures.
+- Day 57–58: Near-black interiors, red emergency illumination and limited flashlight use.
+- Day 60: Muted grey destruction contrasted against the intact second-floor shelter.
+
+COMPOSITION RHYTHM
+
+1. Wide establishing shots:
+
+- Entire shopping mall.
+- Main concourse.
+- Zombie crowds.
+- Rooftop destruction.
+
+2. Medium character shots:
+
+- Hero planning.
+- Miller speaking.
+- Supply collection.
+- Barricade construction.
+
+3. Close-up shots:
+
+- Yellow notepad.
+- Security keys.
+- Footprints.
+- Release pins.
+- Miller's photograph.
+- Peephole surveillance.
+
+4. Overhead shots:
+
+- Mall layout.
+- Supply distribution.
+- Zombie movement through the concourse.
+- Fortified second-floor structure.
+
+5. Low-angle shots:
+
+- Escalator barriers.
+- Steel shutters.
+- Approaching zombie horde.
+- Damaged skylight.
+
+CAMERA AND LIGHTING RULES
+
+- Use clean 2D compositions with clearly readable silhouettes.
+- Keep character designs recognizable even in darkness.
+- Flashlight beams must be simple flat yellow geometric shapes.
+- Lightning must appear as flat white flashes.
+- Candlelight must remain a simple orange-yellow flame and light area.
+- Red flares must use flat red illumination.
+- Never use realistic shadows, reflections or depth-of-field effects.
+
+5. CHRONOLOGY AND CONTINUITY BIBLE
+
+DAY 1 — INITIAL LOCKDOWN
+
+- 8:47 PM Thursday: The hero works in the department store.
+- All phones vibrate simultaneously.
+- Emergency evacuation announcement begins.
+- Shoppers rush toward the entrances.
+- Steel shutters close with sixty people trapped inside.
+- The power fails.
+- The hero decides to investigate rather than attempt escape.
+- He enters the security room and observes the parking lot through CCTV.
+
+DAY 1–2 — FIRST INFECTION
+
+- Trapped survivors attack the shutters.
+- One infected woman collapses and later rises again.
+- Survivors scatter.
+- Eleven people escape down the service ramp.
+- The infected follow them into the tunnels.
+- Their fate remains unknown.
+
+DAY 3 — SECURITY SYSTEM FAILURE
+
+- 6:00 AM: Backup batteries die.
+- CCTV monitors turn black.
+- The hero switches to flashlight-based navigation.
+- He selects the second-floor sporting goods store as his base.
+
+DAY 4 — BASE CONSTRUCTION
+
+- The hero begins transporting supplies.
+- Food court freezers begin rotting.
+- He seals the corridor with display cases and plastic sheeting.
+- He calculates daily food and water requirements.
+
+DAY 5–14 — RESOURCE MANAGEMENT
+
+- Rainwater collection begins.
+- Water filtration and boiling setup is established.
+- The commercial water heater provides eighty gallons.
+- The sprinkler system remains unused.
+- Grocery supplies are collected.
+- A secondary cache is hidden in the pharmacy.
+- The yellow notepad receives the three-phase survival plan.
+- Stairwell doors and escalator mechanisms are reinforced.
+- The peephole is installed.
+
+DAY 15 — INITIAL SECURITY MILESTONE
+
+- One hundred gallons of water stored.
+- Two hundred thousand calories stored.
+- The sporting goods store is organized and fortified.
+- The hero believes the shelter is secure.
+
+DAY 19 — FIRST BASEMENT INFECTED ENCOUNTER
+
+- Thunderstorm strikes the city.
+- 3:14 AM: Metallic noise wakes the hero.
+- Dragging footsteps are heard below.
+- The hero spots one infected near the fountain.
+- The infected is identified as one of the original sixty survivors.
+
+DAY 20 — BASEMENT INVESTIGATION
+
+- The hero confronts the infected in a service doorway.
+- He descends into the basement.
+- Fresh human footprints are discovered.
+- An open ration tin and dead flashlight suggest recent human activity.
+- The hero searches the tunnels twice.
+- He installs fishing-line warning traps.
+
+DAY 42 — MILLER DISCOVERED
+
+- 11:20 PM: Soda-can warning traps activate.
+- The hero throws a flare into the escalator bay.
+- Miller appears holding a pipe.
+- He explains that he survived in the loading bay.
+- His water supply has run out.
+- The hero assigns him a separate gated shoe store.
+- Miller receives five gallons of water and two weeks of canned food.
+
+DAY 47 — CANDLE INCIDENT
+
+- Five days after Miller's discovery.
+- The hero sees an orange glow in the west wing.
+- Miller is reading by candlelight.
+- The hero confiscates his lighter.
+- Miller promises not to repeat the mistake.
+
+DAY 51 — ROOFTOP DAMAGE
+
+- A severe storm strikes.
+- An oak branch destroys part of the central skylight.
+- Eight feet of glass falls into the fountain.
+- Rain collection buckets are blown away.
+- The damaged roof exposes the interior to the outside environment.
+
+DAY 56 — HERD APPROACHES
+
+- A large zombie horde approaches along the highway.
+- Damaged insulation and exposed rooftop openings attract the infected.
+
+DAY 57 — MALL BREACH
+
+- 2:30 AM: Front entrance shutters fail.
+- Zombies flood the lower concourse.
+- The hero warns Miller.
+- Miller retrieves his daughter's photograph.
+- Miller cuts his calf on a shattered display case.
+- The hero carries him toward the second floor.
+- Phase Three is activated.
+- Both escalators collapse into their pits.
+- The sporting goods store is sealed.
+
+DAY 57–58 — FORTRESS CONFINEMENT
+
+- Hero and Miller remain in total darkness.
+- Zombies destroy the lower-floor stores.
+- Miller briefly whispers to his daughter's photograph.
+- The hero warns him to remain silent.
+- Miller's calf is bandaged.
+- The survivors wait without lights or unnecessary movement.
+
+DAY 60 — AFTERMATH
+
+- The zombie noises become less frequent.
+- The hero checks the lower floor through the peephole.
+- Ground floor is devastated.
+- Second floor remains intact.
+- Pharmacy supply cache is destroyed.
+- Roof water collection is lost.
+- Miller remains unable to walk normally.
+- Remaining supplies: 44,000 calories and 47 gallons of water.
+- The hero calculates eleven days of food and twenty-three days of water for two people.
+- The survivors remain alive but are not safe.
+
+6. IMPORTANT VISUAL CONTINUITY RULES
+
+1. HERO DESIGN LOCK
+
+The hero must always maintain:
+
+- Backwards red baseball cap (#D63A2A).
+- Charcoal-grey hoodie (#333333).
+- White t-shirt (#FFFFFF).
+- Brown cross-body strap (#4A2E1B).
+- Off-white round head (#F5F5F0).
+- Identical black dot eyes and straight-line mouth.
+
+2. ZOMBIE DESIGN LOCK
+
+- All zombies share identical olive-green skin (#8A9A66).
+- All wear tattered dark-brown jackets (#5C4033).
+- All have large circular white eyes.
+- All have tiny black pupils.
+- All have identical jagged white teeth.
+- No mutant designs, special infected or unusual body proportions.
+
+3. MILLER DESIGN LOCK
+
+- Faded denim-blue jacket (#3B5372).
+- Off-white round head.
+- Simple black facial details.
+- Identical stick-figure proportions.
+- Daughter's photograph remains consistent.
+- Injured calf appears only after the Day 57 accident.
+- Bandage remains visible afterward.
+
+4\. PROPORTION LOCK
+
+- Every character uses the same standardized stick-figure body proportions.
+- Heads remain approximately one-third of total body height.
+- Arms and legs remain thin and simple.
+- No realistic fingers, feet or anatomical details.
+
+5\. OUTLINE LOCK
+
+- Every object, character and architectural feature uses near-black outlines (#1A1A1A).
+- Outline thickness remains consistent across foreground and background.
+- No realistic line textures.
+
+6\. ENVIRONMENT LOCK
+
+- Mall architecture must remain consistent across all scenes.
+- Central fountain stays in the same location.
+- Both central escalators remain visually identifiable.
+- Sporting goods store remains on the second floor.
+- Miller's shoe store remains in the west wing of the first floor.
+- Basement tunnels remain connected to the service ramp and lower mall.
+
+7\. LIGHTING LOCK
+
+- No gradients or volumetric effects.
+- Flashlight beams use flat yellow fills.
+- Night skies use dark navy-purple (#12182E).
+- Red flarelight remains flat and saturated.
+- Candlelight uses simple orange-yellow shapes.
+- Darkness must not erase character silhouettes completely.
+
+8\. PROP LOCK
+
+- Yellow notepad remains the hero's primary planning document.
+- Miller's photograph must be the same object throughout.
+- The four security pins must remain identical.
+- The release pin and steel cable system must retain the same configuration.
+- Food and water inventories must follow the chronology.
+
+9\. DAMAGE AND INJURY LOCK
+
+- The mall gradually deteriorates as the story progresses.
+- Skylight destruction begins on Day 51.
+- Main entrance breach occurs on Day 57.
+- Ground-floor destruction remains visible on Day 60.
+- Miller's leg injury occurs on Day 57.
+- No graphic blood or gore in any scene.
+
+10\. CHRONOLOGY LOCK
+
+- Never show Miller before Day 42.
+- Never show the skylight destroyed before Day 51.
+- Never show the main entrance breached before Day 57.
+- Never show Miller's injured leg before Day 57.
+- Never show the final destroyed mall before Day 60.
+- The hero's supplies must increase during preparation and decrease after the final attack.
+
+7\. FINAL STORY VISUAL IDENTITY
+
+CORE VISUAL IDENTITY
+
+A pure flat 2D cartoon zombie-survival world set inside an enormous modern shopping mall after a sudden outbreak.
+
+The visual storytelling revolves around three central elements:
+
+- The hero: A consistent stick-figure survivor wearing a backwards red cap and charcoal-grey hoodie, relying on planning, discipline and limited resources.
+- The mall: A once-bright commercial environment gradually transforming into a dark, abandoned and partially destroyed survival environment.
+- The horde: Identical olive-green infected figures with torn brown jackets, white circular eyes and jagged teeth, representing the constant danger outside the fortified shelter.
+
+THEMATIC IDENTITY
+
+The story is about resource management, controlled movement, environmental awareness, trust and the limitations of large defensive spaces.
+
+The mall begins as a place of comfort and abundance but gradually becomes a dangerous maze of darkness, abandoned supplies and infected crowds.
+
+The sporting goods store becomes a smaller fortress inside a much larger structure. Its security depends not on fighting every zombie but on limiting access, controlling noise, protecting resources and maintaining silence.
+
+FINAL VISUAL MESSAGE
+
+The ground floor represents everything lost. The second floor represents the small amount of control the survivors managed to preserve.
+
+The final image should show the hero and Miller inside their dark, fortified sporting goods store, with their remaining supplies nearby and the destroyed mall visible through the peephole.
+
+The world outside has not been defeated. The survivors have simply built a small protected space within it.
+
+Series-wide visual identity: Consistent characters, flat vector environments, heavy black outlines, controlled colors, chronological environmental deterioration and tension created through silence, darkness and visual storytelling.

@@ -29,6 +29,46 @@ def load_image_prompt_system_prompt() -> str:
     return "You are an expert image prompt architect. Generate detailed, style-compliant image prompts in JSON."
 
 
+def sanitize_prompt_prose(text: str) -> str:
+    """
+    Sanitizes generated image prompts to enforce simple, direct prose:
+    - Removes /imagine prefixes and parameter flags (--ar, --style, --v).
+    - Removes markdown headings (#, ##, ###).
+    - Removes bold category labels (**Subject:**, **Environment:**, **Camera:**, etc.).
+    - Removes plain category labels (Subject:, Environment:, etc.).
+    - Removes bullet points (- , * , 1. , • ).
+    - Collapses extra newlines and spaces into clean, continuous prose.
+    """
+    if not text:
+        return ""
+    p = str(text).strip()
+    # Strip imagine / flags
+    p = re.sub(r"^/imagine\s+prompt:\s*", "", p, flags=re.IGNORECASE)
+    p = re.sub(r"^/imagine\s*", "", p, flags=re.IGNORECASE)
+    p = re.sub(r"--ar\s+\d+:\d+", "", p, flags=re.IGNORECASE)
+    p = re.sub(r"--style\s+\w+", "", p, flags=re.IGNORECASE)
+    p = re.sub(r"--v\s+[\d\.]+", "", p, flags=re.IGNORECASE)
+
+    # Strip markdown headers (# Header)
+    p = re.sub(r"(?m)^\s*#+\s+.*$", "", p)
+
+    # Strip bold labels like **Subject:**, **Environment:**, **Camera:**, **Lighting:**, **Style:**
+    p = re.sub(r"\*\*[A-Za-z\s]+:\*\*\s*", "", p)
+    p = re.sub(r"\*[A-Za-z\s]+:\*\s*", "", p)
+
+    # Strip line-leading category labels like Subject:, Environment:, Lighting:, Camera:, Continuity:
+    p = re.sub(r"(?mi)^\s*(?:Subject|Environment|Characters?|Lighting|Camera|Composition|Style|Atmosphere|Details|Continuity):\s*", "", p)
+
+    # Strip bullet points (- or * or • or numbered list like 1. )
+    p = re.sub(r"(?m)^\s*[-*•]\s+", "", p)
+    p = re.sub(r"(?m)^\s*\d+[\.\)]\s+", "", p)
+
+    # Collapse lines into continuous prose
+    lines = [line.strip() for line in p.splitlines() if line.strip()]
+    cleaned = " ".join(lines)
+    return " ".join(cleaned.split())
+
+
 # Measured per-scene output cost for one image prompt (prompt + negative_prompt
 # + JSON scaffolding). Measured in the vidroa F5 derivation for the same
 # image-prompt output shape; used here to derive the batch size from the
@@ -293,11 +333,13 @@ SCENES TO GENERATE IN THIS BATCH:
 {json.dumps(scenes_input, indent=2)}
 
 INSTRUCTIONS:
-1. Translate each scene's narration and visual idea into a rich, detailed, concrete image-generation prompt.
-2. STRICT STYLE ENFORCEMENT: Every prompt MUST strictly adhere to the Style Directives for '{style_name}'.
-3. Explicitly describe physical subject, attire, concrete environment, lighting source, camera shot type, and lens.
-4. Do NOT include /imagine prompt: or parameter flags like --ar or --style raw. Output clean, descriptive prompt text only.
-5. Return JSON with key "scenes" containing a list of objects with "scene_id", "prompt", and "negative_prompt".
+1. Translate each scene's narration and visual idea into simple, direct prose (2 to 4 continuous sentences).
+2. ABSOLUTELY NO HEADINGS: Do NOT include section titles or bold labels like '**Subject:**', '**Environment:**', '**Camera:**', '**Lighting:**'.
+3. ABSOLUTELY NO BULLET POINTS: Do NOT use bullet points, numbered lists, or dashes. Write continuous plain sentences.
+4. STRICT BIBLE CONTEXT COMPLIANCE: Use the provided Character and Environment Bibles strictly as visual context to maintain character wardrobe, colors, and authentic setting continuity.
+5. STRICT STYLE ENFORCEMENT: Every prompt MUST strictly adhere to the Style Directives for '{style_name}'.
+6. Do NOT include /imagine prompt: or parameter flags like --ar or --style raw. Output clean, descriptive prose only.
+7. Return JSON with key "scenes" containing a list of objects with "scene_id", "prompt", and "negative_prompt".
 """
 
         # Retry loop
@@ -324,14 +366,7 @@ INSTRUCTIONS:
                 for s in batch:
                     matched = items_by_id.get(s.scene_id) or items_by_id.get(s.scene_id.zfill(3)) or items_by_id.get(str(int(s.scene_id) if s.scene_id.isdigit() else -1))
                     if matched and isinstance(matched, dict) and matched.get("prompt"):
-                        p_text = str(matched["prompt"]).strip()
-                        # Clean any /imagine or model parameter flags
-                        p_text = re.sub(r"^/imagine\s+prompt:\s*", "", p_text, flags=re.IGNORECASE)
-                        p_text = re.sub(r"^/imagine\s*", "", p_text, flags=re.IGNORECASE)
-                        p_text = re.sub(r"--ar\s+\d+:\d+", "", p_text, flags=re.IGNORECASE)
-                        p_text = re.sub(r"--style\s+\w+", "", p_text, flags=re.IGNORECASE)
-                        p_text = re.sub(r"--v\s+[\d\.]+", "", p_text, flags=re.IGNORECASE)
-                        s.prompt = " ".join(p_text.split())
+                        s.prompt = sanitize_prompt_prose(str(matched["prompt"]))
                         s.generation_status = "generated"
                         s.is_validated = True
                     elif not s.prompt:
@@ -424,7 +459,11 @@ Visual Idea: {getattr(scene, 'visual_idea', '') or scene.visual_subject}
 Environment: {scene.environment}
 Camera Composition: {scene.composition}
 
-Return JSON with "prompt" and "negative_prompt".
+INSTRUCTIONS:
+1. Write simple, direct prose describing the shot, subject, environment, and lighting (2 to 4 continuous sentences).
+2. NO HEADINGS: Do NOT write '**Subject:**', '**Environment:**', etc.
+3. NO BULLET POINTS: Continuous sentences only.
+4. Return JSON with "prompt" and "negative_prompt".
 """
         try:
             raw = engine.generate_text(
@@ -441,18 +480,13 @@ Return JSON with "prompt" and "negative_prompt".
             parsed = json.loads(clean)
             p_text = parsed.get("prompt") or (parsed.get("scenes", [{}])[0].get("prompt") if "scenes" in parsed else "")
             if p_text:
-                p_text = re.sub(r"^/imagine\s+prompt:\s*", "", p_text, flags=re.IGNORECASE)
-                p_text = re.sub(r"^/imagine\s*", "", p_text, flags=re.IGNORECASE)
-                p_text = re.sub(r"--ar\s+\d+:\d+", "", p_text, flags=re.IGNORECASE)
-                p_text = re.sub(r"--style\s+\w+", "", p_text, flags=re.IGNORECASE)
-                p_text = re.sub(r"--v\s+[\d\.]+", "", p_text, flags=re.IGNORECASE)
-                scene.prompt = " ".join(p_text.split())
+                scene.prompt = sanitize_prompt_prose(str(p_text))
                 scene.generation_status = "generated"
                 scene.is_manually_edited = False
                 scene.is_validated = True
         except Exception:
             clean_idea = scene.visual_idea or scene.visual_subject or "Cinematic scene"
-            scene.prompt = f"{clean_idea}. Setting: {scene.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic."
+            scene.prompt = sanitize_prompt_prose(f"{clean_idea}. Setting: {scene.environment or 'Story environment'}. Rendered in {style_name} visual aesthetic.")
             scene.generation_status = "generated"
 
         return scene
