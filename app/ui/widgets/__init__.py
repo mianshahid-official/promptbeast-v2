@@ -7,6 +7,8 @@ from app.ui.widgets.progress_panel import ProgressPanelWidget
 from app.ui.widgets.status_banner import StatusBannerWidget
 from app.ui.widgets.audio_transcription_panel import AudioTranscriptionPanel
 from app.ui.widgets.image_asset_panel import ImageAssetPanel
+from app.ui.widgets.images_panel import ImagesPanel
+from app.ui.widgets.scene_sync_panel import SceneSyncPanel
 from app.ui.widgets.subtitle_editor import SubtitleEditor
 from app.ui.widgets.render_panel import RenderPanel
 from app.ui.widgets.prompt_grid import PromptGridWidget, PromptCardWidget
@@ -20,6 +22,8 @@ __all__ = [
     "StatusBannerWidget",
     "AudioTranscriptionPanel",
     "ImageAssetPanel",
+    "ImagesPanel",
+    "SceneSyncPanel",
     "SubtitleEditor",
     "RenderPanel",
 ]

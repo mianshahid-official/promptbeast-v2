@@ -190,6 +190,7 @@ class SidebarNav(QWidget):
         # -------------------------------------------------------------
         self._add_nav_item("production", "Production", "🎬", None, self._main_layout)
         self._add_nav_item("studio", "Studio", "🎞️", None, self._main_layout)
+        self._add_nav_item("images", "Images", "🖼️", None, self._main_layout)
         self._add_nav_item("deliverables", "Deliverables", "⚡", None, self._main_layout)
         self._add_nav_item("profiles", "Profiles", "👤", None, self._main_layout)
         self._add_nav_item("settings", "Settings", "⚙️", None, self._main_layout)
@@ -259,6 +260,8 @@ class SidebarNav(QWidget):
             "final_render": "deliverables",
             "projects_exports": "production",
             "profiles_accounts": "profiles",
+            "image_assets": "images",
+            "generate_images": "images",
         }
         target_key = key_map.get(key, key)
 

@@ -106,6 +106,7 @@ from app.ui.widgets.progress_panel import ProgressPanelWidget
 from app.ui.widgets.status_banner import StatusBannerWidget
 from app.ui.widgets.audio_transcription_panel import AudioTranscriptionPanel
 from app.ui.widgets.image_asset_panel import ImageAssetPanel
+from app.ui.widgets.images_panel import ImagesPanel
 from app.ui.widgets.render_panel import RenderPanel
 from app.ui.widgets.scene_sync_panel import SceneSyncPanel
 from app.ui.dialogs.settings_dialog import SettingsDialog
@@ -796,11 +797,11 @@ class MainWindow(QMainWindow):
         self.prompt_grid.retry_scene_requested.connect(self._on_retry_single_scene)
         s4_layout.addWidget(self.prompt_grid, 1)
 
-        # Step Navigation Button from Studio -> Scene Sync
-        self.btn_goto_scene_sync = QPushButton("➔ Next Step: Sync Audio & Generated Images (Go to Scene Sync)")
-        self.btn_goto_scene_sync.setFixedHeight(38)
-        self.btn_goto_scene_sync.setCursor(Qt.PointingHandCursor)
-        self.btn_goto_scene_sync.setStyleSheet(f"""
+        # Step Navigation Button from Studio -> Images (Step 3 Image Generation Hub)
+        self.btn_goto_images = QPushButton("➔ Next Step: Generate Images & Sync (Go to Images)")
+        self.btn_goto_images.setFixedHeight(38)
+        self.btn_goto_images.setCursor(Qt.PointingHandCursor)
+        self.btn_goto_images.setStyleSheet(f"""
             QPushButton {{
                 background-color: {COLOR_GLASS_SURFACE};
                 color: {COLOR_BRAND_PRIMARY};
@@ -816,8 +817,9 @@ class MainWindow(QMainWindow):
                 border-color: {COLOR_BRAND_PRIMARY};
             }}
         """)
-        self.btn_goto_scene_sync.clicked.connect(lambda: self.sidebar.set_current_page("scene_sync"))
-        s4_layout.addWidget(self.btn_goto_scene_sync)
+        self.btn_goto_images.clicked.connect(lambda: self.sidebar.set_current_page("images"))
+        s4_layout.addWidget(self.btn_goto_images)
+        self.btn_goto_scene_sync = self.btn_goto_images
 
         self.studio_page = sec4_box
 
@@ -851,6 +853,11 @@ class MainWindow(QMainWindow):
         self.btn_goto_studio.clicked.connect(lambda: self.sidebar.set_current_page("studio"))
         scroll_layout.addWidget(self.btn_goto_studio)
 
+        # 03 — Images Panel (Image Generation Hub with Gemini Multi-Account Hub & Auto-Pacing)
+        self.images_panel = ImagesPanel(self)
+        self.images_panel.sync_completed.connect(self._on_scene_sync_completed)
+        self.images_panel.navigate_to_deliverables.connect(lambda: self.sidebar.set_current_page("deliverables"))
+
         # RenderPanel (Deliverables) and ImageAssetPanel for headless compatibility
         self.tab3_images = ImageAssetPanel()
         self.tab3_images.images_updated.connect(self._on_images_updated)
@@ -862,7 +869,7 @@ class MainWindow(QMainWindow):
         self.tab4_render = RenderPanel()
         self.tab4_render.render_completed.connect(self._on_render_completed)
 
-        # 03 — Scene Sync Panel (Audio selection + Image folder count + AI auto-pacing)
+        # Standalone — Scene Sync Panel (One-Pager: Audio + Timestamps JSON + Storyboard + Images -> Render)
         self.scene_sync_panel = SceneSyncPanel(self)
         self.scene_sync_panel.sync_completed.connect(self._on_scene_sync_completed)
         self.scene_sync_panel.navigate_to_deliverables.connect(lambda: self.sidebar.set_current_page("deliverables"))
@@ -893,8 +900,8 @@ class MainWindow(QMainWindow):
         # 02 — Studio (Prompt Matrix & Scene Editor)
         self.stacked_pages.addWidget(self.studio_page)
 
-        # 03 — Scene Sync (Audio & Pacing Engine)
-        self.stacked_pages.addWidget(self.scene_sync_panel)
+        # 03 — Images (Gemini Image Generation Hub & Scene Auto-Pacing)
+        self.stacked_pages.addWidget(self.images_panel)
 
         # 04 — Deliverables (Video Motion & Export)
         self.stacked_pages.addWidget(self.tab4_render)
@@ -902,7 +909,10 @@ class MainWindow(QMainWindow):
         # 05 — Profiles (Chrome Browser Manager)
         self.stacked_pages.addWidget(self.profiles_panel)
 
-        # 06 — SYSTEM: Console
+        # Standalone — Scene Sync (All-In-One One-Pager Video Studio)
+        self.stacked_pages.addWidget(self.scene_sync_panel)
+
+        # SYSTEM: Console
         self.stacked_pages.addWidget(self.console_page)
 
         body_layout.addWidget(self.stacked_pages, 1)
@@ -918,9 +928,10 @@ class MainWindow(QMainWindow):
             {
                 0: sec1_group,
                 1: self.studio_page,
-                2: self.scene_sync_panel,
+                2: self.images_panel,
                 3: self.tab4_render,
                 4: self.profiles_panel,
+                5: self.scene_sync_panel,
             },
             stacked_pages=self.stacked_pages,
             sidebar=self.sidebar,
@@ -1008,6 +1019,49 @@ class MainWindow(QMainWindow):
         l.addWidget(self.console_text, 1)
         return w
 
+    def _prepare_images_panel(self):
+        """Prepares images_panel project directory, audio, and scenes."""
+        if hasattr(self, "project") and self.project:
+            if not self.project.project_dir:
+                p_name = (
+                    self.proj_name_input.text().strip()
+                    if hasattr(self, "proj_name_input") and self.proj_name_input.text().strip()
+                    else self.project.name
+                )
+                if not p_name or p_name == "Untitled_Project":
+                    raw_s = self.story_text_edit.toPlainText().strip() if hasattr(self, "story_text_edit") else ""
+                    p_name = self.generate_project_name_from_script(raw_s) if raw_s else f"Project_{datetime.now().strftime('%Y%m%d_%H%M')}"
+                    if hasattr(self, "proj_name_input"):
+                        self.proj_name_input.setText(p_name)
+                candidate1 = Path(self.settings.workspace_directory) / p_name
+                candidate2 = Path(self.settings.workspace_directory) / "projects" / p_name
+                candidate3 = Path("projects") / p_name
+                if candidate1.exists():
+                    self.project.project_dir = str(candidate1.resolve())
+                elif candidate2.exists():
+                    self.project.project_dir = str(candidate2.resolve())
+                elif candidate3.exists():
+                    self.project.project_dir = str(candidate3.resolve())
+                else:
+                    candidate1.mkdir(parents=True, exist_ok=True)
+                    self.project.project_dir = str(candidate1.resolve())
+
+            if self.project.project_dir:
+                self.images_panel.set_project(Path(self.project.project_dir))
+
+            if self.project.state.audio_file_path and Path(self.project.state.audio_file_path).exists():
+                self.images_panel.set_audio_path(self.project.state.audio_file_path)
+            else:
+                self.images_panel.set_audio_path("")
+
+            if self.project.state.narration:
+                self.images_panel.narration = self.project.state.narration
+            if self.project.state.scenes:
+                self.images_panel.scenes = self.project.state.scenes
+                self.images_panel._populate_table()
+                self.images_panel._refresh_generate_btn_label()
+                self.images_panel._scan_images()
+
     def _prepare_scene_sync_panel(self):
         """Prepares scene_sync_panel project directory, audio, and scenes."""
         if hasattr(self, "project") and self.project:
@@ -1083,9 +1137,9 @@ class MainWindow(QMainWindow):
                     self.approve_plan_btn.setText("✓ Approve Plan and Expand Prompts")
                     self.approve_plan_btn.setEnabled(True)
                     self.plan_approval_banner.setVisible(True)
-        elif k in ("scene_sync", "03"):
-            self.stacked_pages.setCurrentWidget(self.scene_sync_panel)
-            self._prepare_scene_sync_panel()
+        elif k in ("images", "generate_images", "03", "image_assets"):
+            self.stacked_pages.setCurrentWidget(self.images_panel)
+            self._prepare_images_panel()
         elif k in ("deliverables", "04", "final_render"):
             self.stacked_pages.setCurrentWidget(self.tab4_render)
             if hasattr(self, "project") and self.project:
@@ -1097,6 +1151,9 @@ class MainWindow(QMainWindow):
         elif k in ("profiles", "05", "profiles_accounts"):
             self.stacked_pages.setCurrentWidget(self.profiles_panel)
             self.profiles_panel.refresh_profiles()
+        elif k == "scene_sync":
+            self.stacked_pages.setCurrentWidget(self.scene_sync_panel)
+            self._prepare_scene_sync_panel()
         elif k == "console":
             self.stacked_pages.setCurrentWidget(self.console_page)
         elif k == "settings":
@@ -1107,12 +1164,14 @@ class MainWindow(QMainWindow):
                 self.sidebar.set_current_page("production")
             elif curr == self.studio_page:
                 self.sidebar.set_current_page("studio")
-            elif curr == self.scene_sync_panel:
-                self.sidebar.set_current_page("scene_sync")
+            elif curr == self.images_panel:
+                self.sidebar.set_current_page("images")
             elif curr == self.tab4_render:
                 self.sidebar.set_current_page("deliverables")
             elif curr == self.profiles_panel:
                 self.sidebar.set_current_page("profiles")
+            elif curr == self.scene_sync_panel:
+                self.sidebar.set_current_page("scene_sync")
             elif curr == self.console_page:
                 self.sidebar.set_current_page("console")
 
@@ -1403,9 +1462,16 @@ class MainWindow(QMainWindow):
                 self.project.state.narration = self.workflow_panel.narration
             self.project.state.last_generation_status = "COMPLETED"
         self.prompt_grid.load_scenes(scenes)
+        if hasattr(self, "images_panel"):
+            if hasattr(self.workflow_panel, "audio_path") and self.workflow_panel.audio_path:
+                self.images_panel.set_audio_path(self.workflow_panel.audio_path)
+            self.images_panel.scenes = scenes
+            self.images_panel._populate_table()
+            self.images_panel._refresh_generate_btn_label()
         if hasattr(self, "scene_sync_panel"):
             if hasattr(self.workflow_panel, "audio_path") and self.workflow_panel.audio_path:
                 self.scene_sync_panel.set_audio_path(self.workflow_panel.audio_path)
+            self.scene_sync_panel.scenes = scenes
         if hasattr(self, "tab4_render"):
             self.tab4_render.load_project_data(
                 scenes=scenes,
@@ -1715,14 +1781,27 @@ class MainWindow(QMainWindow):
             audio_path=proj.state.audio_file_path,
             narration=proj.state.narration
         )
-        if proj.project_dir:
-            self.scene_sync_panel.set_project(Path(proj.project_dir))
-        # Always call set_audio_path — if empty, triggers _auto_find_audio
-        self.scene_sync_panel.set_audio_path(proj.state.audio_file_path or "")
-        if proj.state.narration:
-            self.scene_sync_panel.narration = proj.state.narration
-        if proj.state.scenes:
-            self.scene_sync_panel.scenes = proj.state.scenes
+        if hasattr(self, "images_panel"):
+            if proj.project_dir:
+                self.images_panel.set_project(Path(proj.project_dir))
+            self.images_panel.set_audio_path(proj.state.audio_file_path or "")
+            if proj.state.narration:
+                self.images_panel.narration = proj.state.narration
+            if proj.state.scenes:
+                self.images_panel.scenes = proj.state.scenes
+                self.images_panel._populate_table()
+                self.images_panel._refresh_generate_btn_label()
+                self.images_panel._scan_images()
+
+        if hasattr(self, "scene_sync_panel"):
+            if proj.project_dir:
+                self.scene_sync_panel.set_project(Path(proj.project_dir))
+            # Always call set_audio_path — if empty, triggers _auto_find_audio
+            self.scene_sync_panel.set_audio_path(proj.state.audio_file_path or "")
+            if proj.state.narration:
+                self.scene_sync_panel.narration = proj.state.narration
+            if proj.state.scenes:
+                self.scene_sync_panel.scenes = proj.state.scenes
 
         # 5. Auto-switch to the most appropriate tab
         if auto_switch_tab:
@@ -2067,18 +2146,30 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"[MainWindow] tab4_render load notice: {e}")
 
-        # Update scene sync panel with audio & project folder
+        # Update images panel & scene sync panel with audio & project folder
         try:
-            if self.project.project_dir:
-                self.scene_sync_panel.set_project(Path(self.project.project_dir))
-            if audio_path:
-                self.scene_sync_panel.set_audio_path(audio_path)
-            if narration:
-                self.scene_sync_panel.narration = narration
-            if planned_scenes:
-                self.scene_sync_panel.scenes = planned_scenes
+            if hasattr(self, "images_panel"):
+                if self.project.project_dir:
+                    self.images_panel.set_project(Path(self.project.project_dir))
+                if audio_path:
+                    self.images_panel.set_audio_path(audio_path)
+                if narration:
+                    self.images_panel.narration = narration
+                if planned_scenes:
+                    self.images_panel.scenes = planned_scenes
+                    self.images_panel._populate_table()
+                    self.images_panel._refresh_generate_btn_label()
+            if hasattr(self, "scene_sync_panel"):
+                if self.project.project_dir:
+                    self.scene_sync_panel.set_project(Path(self.project.project_dir))
+                if audio_path:
+                    self.scene_sync_panel.set_audio_path(audio_path)
+                if narration:
+                    self.scene_sync_panel.narration = narration
+                if planned_scenes:
+                    self.scene_sync_panel.scenes = planned_scenes
         except Exception as e:
-            print(f"[MainWindow] scene_sync_panel notice: {e}")
+            print(f"[MainWindow] images_panel / scene_sync_panel notice: {e}")
 
     def _on_job_planning_ready(self, analysis, planned_scenes):
         self.start_gen_btn.setEnabled(True)
@@ -2459,13 +2550,24 @@ class MainWindow(QMainWindow):
             # Refresh top project combo to include this project
             self._populate_project_combo()
 
-            # Auto-select images folder in Scene Sync Panel
-            self.scene_sync_panel.set_project(p_dir)
-            self.scene_sync_panel.scenes = resp.scenes
-            # Always call set_audio_path — if empty triggers _auto_find_audio fallback
-            self.scene_sync_panel.set_audio_path(self.project.state.audio_file_path or "")
-            if self.project.state.narration:
-                self.scene_sync_panel.narration = self.project.state.narration
+            # Auto-select images folder in Images Panel (Step 3) & Scene Sync Panel
+            if hasattr(self, "images_panel"):
+                self.images_panel.set_project(p_dir)
+                self.images_panel.scenes = resp.scenes
+                self.images_panel.set_audio_path(self.project.state.audio_file_path or "")
+                if self.project.state.narration:
+                    self.images_panel.narration = self.project.state.narration
+                self.images_panel._populate_table()
+                self.images_panel._refresh_generate_btn_label()
+                self.images_panel._scan_images()
+
+            if hasattr(self, "scene_sync_panel"):
+                self.scene_sync_panel.set_project(p_dir)
+                self.scene_sync_panel.scenes = resp.scenes
+                # Always call set_audio_path — if empty triggers _auto_find_audio fallback
+                self.scene_sync_panel.set_audio_path(self.project.state.audio_file_path or "")
+                if self.project.state.narration:
+                    self.scene_sync_panel.narration = self.project.state.narration
 
             # Persist project state
             try:
@@ -2499,7 +2601,7 @@ class MainWindow(QMainWindow):
                     padding: 8px 12px;
                 }
             """)
-            self.approve_plan_btn.setText("➔ Next Step: Scene Sync & Image Pacing")
+            self.approve_plan_btn.setText("➔ Next Step: Generate Images (Go to Images)")
             self.approve_plan_btn.setEnabled(True)
             self.approve_plan_btn.setStyleSheet("""
                 QPushButton {
@@ -2518,7 +2620,7 @@ class MainWindow(QMainWindow):
                 self.approve_plan_btn.clicked.disconnect()
             except Exception:
                 pass
-            self.approve_plan_btn.clicked.connect(lambda: self.sidebar.set_current_page("scene_sync"))
+            self.approve_plan_btn.clicked.connect(lambda: self.sidebar.set_current_page("images"))
             self.plan_approval_banner.setVisible(True)
 
             self.statusBar().showMessage(

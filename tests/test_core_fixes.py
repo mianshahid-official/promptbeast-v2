@@ -510,5 +510,25 @@ class TestStoryboardExporterAndClipboard(unittest.TestCase):
         self.assertTrue(ok)
 
 
+class TestNavigationAndImagesPanel(unittest.TestCase):
+    def test_images_panel_and_scene_sync_distinct(self):
+        from app.ui.widgets import ImagesPanel, SceneSyncPanel
+        self.assertIsNotNone(ImagesPanel)
+        self.assertIsNotNone(SceneSyncPanel)
+        self.assertIsNot(ImagesPanel, SceneSyncPanel)
+
+    def test_sidebar_navigation_order(self):
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance() or QApplication([])
+        from app.ui.widgets.sidebar_nav import SidebarNav
+        nav = SidebarNav()
+        keys = list(nav._buttons.keys())
+        self.assertIn("images", keys)
+        self.assertIn("scene_sync", keys)
+        self.assertEqual(keys.index("images"), 2)
+        self.assertTrue(keys.index("studio") < keys.index("images") < keys.index("deliverables"))
+        self.assertTrue(keys.index("settings") < keys.index("scene_sync"))
+
+
 if __name__ == "__main__":
     unittest.main()
