@@ -103,6 +103,53 @@ class TestStyleLaunchers(unittest.TestCase):
         # Confirm they exist in data/
         self.assertTrue((ROOT_DIR / "data" / "sample data.txt").exists(), "data/sample data.txt missing")
 
+    def test_scene_sync_standalone_launcher(self):
+        bat = ROOT_DIR / "run-scene-sync.bat"
+        self.assertTrue(bat.exists(), "run-scene-sync.bat standalone launcher missing")
+        content = bat.read_text(encoding="utf-8")
+        self.assertIn("@echo off", content)
+        self.assertIn("python -m app.main --mode scene_sync", content)
+        self.assertIn("pause", content)
+
+        # Confirm style launcher generator does not produce run-scene-sync.bat
+        generated_bats = [p.name for p in generate_launchers(ROOT_DIR)]
+        self.assertNotIn("run-scene-sync.bat", generated_bats, "Launcher generator should only generate style launchers, not scene-sync")
+
+    def test_scene_sync_excluded_from_style_windows(self):
+        from PySide6.QtWidgets import QApplication
+        from app.ui.main_window import MainWindow
+        from app.ui.widgets.scene_sync_panel import SceneSyncPanel
+
+        app = QApplication.instance() or QApplication(sys.argv)
+
+        # 1. Zombie Survival
+        win_zombie = MainWindow(style_id="zombie_survival")
+        self.assertNotIn("scene_sync", win_zombie.sidebar._buttons)
+        stacked_zombie = [win_zombie.stacked_pages.widget(i) for i in range(win_zombie.stacked_pages.count())]
+        self.assertFalse(any(isinstance(w, SceneSyncPanel) for w in stacked_zombie))
+        self.assertTrue(hasattr(win_zombie, "images_panel"))
+
+        # 2. What-If
+        win_whatif = MainWindow(style_id="what_if")
+        self.assertNotIn("scene_sync", win_whatif.sidebar._buttons)
+        stacked_whatif = [win_whatif.stacked_pages.widget(i) for i in range(win_whatif.stacked_pages.count())]
+        self.assertFalse(any(isinstance(w, SceneSyncPanel) for w in stacked_whatif))
+
+    def test_standalone_scene_sync_window_mode(self):
+        from PySide6.QtWidgets import QApplication
+        from app.ui.scene_sync_window import SceneSyncWindow
+        from app.ui.widgets.scene_sync_panel import SceneSyncPanel
+
+        app = QApplication.instance() or QApplication(sys.argv)
+        win = SceneSyncWindow()
+        self.assertIn("Scene Sync", win.windowTitle())
+        self.assertTrue(hasattr(win, "scene_sync_panel"))
+        self.assertIsInstance(win.scene_sync_panel, SceneSyncPanel)
+        self.assertFalse(hasattr(win, "sidebar"))
+        self.assertFalse(hasattr(win, "studio_page"))
+        self.assertFalse(hasattr(win, "images_panel"))
+
 
 if __name__ == "__main__":
     unittest.main()
+

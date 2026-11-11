@@ -67,3 +67,4 @@ def generate_launchers(root_dir: Path = None):
 
 if __name__ == "__main__":
     generate_launchers()
+

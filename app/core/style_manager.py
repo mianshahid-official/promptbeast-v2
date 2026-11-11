@@ -189,3 +189,4 @@ class StyleManager:
                 if d.is_dir() and (d / "profile.json").exists():
                     results.append(cls.get_style(d.name))
         return results
+

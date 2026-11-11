@@ -36,8 +36,15 @@ def global_exception_handler(exctype, value, tb):
 def main():
     sys.excepthook = global_exception_handler
 
-    # Parse CLI Arguments for Per-Style Launchers
+    # Parse CLI Arguments for Per-Style Launchers & Standalone Tools
     parser = argparse.ArgumentParser(description="PromptBeast Production Studio")
+    parser.add_argument(
+        "--mode", "-m",
+        type=str,
+        default="studio",
+        choices=["studio", "scene_sync"],
+        help="App execution mode: 'studio' (default) or 'scene_sync'"
+    )
     parser.add_argument(
         "--style", "-s",
         type=str,
@@ -45,10 +52,6 @@ def main():
         help="Visual style identifier to pre-load (e.g. zombie_survival, what_if, ink, default)"
     )
     args, _ = parser.parse_known_args()
-
-    # Pre-load active style profile before showing window
-    active_profile = StyleManager.set_active_style(args.style)
-    print(f"[PromptBeast] Active Visual Style: {active_profile.name} ({active_profile.id})", flush=True)
 
     # Configure High-DPI attributes
     QCoreApplication.setApplicationName("PromptBeast")
@@ -68,9 +71,17 @@ def main():
     # Initialize Presets
     PresetManager.initialize()
 
-    # Launch Main Window locked to the active launcher style
-    window = MainWindow(style_id=active_profile.id)
-    window.show()
+    # Mode Dispatch: Standalone Scene Sync Tool vs. Style Studio
+    if args.mode == "scene_sync":
+        print("[PromptBeast] Launching Standalone Scene Sync Tool...", flush=True)
+        from app.ui.scene_sync_window import SceneSyncWindow
+        window = SceneSyncWindow()
+        window.show()
+    else:
+        active_profile = StyleManager.set_active_style(args.style)
+        print(f"[PromptBeast] Active Visual Style: {active_profile.name} ({active_profile.id})", flush=True)
+        window = MainWindow(style_id=active_profile.id)
+        window.show()
 
     sys.exit(app.exec())
 

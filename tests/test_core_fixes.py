@@ -527,10 +527,9 @@ class TestNavigationAndImagesPanel(unittest.TestCase):
         nav = SidebarNav()
         keys = list(nav._buttons.keys())
         self.assertIn("images", keys)
-        self.assertIn("scene_sync", keys)
+        self.assertNotIn("scene_sync", keys)
         self.assertEqual(keys.index("images"), 2)
         self.assertTrue(keys.index("studio") < keys.index("images") < keys.index("deliverables"))
-        self.assertTrue(keys.index("settings") < keys.index("scene_sync"))
 
 
 if __name__ == "__main__":

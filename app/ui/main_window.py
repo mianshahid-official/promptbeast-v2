@@ -137,7 +137,7 @@ class SinglePageNavHelper:
         elif widget and self.scroll_area:
             self.scroll_area.ensureWidgetVisible(widget)
         if self.sidebar:
-            idx_to_key = {0: "production", 1: "studio", 2: "scene_sync", 3: "deliverables", 4: "profiles"}
+            idx_to_key = {0: "production", 1: "studio", 2: "images", 3: "deliverables", 4: "profiles"}
             key = idx_to_key.get(idx)
             if key and hasattr(self.sidebar, "set_current_page"):
                 self.sidebar.set_current_page(key)
@@ -862,7 +862,6 @@ class MainWindow(QMainWindow):
         """)
         self.btn_goto_images.clicked.connect(lambda: self.sidebar.set_current_page("images"))
         s4_layout.addWidget(self.btn_goto_images)
-        self.btn_goto_scene_sync = self.btn_goto_images
 
         self.studio_page = sec4_box
 
@@ -952,9 +951,6 @@ class MainWindow(QMainWindow):
         # 05 — Profiles (Chrome Browser Manager)
         self.stacked_pages.addWidget(self.profiles_panel)
 
-        # Standalone — Scene Sync (All-In-One One-Pager Video Studio)
-        self.stacked_pages.addWidget(self.scene_sync_panel)
-
         # SYSTEM: Console
         self.stacked_pages.addWidget(self.console_page)
 
@@ -974,7 +970,6 @@ class MainWindow(QMainWindow):
                 2: self.images_panel,
                 3: self.tab4_render,
                 4: self.profiles_panel,
-                5: self.scene_sync_panel,
             },
             stacked_pages=self.stacked_pages,
             sidebar=self.sidebar,
@@ -1194,9 +1189,6 @@ class MainWindow(QMainWindow):
         elif k in ("profiles", "05", "profiles_accounts"):
             self.stacked_pages.setCurrentWidget(self.profiles_panel)
             self.profiles_panel.refresh_profiles()
-        elif k == "scene_sync":
-            self.stacked_pages.setCurrentWidget(self.scene_sync_panel)
-            self._prepare_scene_sync_panel()
         elif k == "console":
             self.stacked_pages.setCurrentWidget(self.console_page)
         elif k == "settings":
@@ -1213,8 +1205,6 @@ class MainWindow(QMainWindow):
                 self.sidebar.set_current_page("deliverables")
             elif curr == self.profiles_panel:
                 self.sidebar.set_current_page("profiles")
-            elif curr == self.scene_sync_panel:
-                self.sidebar.set_current_page("scene_sync")
             elif curr == self.console_page:
                 self.sidebar.set_current_page("console")
 

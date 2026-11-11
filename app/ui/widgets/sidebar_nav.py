@@ -194,7 +194,6 @@ class SidebarNav(QWidget):
         self._add_nav_item("deliverables", "Deliverables", "⚡", None, self._main_layout)
         self._add_nav_item("profiles", "Profiles", "👤", None, self._main_layout)
         self._add_nav_item("settings", "Settings", "⚙️", None, self._main_layout)
-        self._add_nav_item("scene_sync", "Scene Sync", "🔄", None, self._main_layout)
 
         self._main_layout.addStretch()
 
