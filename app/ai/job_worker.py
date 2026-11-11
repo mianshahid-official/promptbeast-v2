@@ -5,7 +5,7 @@ Runs entirely locally using Groq Multi-Key Engine with Qwen & Whisper accelerati
 import math
 import uuid
 import traceback
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 try:
     from PySide6.QtCore import QThread, Signal
@@ -92,7 +92,8 @@ class CloudJobWorker(QThread):
             return
 
         try:
-            model_name = getattr(self.request, "model_name", "qwen/qwen3.8-27b") or "qwen/qwen3.8-27b"
+            raw_model = getattr(self.request, "model_name", "qwen/qwen3.8-27b") or "qwen/qwen3.8-27b"
+            model_name = "qwen/qwen3.8-27b" if "qwen3-30b" in raw_model.lower() else raw_model
             engine = GroqInferenceEngine(model_name=model_name)
 
             # Resolve Presets
@@ -298,7 +299,8 @@ class SceneRegenerateWorker(QThread):
             return
 
         try:
-            model_name = getattr(self.request, "model_name", "qwen/qwen3.8-27b") or "qwen/qwen3.8-27b"
+            raw_model = getattr(self.request, "model_name", "qwen/qwen3.8-27b") or "qwen/qwen3.8-27b"
+            model_name = "qwen/qwen3.8-27b" if "qwen3-30b" in raw_model.lower() else raw_model
             engine = GroqInferenceEngine(model_name=model_name)
 
             subject_preset = PresetManager.get_subject_by_id(self.request.subject_id)

@@ -24,7 +24,7 @@ def get_default_workspace_dir() -> Path:
 
 
 class AppSettings(BaseModel):
-    modal_api_url: str = Field(default=DEFAULT_MODAL_API_URL)
+    modal_api_url: str = Field(default="")
     api_key: Optional[str] = Field(default="")
     auth_token: Optional[str] = Field(default="")
     default_model: str = Field(default=DEFAULT_MODEL)
@@ -55,8 +55,8 @@ class SettingsManager:
         path = cls.get_settings_file_path()
         if not path.exists():
             # Check environment variables
-            env_url = os.environ.get("MODAL_API_URL") or os.environ.get("PROMPTBEAST_API_URL")
-            env_key = os.environ.get("MODAL_API_KEY") or os.environ.get("PROMPTBEAST_API_KEY")
+            env_url = os.environ.get("PROMPTBEAST_API_URL")
+            env_key = os.environ.get("GROQ_API_KEY") or os.environ.get("PROMPTBEAST_API_KEY")
             env_token = os.environ.get("AUTH_TOKEN")
             settings = AppSettings()
             if env_url:
@@ -79,9 +79,6 @@ class SettingsManager:
                 cls.save_settings(settings)
             elif not Path(settings.workspace_directory).exists():
                 settings.workspace_directory = default_ws
-                cls.save_settings(settings)
-            if not settings.modal_api_url or not settings.modal_api_url.startswith("http") or settings.modal_api_url.lower() in ("groq", "none", "null"):
-                settings.modal_api_url = DEFAULT_MODAL_API_URL
                 cls.save_settings(settings)
             return settings
         except Exception:

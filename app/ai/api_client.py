@@ -1,5 +1,5 @@
 """
-HTTP Client for communicating with the Modal Cloud AI Backend.
+HTTP Client for communicating with the Inference Backend.
 """
 import time
 from typing import Optional, Dict, Any
@@ -265,7 +265,7 @@ class CloudAPIClient:
                         raise CloudAPIError("Cloud authentication failed. Please check your credentials.", status_code=resp.status_code)
                     else:
                         raise CloudAPIError(
-                            "Cloud generation failed. The Modal model service returned an error.",
+                            "Inference service returned an error.",
                             status_code=resp.status_code,
                             technical_details=resp.text
                         )
@@ -295,7 +295,7 @@ class CloudAPIClient:
         auth_token: Optional[str] = None,
         timeout: float = 15.0
     ) -> JobStatusResponse:
-        """Polls current job state, progress, and generated scenes from Modal."""
+        """Polls current job state, progress, and generated scenes."""
         clean_url = cls.normalize_base_url(base_url)
         endpoint = f"{clean_url}/api/v1/jobs/{job_id}"
         headers = cls._get_headers(api_key, auth_token)
@@ -328,7 +328,7 @@ class CloudAPIClient:
         api_key: Optional[str] = None,
         auth_token: Optional[str] = None
     ) -> JobCancelResponse:
-        """Sends cancellation request to Modal."""
+        """Sends cancellation request."""
         clean_url = cls.normalize_base_url(base_url)
         endpoint = f"{clean_url}/api/v1/jobs/{job_id}/cancel"
         headers = cls._get_headers(api_key, auth_token)
@@ -341,7 +341,7 @@ class CloudAPIClient:
                 else:
                     raise CloudAPIError(f"Cancel request returned {resp.status_code}: {resp.text}")
         except Exception as e:
-            raise CloudAPIError(f"Failed to send cancellation to cloud backend: {str(e)}")
+            raise CloudAPIError(f"Failed to send cancellation to backend: {str(e)}")
 
     @classmethod
     def regenerate_scene(
@@ -352,7 +352,7 @@ class CloudAPIClient:
         auth_token: Optional[str] = None,
         timeout: float = 45.0
     ) -> SceneRegenerateResponse:
-        """Requests single scene regeneration from Modal."""
+        """Requests single scene regeneration."""
         clean_url = cls.normalize_base_url(base_url)
         endpoint = f"{clean_url}/api/v1/scenes/regenerate"
         headers = cls._get_headers(api_key, auth_token)

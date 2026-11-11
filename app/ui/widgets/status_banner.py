@@ -25,8 +25,8 @@ class StatusBannerWidget(QWidget):
         )
         layout.addWidget(self.status_pill)
 
-        # Model / GPU Info
-        self.model_lbl = QLabel("Model: Qwen3-30B-A3B-Instruct (NVIDIA L4 24GB)")
+        # Model / Inference Info
+        self.model_lbl = QLabel("Model: qwen/qwen3.8-27b (Groq Multi-Key)")
         self.model_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
         layout.addWidget(self.model_lbl)
 
@@ -43,10 +43,10 @@ class StatusBannerWidget(QWidget):
             "background-color: #064E3B; color: #34D399; border: 1px solid #059669; "
             "border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700;"
         )
-        self.model_lbl.setText(f"Model: {model} ({gpu})")
+        self.model_lbl.setText(f"Model: {model}")
         self.latency_lbl.setText(f"Ping: {latency_ms:.1f}ms")
 
-    def set_offline(self, message: str = "Cloud AI unavailable"):
+    def set_offline(self, message: str = "Inference engine offline"):
         self.status_pill.setText("● OFFLINE")
         self.status_pill.setStyleSheet(
             "background-color: #450A0A; color: #F87171; border: 1px solid #991B1B; "

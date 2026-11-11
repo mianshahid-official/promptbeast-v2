@@ -23,7 +23,7 @@ SYSTEM_PROMPTS_DIR = CONFIG_DIR / "system_prompts"
 MODELS_FILE = CONFIG_DIR / "models.json"
 
 # Defaults
-DEFAULT_MODAL_API_URL = "https://joybenny3333--omnivoice-studio-fastapi-app.modal.run"
+DEFAULT_MODAL_API_URL = ""
 DEFAULT_MODEL = "qwen/qwen3.8-27b"
 DEFAULT_MIN_DURATION = 3.0
 DEFAULT_PREFERRED_DURATION = 4.5

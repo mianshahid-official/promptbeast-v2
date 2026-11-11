@@ -392,45 +392,11 @@ class GroqInferenceEngine(BaseInferenceEngine):
 
 
 class ModalRemoteInferenceEngine(BaseInferenceEngine):
-    """Dispatches prompt generation to the remote QwenModelWorker on Modal GPU."""
+    """Legacy remote inference engine - routed to GroqInferenceEngine for local execution."""
 
-    def __init__(self):
-        self._worker = None
-
-    def _get_worker(self):
-        if self._worker is None:
-            import modal
-            try:
-                cls_ref = modal.Cls.from_name("promptbeast-backend", "QwenModelWorker")
-                self._worker = cls_ref()
-            except Exception:
-                try:
-                    cls_ref = modal.Cls.lookup("promptbeast-backend", "QwenModelWorker")
-                    self._worker = cls_ref()
-                except Exception as e:
-                    raise RuntimeError(f"Could not connect to deployed Modal GPU worker 'QwenModelWorker': {e}") from e
-        return self._worker
+    def __init__(self, **kwargs):
+        self._groq = GroqInferenceEngine()
 
     def generate_text(self, prompt: str, system_prompt: Optional[str] = None, temperature: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
-        temp = temperature if temperature is not None else backend_config.temperature
-        max_tok = max_tokens if max_tokens is not None else backend_config.max_output_tokens
-
-        try:
-            worker = self._get_worker()
-            return worker.generate.remote(
-                prompt=prompt,
-                temperature=temp,
-                max_tokens=max_tok
-            )
-        except Exception as e:
-            try:
-                self._worker = None
-                worker = self._get_worker()
-                return worker.generate.remote(
-                    prompt=prompt,
-                    temperature=temp,
-                    max_tokens=max_tok
-                )
-            except Exception as e2:
-                raise RuntimeError(f"Modal GPU inference call failed: {str(e2)}") from e2
+        return self._groq.generate_text(prompt=prompt, system_prompt=system_prompt, temperature=temperature, max_tokens=max_tokens)
 

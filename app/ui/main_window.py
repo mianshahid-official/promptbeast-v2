@@ -73,8 +73,6 @@ from app.core.validation import TimelineValidator
 from app.core.project_manager import ProjectManager
 from app.core.export import StoryboardExporter
 from app.core.video_renderer import VideoRenderer
-from app.core.omnivoice_client import OmniVoiceClient
-from app.ai.parallel_pipeline_worker import ParallelPipelineWorker
 from app.ai.api_client import CloudAPIClient, ConnectionCheckWorker
 from app.ai.job_worker import CloudJobWorker, SceneRegenerateWorker
 from app.ai.schemas import JobCreateRequest, SceneRegenerateRequest
@@ -956,7 +954,7 @@ class MainWindow(QMainWindow):
         lbl = QLabel("🎙️ Voiceover Studio & Audio Narration")
         lbl.setStyleSheet("font-size: 18px; font-weight: 700; color: #f8fafc;")
         l.addWidget(lbl)
-        sub = QLabel("Synthesize studio voiceovers using Modal Cloud GPU (site-voice-dl) or transcribe existing audio files via Whisper.")
+        sub = QLabel("Synthesize studio voiceovers using Kokoro Local Engine or transcribe existing audio files via Whisper.")
         sub.setStyleSheet("font-size: 12px; color: #64748b;")
         l.addWidget(sub)
 
@@ -1577,12 +1575,8 @@ class MainWindow(QMainWindow):
     def _on_chk_modal_tts_toggled(self, checked: bool):
         if not hasattr(self, "balance_guard_badge"):
             return
-        if checked:
-            self.balance_guard_badge.setText("⚡ Modal Cloud TTS Armed (1 Request)")
-            self.balance_guard_badge.setStyleSheet("color: #A6FF00; font-weight: 600; font-size: 10px; background-color: rgba(166, 255, 0, 0.12); padding: 4px 8px; border-radius: 6px; border: 1px solid #A6FF00;")
-        else:
-            self.balance_guard_badge.setText("🛡️ Kokoro Local Engine (0 Modal Requests)")
-            self.balance_guard_badge.setStyleSheet("color: #34D399; font-weight: 600; font-size: 10px; background-color: rgba(16, 185, 129, 0.15); padding: 4px 8px; border-radius: 6px; border: 1px solid #10B981;")
+        self.balance_guard_badge.setText("🛡️ Kokoro Local Engine (100% Offline)")
+        self.balance_guard_badge.setStyleSheet("color: #34D399; font-weight: 600; font-size: 10px; background-color: rgba(16, 185, 129, 0.15); padding: 4px 8px; border-radius: 6px; border: 1px solid #10B981;")
 
     def _on_open_style_preview(self):
         current_id = self.style_combo.currentData() or "midjourney_hyper_realism"
@@ -2753,11 +2747,16 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"⏳ Generating prompt for Scene #{scene.scene_id} via Groq...", 6000)
 
         from app.ai.schemas import SceneRegenerateRequest
+        target_model = getattr(self.settings, "default_model", None) or "qwen/qwen3.8-27b"
+        if "qwen3-30b" in target_model.lower():
+            target_model = "qwen/qwen3.8-27b"
+
         req = SceneRegenerateRequest(
             scene=scene,
             story_summary=getattr(self.project.state, "story_raw_text", "")[:800],
             visual_style_id=active_style,
-            custom_style=getattr(self.project.config, "custom_style", "")
+            custom_style=getattr(self.project.config, "custom_style", ""),
+            model_name=target_model
         )
         worker = SceneRegenerateWorker(request=req)
         if not hasattr(self, "_single_retry_workers"):

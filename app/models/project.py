@@ -32,8 +32,8 @@ class ProjectConfig(BaseModel):
     min_duration: float = Field(default=0.5, ge=0.5, le=60.0, description="Minimum image duration in seconds")
     preferred_duration: float = Field(default=5.0, ge=1.0, le=60.0, description="Preferred image duration in seconds")
     max_duration: float = Field(default=6.0, ge=1.0, le=120.0, description="Maximum image duration in seconds")
-    batch_size: int = Field(default=10, ge=1, le=50, description="Number of scenes generated per cloud batch")
-    model_name: str = Field(default="Qwen3-30B-A3B-Instruct-2507")
+    batch_size: int = Field(default=10, ge=1, le=50, description="Number of scenes generated per batch")
+    model_name: str = Field(default="qwen/qwen3.8-27b")
     video_settings: VideoRenderSettings = Field(default_factory=VideoRenderSettings)
 
 

@@ -1,5 +1,5 @@
 """
-API Request and Response schemas for communication between Desktop App and Modal Backend.
+API Request and Response schemas for PromptBeast Desktop Studio and Inference Engine.
 """
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
@@ -25,7 +25,7 @@ class JobCreateRequest(BaseModel):
     preferred_duration: float = 5.0
     max_duration: float = 8.0
     batch_size: int = 10
-    model_name: str = "Qwen3-30B-A3B-Instruct-2507"
+    model_name: str = "qwen/qwen3.8-27b"
 
     def to_config(self) -> ProjectConfig:
         return ProjectConfig(
@@ -45,7 +45,7 @@ class JobCreateRequest(BaseModel):
 class JobCreateResponse(BaseModel):
     job_id: str
     status: JobStatus = JobStatus.QUEUED
-    message: str = "Job successfully queued on Modal cloud backend."
+    message: str = "Job successfully queued for local Groq processing."
 
 
 class JobStatusResponse(BaseModel):
@@ -72,7 +72,7 @@ class SceneRegenerateRequest(BaseModel):
     visual_style_id: str = "zombie_survival"
     custom_style: Optional[str] = None
     continuity: Optional[StoryContinuity] = None
-    model_name: str = "Qwen3-30B-A3B-Instruct-2507"
+    model_name: str = "qwen/qwen3.8-27b"
 
 
 class SceneRegenerateResponse(BaseModel):
@@ -87,8 +87,8 @@ class SceneRegenerateResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str = "healthy"
     version: str = "1.0.0"
-    gpu: str = "NVIDIA L4 24GB"
-    model: str = "Qwen3-30B-A3B-Instruct-2507"
+    gpu: str = "Local / Groq"
+    model: str = "qwen/qwen3.8-27b"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

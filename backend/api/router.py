@@ -38,12 +38,8 @@ def get_inference_engine() -> BaseInferenceEngine:
     global _active_engine
     if _active_engine is None:
         try:
-            import modal
-            if not modal.is_local():
-                from backend.inference.engine import ModalRemoteInferenceEngine
-                _active_engine = ModalRemoteInferenceEngine()
-            else:
-                _active_engine = MockInferenceEngine()
+            from backend.inference.engine import GroqInferenceEngine
+            _active_engine = GroqInferenceEngine()
         except Exception:
             _active_engine = MockInferenceEngine()
     return _active_engine
@@ -82,7 +78,7 @@ def initialize_model_engine():
             llm = LLM(**vllm_kwargs)
             _active_engine = VLLMInferenceEngine(llm)
             _model_loading_status = "healthy"
-            _model_loading_message = f"Connected successfully to Modal ({backend_config.gpu_type}, {backend_config.model_name})."
+            _model_loading_message = f"Connected successfully ({backend_config.model_name})."
             print("[ModelService] Model successfully loaded and ready for inference!")
         except Exception as e:
             import traceback
@@ -138,7 +134,7 @@ def test_connection(_: None = Depends(verify_auth)):
     return ConnectionTestResponse(
         connected=True,
         latency_ms=1.0,
-        message=f"Connected successfully to Modal ({backend_config.gpu_type}, {backend_config.model_name}).",
+        message=f"Connected successfully to PromptBeast Local ({backend_config.model_name}).",
         backend_info=health
     )
 

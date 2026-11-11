@@ -6,22 +6,22 @@ from pydantic import BaseModel, Field
 
 
 class BackendConfig(BaseModel):
-    # Model Configuration (Qwen 30B/32B running on NVIDIA L4 24GB on Modal)
+    # Model Configuration (Local Groq Inference)
     model_name: str = Field(
-        default=os.getenv("MODEL_NAME", "Qwen2.5-14B-Instruct-AWQ"),
+        default=os.getenv("MODEL_NAME", "qwen/qwen3.8-27b"),
         description="Target LLM model identifier"
     )
     model_hf_path: str = Field(
-        default=os.getenv("MODEL_HF_PATH", "Qwen/Qwen2.5-14B-Instruct-AWQ"),
-        description="HuggingFace repository or path (e.g. Qwen/Qwen2.5-14B-Instruct-AWQ for 24GB L4 GPU)"
+        default=os.getenv("MODEL_HF_PATH", "qwen/qwen3.8-27b"),
+        description="Model repository or path"
     )
     
-    # GPU Configuration (NVIDIA L4 24GB)
+    # GPU / Device Configuration
     gpu_type: str = Field(
-        default=os.getenv("MODAL_GPU", "L4"),
-        description="Modal GPU type: L4, A10G, A100"
+        default=os.getenv("DEVICE_TYPE", "Local"),
+        description="Local processing device"
     )
-    gpu_count: int = Field(default=int(os.getenv("MODAL_GPU_COUNT", "1")))
+    gpu_count: int = Field(default=int(os.getenv("GPU_COUNT", "1")))
     
     # Inference parameters (4096 max_model_len prevents OOM on 24GB VRAM for 32B models)
     max_model_len: int = Field(default=int(os.getenv("MAX_MODEL_LEN", "4096")))

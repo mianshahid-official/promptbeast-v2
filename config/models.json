@@ -1,12 +1,10 @@
 {
-  "default_model": "Qwen3-30B-A3B-Instruct-2507",
+  "default_model": "qwen/qwen3.8-27b",
   "models": [
     {
-      "name": "Qwen3-30B-A3B-Instruct-2507",
-      "display_name": "Qwen3 30B A3B Instruct (2507)",
-      "provider": "modal",
-      "recommended_gpu": "NVIDIA L4 24GB",
-      "alternative_gpus": ["NVIDIA A10G 24GB", "NVIDIA A100 40GB", "NVIDIA H100 80GB"],
+      "name": "qwen/qwen3.8-27b",
+      "display_name": "Qwen 3.8 27B (Groq Accelerated)",
+      "provider": "groq",
       "context_window": 32768,
       "max_output_tokens": 8192,
       "default_temperature": 0.3,
@@ -15,11 +13,9 @@
       "supports_batching": true
     },
     {
-      "name": "Qwen2.5-32B-Instruct",
-      "display_name": "Qwen 2.5 32B Instruct",
-      "provider": "modal",
-      "recommended_gpu": "NVIDIA L4 24GB",
-      "alternative_gpus": ["NVIDIA A10G 24GB", "NVIDIA A100 40GB"],
+      "name": "openai/gpt-oss-120b",
+      "display_name": "GPT-OSS 120B (Groq)",
+      "provider": "groq",
       "context_window": 32768,
       "max_output_tokens": 8192,
       "default_temperature": 0.3,
@@ -28,11 +24,9 @@
       "supports_batching": true
     },
     {
-      "name": "Qwen2.5-14B-Instruct",
-      "display_name": "Qwen 2.5 14B Instruct (Fast / Light)",
-      "provider": "modal",
-      "recommended_gpu": "NVIDIA L4 24GB",
-      "alternative_gpus": ["NVIDIA T4 16GB"],
+      "name": "openai/gpt-oss-20b",
+      "display_name": "GPT-OSS 20B (Fast)",
+      "provider": "groq",
       "context_window": 32768,
       "max_output_tokens": 4096,
       "default_temperature": 0.3,

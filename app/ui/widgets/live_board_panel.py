@@ -173,7 +173,7 @@ class LiveBoardPanel(QWidget):
             ("prompts", "Prompts", "building consistency prompts"),
             ("images", "Images", "generating visual stills"),
             ("clips", "Hook Clips", "dynamic animated video clips"),
-            ("voice", "Voiceover", "Kokoro Offline / Modal Cloud synthesis"),
+            ("voice", "Voiceover", "Kokoro Local Offline synthesis"),
             ("render", "Render & Publish", "concatenating, karaoke & audio mux"),
         ]
         for sid, stitle, ssub in stages_meta:
