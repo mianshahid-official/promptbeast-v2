@@ -464,7 +464,10 @@ class TestDerivedBatchSize(unittest.TestCase):
 
 class TestMasterPromptAndDeadCode(unittest.TestCase):
     def test_master_prompt_has_no_fixed_zombie_example(self):
-        text = (ROOT_DIR / "MASTER_AI_STORYBOARD_AND_BIBLES_PROMPT.txt").read_text(encoding="utf-8")
+        p = ROOT_DIR / "data" / "MASTER_AI_STORYBOARD_AND_BIBLES_PROMPT.txt"
+        if not p.exists():
+            p = ROOT_DIR / "MASTER_AI_STORYBOARD_AND_BIBLES_PROMPT.txt"
+        text = p.read_text(encoding="utf-8")
         self.assertNotIn("Sixty people were locked inside", text)
         self.assertNotIn("By Day 20, you will find proof", text)
         self.assertIn("[First sentence of YOUR script", text)

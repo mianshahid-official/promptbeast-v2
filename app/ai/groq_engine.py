@@ -161,8 +161,9 @@ class GroqMultiKeyManager:
                 if k.startswith("gsk_") and k not in self.keys:
                     self.keys.append(k)
 
-        # 2. Check known text files in workspace and parent folders
+        # 2. Check known text files in workspace, data/ folder, and parent folders
         candidate_files = [
+            Path("data/groq api.txt"),
             Path("groq api.txt"),
             Path("../groq api.txt"),
             Path("d:/AntiGravity/groq api.txt"),

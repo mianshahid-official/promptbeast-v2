@@ -276,8 +276,40 @@ class SettingsDialog(QDialog):
         wsg_layout.addLayout(ws_path_layout)
 
         w_layout.addWidget(ws_group)
+
+        # Style Launchers Group
+        launch_group = QGroupBox("Per-Style Desktop Launchers (.bat)")
+        lg_layout = QVBoxLayout(launch_group)
+        lg_layout.addWidget(QLabel("Generate one .bat launcher per visual style into the root application folder:"))
+
+        launch_btn_row = QHBoxLayout()
+        self.btn_gen_launchers = QPushButton("⚡ Generate Style Launchers (.bat)")
+        self.btn_gen_launchers.setFixedHeight(32)
+        self.btn_gen_launchers.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(16, 185, 129, 0.2);
+                color: #10B981;
+                font-weight: 700;
+                border: 1px solid #10B981;
+                border-radius: 6px;
+                padding: 0 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(16, 185, 129, 0.35);
+            }
+        """)
+        self.btn_gen_launchers.clicked.connect(self._on_generate_launchers)
+        launch_btn_row.addWidget(self.btn_gen_launchers)
+
+        self.lbl_gen_status = QLabel("")
+        self.lbl_gen_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 600;")
+        launch_btn_row.addWidget(self.lbl_gen_status)
+        launch_btn_row.addStretch()
+        lg_layout.addLayout(launch_btn_row)
+
+        w_layout.addWidget(launch_group)
         w_layout.addStretch()
-        tabs.addTab(ws_tab, "Workspace")
+        tabs.addTab(ws_tab, "Workspace & Launchers")
 
         layout.addWidget(tabs)
 
@@ -360,6 +392,16 @@ class SettingsDialog(QDialog):
             self.raw_api_keys = edited
         self._keys_revealed = not self._keys_revealed
         self._render_keys_display()
+
+    def _on_generate_launchers(self):
+        try:
+            from tools.generate_launchers import generate_launchers
+            files = generate_launchers()
+            self.lbl_gen_status.setText(f"✓ Generated {len(files)} launchers in main folder!")
+            self.lbl_gen_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")
+        except Exception as e:
+            self.lbl_gen_status.setText(f"Error: {e}")
+            self.lbl_gen_status.setStyleSheet("color: #EF4444; font-size: 11px;")
 
     def _on_save(self):
         self._cleanup_worker()

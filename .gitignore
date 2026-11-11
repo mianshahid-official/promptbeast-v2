@@ -69,8 +69,12 @@ render_temp/
 *.log
 image_prompts.txt
 prompts_only.txt
-data/
-test script/
+data/browser_profiles/
+data/*.log
+data/crash.log
+data/groq api.txt
+data/image_prompts.txt
+data/prompts_only.txt
 PROMPTBEAST_FORENSIC_DOCUMENTATION.zip
 COMPETITOR_REPOS/
 

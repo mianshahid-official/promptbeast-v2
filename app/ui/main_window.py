@@ -154,9 +154,17 @@ class SinglePageNavHelper:
 class MainWindow(QMainWindow):
     """Main application window for PromptBeast Production Studio."""
 
-    def __init__(self):
+    def __init__(self, style_id: Optional[str] = None):
         super().__init__()
-        self.setWindowTitle(f"{APP_DISPLAY_NAME} - Complete AI Video Production Studio")
+
+        # Resolve active style profile from launcher or default
+        from app.core.style_manager import StyleManager
+        if style_id:
+            self.active_style_profile = StyleManager.set_active_style(style_id)
+        else:
+            self.active_style_profile = StyleManager.get_active_style()
+
+        self.setWindowTitle(f"{APP_DISPLAY_NAME} — Style: {self.active_style_profile.name}")
         self.setMinimumSize(1024, 600)
         self.resize(1440, 840)
 
@@ -170,6 +178,8 @@ class MainWindow(QMainWindow):
             config=ProjectConfig(),
             state=ProjectState()
         )
+        self.project.config.visual_style_id = self.active_style_profile.id
+        self.project.state.style_preset_id = self.active_style_profile.id
 
         # Workers
         self.active_job_worker: Optional[CloudJobWorker] = None
@@ -325,6 +335,19 @@ class MainWindow(QMainWindow):
         """)
         tb_layout.addWidget(self.active_project_lbl)
 
+        # Active Visual Style Indicator Badge (Read-only, launched via .bat)
+        self.active_style_badge_lbl = QLabel(f"🎨 Style: {self.active_style_profile.name}")
+        self.active_style_badge_lbl.setStyleSheet(f"""
+            color: #38BDF8;
+            font-size: 11px;
+            font-weight: 700;
+            background-color: rgba(56, 189, 248, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 6px;
+            padding: 4px 12px;
+        """)
+        tb_layout.addWidget(self.active_style_badge_lbl)
+
         tb_layout.addStretch()
 
         # Engine / Server Status
@@ -475,10 +498,26 @@ class MainWindow(QMainWindow):
         is_layout.setContentsMargins(0, 4, 0, 0)
         is_layout.setSpacing(10)
 
-        # Visual Art Style & Reference Thumbnail Matrix (Frameloom Visual Reference Selector)
+        # Visual Art Style (Locked via .bat launcher, read-only display)
         self.style_matrix = StyleThumbnailMatrix(self)
-        self.style_matrix.style_selected.connect(self._on_matrix_style_selected)
-        is_layout.addWidget(self.style_matrix)
+        self.style_matrix.setVisible(False)
+
+        style_read_only_row = QHBoxLayout()
+        style_read_only_row.setSpacing(10)
+        self.lbl_main_active_style = QLabel(f"🎨 Active Style: {self.active_style_profile.name}")
+        self.lbl_main_active_style.setStyleSheet("""
+            color: #38BDF8;
+            font-size: 12px;
+            font-weight: 700;
+            background-color: rgba(56, 189, 248, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-left: 3px solid #10B981;
+            border-radius: 6px;
+            padding: 6px 14px;
+        """)
+        style_read_only_row.addWidget(self.lbl_main_active_style)
+        style_read_only_row.addStretch()
+        is_layout.addLayout(style_read_only_row)
 
         # Row 2: Unified Format & Profile Settings Row
         params_row = QHBoxLayout()
@@ -494,6 +533,10 @@ class MainWindow(QMainWindow):
         self.top_aspect_combo.addItem("16:9 (Landscape)", "16:9")
         self.top_aspect_combo.addItem("9:16 (Portrait / Shorts)", "9:16")
         self.top_aspect_combo.addItem("1:1 (Square)", "1:1")
+        if getattr(self, "active_style_profile", None) and self.active_style_profile.output_format == "9:16":
+            self.top_aspect_combo.setCurrentIndex(1)
+        else:
+            self.top_aspect_combo.setCurrentIndex(0)
         self.top_aspect_combo.currentIndexChanged.connect(self._on_top_aspect_changed)
         params_row.addWidget(self.top_aspect_combo)
 
@@ -1624,7 +1667,10 @@ class MainWindow(QMainWindow):
         if custom_p:
             self.style_combo.addItem("Custom Visual Style...", "custom")
 
-        idx = self.style_combo.findData(self.settings.default_visual_style_id)
+        # Select active style profile from launcher
+        target_prof = getattr(self, "active_style_profile", None)
+        active_id = target_prof.id if target_prof else self.settings.default_visual_style_id
+        idx = self.style_combo.findData(active_id)
         if idx >= 0:
             self.style_combo.setCurrentIndex(idx)
         else:
@@ -1992,11 +2038,9 @@ class MainWindow(QMainWindow):
                 estimated = TimestampParser.estimate_from_text(story_text)
                 self.project.state.narration = estimated
 
-        active_style = None
-        if hasattr(self, "workflow_panel") and hasattr(self.workflow_panel, "style_matrix"):
-            active_style = self.workflow_panel.style_matrix.current_style_id()
-        if not active_style:
-            active_style = getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "zombie_survival"
+        active_style = getattr(self, "active_style_profile", None)
+        active_style_id = active_style.id if active_style else (getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "default")
+        self.project.config.visual_style_id = active_style_id
         self.project.config.visual_style_id = active_style
         if hasattr(self.project, "state") and self.project.state:
             self.project.state.style_preset_id = active_style
@@ -2254,11 +2298,9 @@ class MainWindow(QMainWindow):
             self.prompt_grid.show_progress("⚡ Sending requests to Groq API... Initializing batch prompt generation...", 15.0)
 
         # Authoritatively resolve active visual style from user selection
-        active_style = None
-        if hasattr(self, "workflow_panel") and hasattr(self.workflow_panel, "style_matrix"):
-            active_style = self.workflow_panel.style_matrix.current_style_id()
-        if not active_style:
-            active_style = getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "zombie_survival"
+        active_style = getattr(self, "active_style_profile", None)
+        active_style_id = active_style.id if active_style else (getattr(self.project.state, "style_preset_id", None) or self.project.config.visual_style_id or "default")
+        self.project.config.visual_style_id = active_style_id
 
         self.project.config.visual_style_id = active_style
         if hasattr(self.project, "state") and self.project.state:
@@ -2472,13 +2514,15 @@ class MainWindow(QMainWindow):
                     narration=self.project.state.narration
                 )
 
-            # 1. Save clean prompts_only.txt & image_prompts.txt to workspace root
+            # 1. Save clean prompts_only.txt & image_prompts.txt to data/ subfolder
             try:
                 prompts_clean = StoryboardExporter.export_to_prompts_only(resp.scenes)
-                with open("prompts_only.txt", "w", encoding="utf-8") as pf:
+                data_dir = Path("data")
+                data_dir.mkdir(parents=True, exist_ok=True)
+                with open(data_dir / "prompts_only.txt", "w", encoding="utf-8") as pf:
                     pf.write(prompts_clean + "\n")
                 full_text = StoryboardExporter.export_to_text(resp.scenes)
-                with open("image_prompts.txt", "w", encoding="utf-8") as ipf:
+                with open(data_dir / "image_prompts.txt", "w", encoding="utf-8") as ipf:
                     ipf.write(full_text)
 
                 # Automatically copy canonical image generation payload to Windows clipboard
@@ -2876,7 +2920,9 @@ class MainWindow(QMainWindow):
             # Update exports and save project
             try:
                 prompts_clean = StoryboardExporter.export_to_prompts_only(self.project.state.scenes)
-                with open("prompts_only.txt", "w", encoding="utf-8") as pf:
+                data_dir = Path("data")
+                data_dir.mkdir(parents=True, exist_ok=True)
+                with open(data_dir / "prompts_only.txt", "w", encoding="utf-8") as pf:
                     pf.write(prompts_clean + "\n")
                 if self.project.project_dir:
                     p_dir = Path(self.project.project_dir)

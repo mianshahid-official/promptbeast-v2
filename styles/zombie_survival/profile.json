@@ -1,0 +1,10 @@
+{
+  "id": "zombie_survival",
+  "name": "Zombie Survival",
+  "category": "2D Animation",
+  "description": "Pure flat 2D cartoon survival series aesthetic with locked hero narrator and uniform olive-green zombie horde.",
+  "output_format": "16:9",
+  "subtitle_style": "yellow_bold_stroke",
+  "hero_lock": "Protagonist YOU: large round off-white head roughly 1/3 of total body height, solid black dot eyes, straight-line mouth, short black hair tufts, backwards red baseball cap with curved dark brim pointing behind, dark charcoal-grey zip-up hoodie over solid pure-white t-shirt, dark leather-brown diagonal cross-body messenger bag strap across chest, thin black stick arms and stick legs.",
+  "style_lock": "Pure flat 2D cartoon in 16:9 widescreen. Standardized stick-figure aesthetic with clean, flat vector-style fills. Heavy, uniform near-black (#1A1A1A) outlines wrap every character, prop, and background object. Line width remains consistent regardless of depth. Zero 3D elements, zero volumetric shading, zero soft gradients, zero bevels, zero textures, and zero photorealism. Zero blood, zero gore, zero dismemberment. All zombies are identical pale olive-green skin (#8A9A66), circular white eyes with black dot pupils, open gaping mouths with sharp jagged white teeth, oversized tattered brown jackets over pale undershirts, hunched stick-figure silhouettes."
+}

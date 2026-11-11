@@ -1,0 +1,2402 @@
+IMAGE 001
+START: 0.00
+END: 2.92
+DURATION: 2.92
+
+NARRATION:
+Sixty people were locked inside this mall on the first night.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide establishing view of a massive modern shopping mall at night, with sixty trapped survivors visible behind sealed glass entrances and heavy steel security shutters., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 002
+START: 3.38
+END: 6.66
+DURATION: 3.28
+
+NARRATION:
+By Day 20, you will find proof that one of them is still alive.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A lone infected figure wandering through a dark underground mall tunnel, with a calendar indicating twenty days have passed., Hero survivor character in backwards red cap #D63A2A and charcoal hoodie #333333 observes distant uniform olive-green infected figures with glowing white dot-pupil eyes., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 003
+START: 7.02
+END: 9.04
+DURATION: 2.02
+
+NARRATION:
+And that is the least dangerous thing down there.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Deep underground service tunnels disappearing into darkness, with indistinct human-like silhouettes barely visible in the distance., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 004
+START: 9.78
+END: 12.20
+DURATION: 2.42
+
+NARRATION:
+It is 8:47 PM on a rainy Thursday.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Exterior view of a large shopping mall on a rainy Thursday evening, illuminated signs reflecting on wet pavement, with a clock displaying 8:47 PM., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 005
+START: 12.60
+END: 18.86
+DURATION: 6.26
+
+NARRATION:
+You are in the back corridor of a department store, holding a box cutter and a clipboard, when every phone in the building vibrates at once.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A department store employee standing alone in a narrow stock corridor, holding a box cutter and clipboard while nearby workers and shoppers react to vibrating smartphones., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 006
+START: 19.62
+END: 20.82
+DURATION: 1.20
+
+NARRATION:
+Then the speakers come on.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a ceiling-mounted mall public-address speaker activating in an otherwise ordinary shopping corridor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 007
+START: 21.22
+END: 24.42
+DURATION: 3.20
+
+NARRATION:
+A flat, mechanical voice orders everyone to evacuate immediately.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Shoppers stopping beneath ceiling speakers as an emergency evacuation announcement interrupts the mall's normal activity., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 008
+START: 24.94
+END: 26.86
+DURATION: 1.92
+
+NARRATION:
+Hundreds of shoppers sprint for the glass doors.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A crowded mall concourse filled with hundreds of panicked shoppers running toward the main glass exit doors., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 009
+START: 27.16
+END: 28.78
+DURATION: 1.62
+
+NARRATION:
+The first wave makes it outside.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Frantic shoppers escaping through the main entrance into the rainy parking lot while others remain visible inside., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 010
+START: 29.26
+END: 33.16
+DURATION: 3.90
+
+NARRATION:
+Then steel shutters crash down over every entrance, with sixty people still inside.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Heavy industrial steel security shutters slamming down across the mall's entrances, trapping frightened shoppers and employees inside., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 011
+START: 33.86
+END: 36.32
+DURATION: 2.46
+
+NARRATION:
+Outside, car horns blare and glass shatters.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Chaotic parking lot outside the mall, abandoned vehicles with flashing lights and shattered windows, rain falling across the scene., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 012
+START: 36.78
+END: 37.72
+DURATION: 0.94
+
+NARRATION:
+Then the power dies.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The mall's illuminated interior abruptly plunging into complete darkness as ceiling lights and storefront signs go out., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 013
+START: 38.32
+END: 41.22
+DURATION: 2.90
+
+NARRATION:
+Four hundred thousand square feet of mall drops into blackness.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, Vast interior view of the shopping mall's central concourse swallowed by darkness, with only faint emergency lights visible in the distance., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 014
+START: 41.94
+END: 43.12
+DURATION: 1.18
+
+NARRATION:
+You are not getting out tonight.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Lone employee standing inside the dark mall facing a massive sealed steel shutter., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 015
+START: 43.46
+END: 47.86
+DURATION: 4.40
+
+NARRATION:
+And as the screaming outside turns into something worse, you realize you are not getting out tomorrow either.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View from inside the mall toward the sealed glass entrance, where indistinct threatening figures move through the rain while the trapped employee watches from the shadows., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 016
+START: 48.38
+END: 50.08
+DURATION: 1.70
+
+NARRATION:
+You do not waste time on the glass.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the employee examining the thick glass entrance and its heavy steel frame without attempting to break it., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 017
+START: 50.54
+END: 55.72
+DURATION: 5.18
+
+NARRATION:
+It is tempered safety glass in steel frames, and breaking it would only open a door to whatever is in that parking lot.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Detailed view of reinforced tempered-glass panels secured in steel frames, with threatening shadowy figures visible outside in the parking lot., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 018
+START: 56.32
+END: 57.44
+DURATION: 1.12
+
+NARRATION:
+Your goal is not escape.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee turning away from the sealed entrance and looking toward the mall's interior service corridors., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 019
+START: 57.80
+END: 58.56
+DURATION: 0.76
+
+NARRATION:
+It is information.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a clipboard, building directory, and security access information being examined under a flashlight., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 020
+START: 59.04
+END: 63.08
+DURATION: 4.04
+
+NARRATION:
+You break into the security room, and the cameras are still alive on backup battery.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, Security control room filled with surveillance monitors, the employee entering with a flashlight while several screens remain illuminated on backup power., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 021
+START: 63.70
+END: 67.60
+DURATION: 3.90
+
+NARRATION:
+Outside, cars sit with their doors wide open, and dark shapes drift between them.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Security-camera perspective overlooking an abandoned parking lot, with open car doors and indistinct infected figures moving between vehicles., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 022
+START: 67.88
+END: 68.74
+DURATION: 0.86
+
+NARRATION:
+It is already over.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, The employee staring silently at the surveillance monitors as the scale of the disaster becomes apparent., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 023
+START: 69.44
+END: 71.60
+DURATION: 2.16
+
+NARRATION:
+Inside, you watch what happens to the sixty.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Multiple security-camera feeds showing different sections of the mall, where trapped shoppers gather near the sealed entrances., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 024
+START: 72.14
+END: 73.24
+DURATION: 1.10
+
+NARRATION:
+They pound on the shutters.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Desperate survivors striking the heavy steel shutters with their fists, trying to force an exit., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 025
+START: 73.78
+END: 76.28
+DURATION: 2.50
+
+NARRATION:
+One woman, bitten in the parking lot, collapses by midnight.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A wounded woman lying collapsed on the mall floor near the entrance, surrounded by frightened survivors., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 026
+START: 76.82
+END: 78.62
+DURATION: 1.80
+
+NARRATION:
+By one in the morning, she stands up again.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The same woman slowly rising from the floor in an unnatural posture while nearby survivors watch in horror., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 027
+START: 79.08
+END: 80.00
+DURATION: 0.92
+
+NARRATION:
+The crowd scatters.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Panicked shoppers running in different directions across the darkened mall concourse as the infected woman advances., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 028
+START: 80.16
+END: 84.52
+DURATION: 4.36
+
+NARRATION:
+Eleven people run down the service ramp into the tunnels beneath the mall, and the infected follow.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Eleven terrified survivors racing down a concrete underground service ramp while infected figures pursue them into the dark tunnels., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 029
+START: 84.88
+END: 86.08
+DURATION: 1.20
+
+NARRATION:
+You never learn their names.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, Empty security-room monitors displaying grainy footage of the underground ramp, with the employee watching helplessly., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 030
+START: 86.46
+END: 87.42
+DURATION: 0.96
+
+NARRATION:
+You never see them again.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Dark underground tunnel entrance disappearing into complete blackness, with no survivors visible., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 031
+START: 88.10
+END: 91.58
+DURATION: 3.48
+
+NARRATION:
+At 6:00 AM on Day 3, the batteries die, and the screens go black.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, Security monitors shutting down one by one, leaving the employee illuminated only by a weak flashlight at 6:00 AM on Day 3., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 032
+START: 91.98
+END: 94.06
+DURATION: 2.08
+
+NARRATION:
+After that, you work by flashlight and memory.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee navigating an unlit mall corridor with a flashlight, carrying a mental map of the building., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 033
+START: 94.72
+END: 97.56
+DURATION: 2.84
+
+NARRATION:
+You choose your base: the sporting goods store on the second floor.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide interior view of a sporting goods store on the mall's second floor, with shelves of camping equipment, outdoor supplies, and sporting merchandise., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 034
+START: 98.00
+END: 103.60
+DURATION: 5.60
+
+NARRATION:
+One entrance, a steel drop-down grate, no outside windows, and a ladder up to the maintenance catwalks.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View of the sporting goods store's single entrance, heavy metal security grate, windowless walls, and a ladder leading to overhead maintenance catwalks., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 035
+START: 103.94
+END: 107.28
+DURATION: 3.34
+
+NARRATION:
+You wrap the wheels of a stock cart in t-shirts and haul supplies in the dark.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee wrapping shopping-cart wheels in fabric shirts before silently transporting boxes and supplies through a dark mall corridor., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 036
+START: 107.98
+END: 108.86
+DURATION: 0.88
+
+NARRATION:
+Then the smell starts.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing in a corridor, noticing an unpleasant odor spreading from the direction of the food court., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 037
+START: 109.64
+END: 113.76
+DURATION: 4.12
+
+NARRATION:
+By Day 4, the food court freezers are rotting, and the stench creeps through the vents.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Abandoned food court with spoiled food, open commercial freezers, decaying ingredients, and overhead ventilation grilles., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 038
+START: 113.76
+END: 119.32
+DURATION: 5.56
+
+NARRATION:
+You seal the corridor with display cases and plastic sheeting, and you do the math that decides everything.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee constructing a makeshift sealed barrier from retail display cases and stretched plastic sheeting, with a yellow notepad and calculations nearby., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 039
+START: 119.90
+END: 124.10
+DURATION: 4.20
+
+NARRATION:
+A person working hard needs a gallon of water and about two thousand calories a day.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Survival-planning arrangement showing a one-gallon water container, measured food portions, canned goods, and a handwritten daily ration calculation., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 040
+START: 124.58
+END: 127.32
+DURATION: 2.74
+
+NARRATION:
+Every plan you make from here on has to survive that number.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the employee writing daily water and calorie requirements on a yellow notepad beside carefully organized food supplies., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 041
+START: 128.06
+END: 131.14
+DURATION: 3.08
+
+NARRATION:
+Bottled water will not carry you sixty days, so you go looking.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Rows of nearly empty bottled-water shelves in a deserted supermarket, with the employee inspecting the remaining supplies., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 042
+START: 131.56
+END: 137.28
+DURATION: 5.72
+
+NARRATION:
+You set up buckets under the roof drainage pipes and filter every drop through carbon, sand and cotton, then boil it.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Rooftop water collection setup with buckets positioned beneath drainage pipes, alongside a homemade layered filter containing carbon, sand, and cotton and a pot of boiling water., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 043
+START: 138.06
+END: 141.88
+DURATION: 3.82
+
+NARRATION:
+You drain one of the mall's commercial water heaters, eighty gallons of clean water.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Large commercial water heater in a maintenance room being drained into clean storage containers, with multiple water-filled jugs arranged nearby., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 044
+START: 142.14
+END: 143.86
+DURATION: 1.72
+
+NARRATION:
+And you leave the sprinkler system alone.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee examining a ceiling sprinkler pipe and deliberately leaving its water supply untouched., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 045
+START: 144.36
+END: 149.90
+DURATION: 5.54
+
+NARRATION:
+That water looks like a gift, but it can hold rust inhibitors and antifreeze, and boiling does not remove them.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of discolored sprinkler-system water in a container beside rusty plumbing, chemical-warning labels, and a boiling pot., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 046
+START: 150.26
+END: 151.22
+DURATION: 0.96
+
+NARRATION:
+It concentrates them.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a boiling container with mineral and chemical residue visibly collecting as the water level decreases., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 047
+START: 151.92
+END: 161.34
+DURATION: 9.42
+
+NARRATION:
+You strip the grocery store of rice, beans, canned chicken and peanut butter, and you hide a second cache, thirty thousand calories and twenty gallons of water, in the first-floor pharmacy.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee gathering rice bags, dried beans, canned chicken, and peanut butter, then concealing organized food packages and water containers behind shelving in an abandoned pharmacy., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 048
+START: 161.88
+END: 163.36
+DURATION: 1.48
+
+NARRATION:
+Never keep everything in one place.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Two separate hidden survival caches in different parts of the mall, illustrating the employee's decision to distribute supplies., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 049
+START: 164.14
+END: 166.58
+DURATION: 2.44
+
+NARRATION:
+Then you write a three-phase plan on a yellow notepad.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a yellow notepad on a work surface, with the heading "THREE-PHASE PLAN" written in bold handwriting., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 050
+START: 166.98
+END: 169.20
+DURATION: 2.22
+
+NARRATION:
+Phase One: darkness and silence after sundown.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Dark sporting goods store with every light switched off, covered windows, and supplies arranged for silent nighttime survival., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 051
+START: 169.20
+END: 170.92
+DURATION: 1.72
+
+NARRATION:
+Phase Two: the sealed vault.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Sporting goods store interior protected by a heavy metal grate, barricaded entrance, and sealed plastic-covered corridor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 052
+START: 171.34
+END: 172.68
+DURATION: 1.34
+
+NARRATION:
+Phase Three: vertical containment.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Second-floor mall layout viewed from above, emphasizing the separation between the lower concourse and the upper retail level., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 053
+START: 173.08
+END: 174.62
+DURATION: 1.54
+
+NARRATION:
+Cut the second floor off from the ground.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide architectural view of the mall's two floors, with the second-floor access points highlighted as barriers separating the upper level from the ground floor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 054
+START: 175.34
+END: 176.72
+DURATION: 1.38
+
+NARRATION:
+You build Phase Three first.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee beginning construction of the upper-floor defensive system, preparing tools and steel hardware near the central escalators., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 055
+START: 177.20
+END: 178.40
+DURATION: 1.20
+
+NARRATION:
+You chain every stairwell door.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Heavy chains and padlocks securing multiple stairwell doors on the second floor., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 056
+START: 179.02
+END: 185.18
+DURATION: 6.16
+
+NARRATION:
+You unbolt the top landing plates on both central escalators and run steel cable back to a single release pin behind your wall.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Central mall escalators with their upper landing plates partially unbolted, thick steel cables running discreetly toward a concealed mechanical release point behind the sporting goods store., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 057
+START: 185.84
+END: 188.96
+DURATION: 3.12
+
+NARRATION:
+Pull it, and the top section will drop four feet into the truss pit.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Mechanical close-up of the escalator's upper landing mechanism and cable-release assembly, illustrating the planned four-foot drop into the structural pit., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 058
+START: 189.40
+END: 193.56
+DURATION: 4.16
+
+NARRATION:
+You drill four holes in the floor track in front of your gate and keep four steel pins beside it.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee drilling four evenly spaced holes into the metal floor track in front of the sporting goods store's security gate, with four heavy steel locking pins laid nearby., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 059
+START: 193.56
+END: 198.46
+DURATION: 4.90
+
+NARRATION:
+And you drill one small peephole through the wall, just wide enough to see the floor below.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a small circular peephole drilled through the store wall, with the employee looking through toward the lower mall floor., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 060
+START: 199.30
+END: 203.20
+DURATION: 3.90
+
+NARRATION:
+By Day 15, you have a hundred gallons of water and two hundred thousand calories.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Organized survival stockpile inside the sporting goods store, featuring stacked water containers, bottled supplies, food boxes, and a yellow notepad showing the Day 15 inventory., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 061
+START: 203.70
+END: 204.70
+DURATION: 1.00
+
+NARRATION:
+On paper, you are safe.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the completed survival inventory and defensive plan on the yellow notepad, with the employee sitting confidently among stored supplies., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 062
+START: 205.26
+END: 207.30
+DURATION: 2.04
+
+NARRATION:
+But paper does not listen to the building at night.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee awake in darkness inside the sporting goods store, listening tensely as an unexplained noise echoes through the mall., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 063
+START: 208.08
+END: 210.46
+DURATION: 2.38
+
+NARRATION:
+On Day 19, a thunderstorm rolls over the city.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Exterior establishing view of the shopping mall beneath a violent nighttime thunderstorm, with lightning illuminating its glass roof., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 064
+START: 210.78
+END: 212.80
+DURATION: 2.02
+
+NARRATION:
+At 3:14 in the morning, a sound wakes you.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee abruptly waking on a makeshift sleeping area inside the dark sporting goods store, illuminated by faint lightning through distant mall skylights., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 065
+START: 213.14
+END: 214.04
+DURATION: 0.90
+
+NARRATION:
+A metallic clank.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a loose metal object striking the tiled floor of the deserted mall., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 066
+START: 214.36
+END: 216.18
+DURATION: 1.82
+
+NARRATION:
+Then dragging footsteps on the tile below.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Dark lower-level corridor with a lone shadow moving slowly across the floor, accompanied by visible dragging marks on the tiles., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 067
+START: 216.90
+END: 219.48
+DURATION: 2.58
+
+NARRATION:
+You crawl along the mezzanine on your stomach and look down.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee crawling silently along the second-floor mezzanine, lowering their head to look over the railing toward the lower concourse., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 068
+START: 219.90
+END: 224.12
+DURATION: 4.22
+
+NARRATION:
+In a flash of lightning, you see it: a single infected, stumbling around the fountain.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Lightning illuminating one infected figure stumbling around the central mall fountain, surrounded by empty shops and scattered debris., Hero survivor character in backwards red cap #D63A2A and charcoal hoodie #333333 observes distant uniform olive-green infected figures with glowing white dot-pupil eyes., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 069
+START: 224.66
+END: 226.18
+DURATION: 1.52
+
+NARRATION:
+It did not come through the front doors.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View of the still-sealed main entrance shutters from inside the mall, showing no obvious breach., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 070
+START: 226.58
+END: 227.74
+DURATION: 1.16
+
+NARRATION:
+It came up from the tunnels.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Dark concrete underground service tunnel connected to an ascending maintenance passage leading toward the mall's lower floor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 071
+START: 228.14
+END: 228.82
+DURATION: 0.68
+
+NARRATION:
+One of the sixty.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The lone infected figure standing near the fountain, visually linking it to the original group trapped inside the mall., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 072
+START: 229.40
+END: 231.48
+DURATION: 2.08
+
+NARRATION:
+For nineteen days, it has been down there in the dark.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A dark, damp underground tunnel showing the infected figure wandering alone among pipes, debris, and accumulated dust, emphasizing its long isolation., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 073
+START: 232.18
+END: 236.44
+DURATION: 4.26
+
+NARRATION:
+On Day 20, you corner it in a narrow service doorway and finish it with one strike.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee confronting the infected figure in a narrow service doorway on Day 20, with the encounter shown from a restrained, non-graphic distance., Hero survivor character in backwards red cap #D63A2A and charcoal hoodie #333333 observes distant uniform olive-green infected figures with glowing white dot-pupil eyes., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 074
+START: 237.00
+END: 238.30
+DURATION: 1.30
+
+NARRATION:
+But now you have to go down there.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing at the entrance to a dark basement stairwell, holding a flashlight and preparing to descend into the underground service areas., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 075
+START: 238.98
+END: 241.90
+DURATION: 2.92
+
+NARRATION:
+The air in the basement is cold and smells of wet concrete.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Atmospheric view of a cold underground basement corridor, with damp concrete walls, moisture on the floor, exposed pipes, and flashlight illumination., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 076
+START: 242.32
+END: 245.52
+DURATION: 3.20
+
+NARRATION:
+As you pass the electrical rooms, your flashlight catches something in the dust.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee walking past electrical maintenance rooms as a flashlight beam illuminates an unusual mark on the dusty concrete floor., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 077
+START: 246.04
+END: 246.32
+DURATION: 0.28
+
+NARRATION:
+Footprints.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of distinct human boot prints pressed into a thick layer of dust on the basement floor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 078
+START: 246.96
+END: 248.60
+DURATION: 1.64
+
+NARRATION:
+Not the drag marks of an infected.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Comparison of clean boot-shaped footprints beside irregular dragging marks, emphasizing that the tracks were made by a walking person., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 079
+START: 249.16
+END: 253.48
+DURATION: 4.32
+
+NARRATION:
+Clean boot prints, and next to them an open tin of ration meat and a flashlight with dead batteries.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Underground floor showing a sequence of fresh boot prints, an opened ration-meat tin, and a discarded flashlight with its battery compartment exposed., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 080
+START: 253.48
+END: 255.48
+DURATION: 2.00
+
+NARRATION:
+There is almost no dust on the tin.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Extreme close-up of the ration tin, its clean surface contrasting with the thick surrounding dust., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 081
+START: 256.00
+END: 257.74
+DURATION: 1.74
+
+NARRATION:
+Someone was here less than two days ago.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee crouching beside the fresh footprints and ration tin, studying the evidence with a tense expression., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 082
+START: 258.38
+END: 260.44
+DURATION: 2.06
+
+NARRATION:
+You search the tunnels twice and find nothing.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee exploring an empty network of underground corridors and utility passages, sweeping a flashlight across every doorway., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 083
+START: 260.76
+END: 262.12
+DURATION: 1.36
+
+NARRATION:
+Whoever it is, they are hiding.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A distant, partially obscured human silhouette watching from behind an underground concrete pillar, remaining concealed in the darkness., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 084
+START: 262.76
+END: 264.54
+DURATION: 1.78
+
+NARRATION:
+So you stop hunting and start trapping.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee laying out fishing line, empty soda cans, and other simple materials on the basement floor before setting up warning traps., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 085
+START: 265.00
+END: 270.34
+DURATION: 5.34
+
+NARRATION:
+You stretch fishing line ankle-high across every staircase and tunnel door, tied to stacks of empty soda cans.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of thin fishing line stretched across a dark underground doorway at ankle height, connected to stacked empty soda cans positioned as a makeshift alarm., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 086
+START: 271.10
+END: 273.98
+DURATION: 2.88
+
+NARRATION:
+On Day 42, at 11:20 at night, the cans rattle.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The empty soda cans shaking and rattling in a dark tunnel entrance at 11:20 PM on Day 42, with the employee reacting nearby., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 087
+START: 274.48
+END: 276.52
+DURATION: 2.04
+
+NARRATION:
+You light a flare and toss it down the escalator bay.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee holding a brightly burning emergency flare and throwing it down the dark central escalator shaft., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 088
+START: 277.00
+END: 280.00
+DURATION: 3.00
+
+NARRATION:
+A man stands in the red glow, thin and shaking, holding a pipe.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A thin, exhausted man standing at the bottom of the escalator bay in the red flare light, trembling and holding a metal pipe., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 089
+START: 280.52
+END: 281.70
+DURATION: 1.18
+
+NARRATION:
+"Don't shoot," he rasps.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the frightened man's face in red flare light as he raises his empty hand and pleads with the unseen person above., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 090
+START: 282.12
+END: 284.16
+DURATION: 2.04
+
+NARRATION:
+"I found the one you put down by the stockroom.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The man gesturing toward the direction of the stockroom while speaking to the employee from the lower escalator area., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 091
+START: 284.46
+END: 284.96
+DURATION: 0.50
+
+NARRATION:
+Clean strike.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the man's exhausted face as he acknowledges the infected figure's death, with the red flare illuminating the background., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 092
+START: 285.32
+END: 286.58
+DURATION: 1.26
+
+NARRATION:
+I knew somebody was alive up here."
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The man looking upward toward the second-floor mezzanine, realizing another survivor has been living above him., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 093
+START: 287.26
+END: 288.54
+DURATION: 1.28
+
+NARRATION:
+You tell him to drop the pipe.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing above the man near the escalator entrance, firmly gesturing for him to put down the metal pipe., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 094
+START: 288.98
+END: 289.28
+DURATION: 0.30
+
+NARRATION:
+He does.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The metal pipe resting on the tiled floor as the exhausted man steps away from it with his hands visible., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 095
+START: 289.66
+END: 294.72
+DURATION: 5.06
+
+NARRATION:
+His name is Miller, a delivery driver who was trapped in the loading bay when the shutters fell forty-two days ago.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Miller standing in the loading bay area with a delivery uniform, an abandoned delivery trolley, and heavy steel shutters behind him, visually establishing his identity and history., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 096
+START: 295.12
+END: 296.60
+DURATION: 1.48
+
+NARRATION:
+His water ran out three days ago.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller holding an empty plastic water container in the dim loading bay, looking dehydrated and exhausted., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 097
+START: 296.92
+END: 299.38
+DURATION: 2.46
+
+NARRATION:
+He talks too much when he is scared, and he is terrified.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller nervously talking with animated gestures while standing opposite the cautious employee in the red-lit underground passage., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 098
+START: 300.22
+END: 301.36
+DURATION: 1.14
+
+NARRATION:
+You cannot let him upstairs.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing at the boundary between the escalator bay and the secured second-floor entrance, keeping Miller below., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 099
+START: 301.92
+END: 304.30
+DURATION: 2.38
+
+NARRATION:
+A second person doubles your noise and halves your food.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Two survival ration arrangements on the floor, with food and water portions divided between two people instead of one., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 100
+START: 304.78
+END: 306.84
+DURATION: 2.06
+
+NARRATION:
+You cannot kill a desperate man who has done nothing.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee looking down at Miller, who stands unarmed and visibly frightened, creating a tense moral decision., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 101
+START: 307.36
+END: 313.90
+DURATION: 6.54
+
+NARRATION:
+So you give him a gated shoe store on the west side of the first floor, a five-gallon jug of boiled water, and two weeks of canned food.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Small abandoned shoe store on the west side of the mall's first floor, with a secured metal gate, five-gallon water container, and carefully stacked canned food given to Miller., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 102
+START: 313.90
+END: 314.82
+DURATION: 0.92
+
+NARRATION:
+And one rule.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing at the entrance of Miller's secured shelter, raising one finger to emphasize a strict condition., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 103
+START: 315.28
+END: 316.26
+DURATION: 0.98
+
+NARRATION:
+Stay in the west wing.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide view of the isolated west wing corridor, with Miller's gated shoe store visible at the far end., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 104
+START: 316.62
+END: 318.06
+DURATION: 1.44
+
+NARRATION:
+Do not cross the fountain after dark.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Central mall fountain at night, separating the west wing from the rest of the deserted concourse, with the darkened fountain area appearing dangerous., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 105
+START: 318.66
+END: 321.36
+DURATION: 2.70
+
+NARRATION:
+Five days later, you see an orange glow in the west wing.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View from the second-floor mezzanine looking down at a small orange light glowing behind Miller's shoe-store gate., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 106
+START: 322.00
+END: 325.14
+DURATION: 3.14
+
+NARRATION:
+Miller is sitting behind his gate, reading a paperback by candlelight.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller sitting alone behind the gated shoe store entrance, reading a paperback book beside a small lit candle., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 107
+START: 325.64
+END: 327.10
+DURATION: 1.46
+
+NARRATION:
+He says he could not stand the dark.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller looking up from his paperback toward the employee, with the candle illuminating his tired face., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 108
+START: 327.78
+END: 331.24
+DURATION: 3.46
+
+NARRATION:
+You take his lighter, and you tell him a flame in a glass-fronted mall is a lighthouse.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee confiscating Miller's lighter while gesturing toward the large glass storefront windows that make the small flame visible across the dark mall., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 109
+START: 331.82
+END: 333.18
+DURATION: 1.36
+
+NARRATION:
+He swears it will never happen again.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller sitting behind the gate with both hands raised apologetically, the candle extinguished and the lighter in the employee's possession., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 110
+START: 333.92
+END: 334.64
+DURATION: 0.72
+
+NARRATION:
+You believe him.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee walking away from Miller's secured shoe store, appearing cautiously reassured., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 111
+START: 334.64
+END: 335.06
+DURATION: 0.42
+
+NARRATION:
+Mostly.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the employee looking back over one shoulder toward the west wing, still visibly uncertain., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 112
+START: 335.56
+END: 340.02
+DURATION: 4.46
+
+NARRATION:
+On Day 51, a violent storm hits with sixty-mile-per-hour gusts.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Exterior view of the mall during an intense Day 51 storm, trees bending violently under powerful winds and rain sweeping across the parking lot., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 113
+START: 340.02
+END: 343.74
+DURATION: 3.72
+
+NARRATION:
+At four in the morning, a huge oak branch slams into the central skylight.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Massive oak branch crashing into the mall's central glass skylight at 4:00 AM, with rain and lightning surrounding the roof., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 114
+START: 344.08
+END: 346.86
+DURATION: 2.78
+
+NARRATION:
+An eight-foot section of glass falls forty feet into the fountain.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Large broken section of skylight glass plunging through the mall's open central atrium toward the fountain forty feet below., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 115
+START: 347.32
+END: 350.96
+DURATION: 3.64
+
+NARRATION:
+The same wind rips your rain buckets off the roof, and your water collection is gone.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Rooftop water-collection setup being torn apart by violent wind, with buckets flying away and drainage containers overturned., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 116
+START: 351.72
+END: 353.54
+DURATION: 1.82
+
+NARRATION:
+The hole in the roof is worse than the water.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide interior view looking upward through the damaged central skylight, revealing a large open hole in the mall roof., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 117
+START: 354.10
+END: 360.00
+DURATION: 5.90
+
+NARRATION:
+It broadcasts every sound in the building into the night, and it vents the smell of people, supplies and rain into the open air.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View of the damaged skylight opening above the central atrium, with wind and rain passing through while the exposed mall interior lies beneath it., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 118
+START: 360.94
+END: 362.66
+DURATION: 1.72
+
+NARRATION:
+On Day 56, the herd arrives.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Large group of infected figures gathering outside the mall near the damaged roofline and main entrance, approaching from the surrounding highway., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 119
+START: 363.24
+END: 367.94
+DURATION: 4.70
+
+NARRATION:
+They come along the highway, drawn by the flapping insulation and the scent drifting from the dome.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Long view of an abandoned highway leading toward the mall, with a growing herd moving along the road toward the damaged central dome., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 120
+START: 368.48
+END: 373.56
+DURATION: 5.08
+
+NARRATION:
+At 2:30 on the morning of Day 57, the front doors give way with a sound like a bomb.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Mall entrance at night as the heavy front doors and security barriers buckle under the pressure of the approaching herd., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 121
+START: 374.12
+END: 376.88
+DURATION: 2.76
+
+NARRATION:
+Steel shrieks as the shutters are peeled up from the concrete.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of heavy steel shutters being forced upward from their concrete tracks, with bent metal and debris around the entrance., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 122
+START: 377.56
+END: 383.58
+DURATION: 6.02
+
+NARRATION:
+From the second floor, you watch dozens of dark figures pour past the jewelry stores and boutiques toward the center of the building.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Elevated second-floor view looking down on dozens of infected figures flooding through the ground-floor jewelry stores and boutiques toward the central concourse., Hero survivor character in backwards red cap #D63A2A and charcoal hoodie #333333 observes distant uniform olive-green infected figures with glowing white dot-pupil eyes., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 123
+START: 384.02
+END: 387.40
+DURATION: 3.38
+
+NARRATION:
+You sprint down to the west wing and hit Miller's gate with your crowbar.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee rushing through the first-floor west wing with a crowbar, striking the metal security gate of Miller's shoe store., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 124
+START: 387.84
+END: 388.82
+DURATION: 0.98
+
+NARRATION:
+"The front doors are down!
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee urgently shouting through Miller's gate while gesturing toward the distant main entrance., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 125
+START: 389.22
+END: 390.00
+DURATION: 0.78
+
+NARRATION:
+Rear stairs, now!"
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee pointing urgently toward a rear stairwell as Miller begins preparing to escape his shelter., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 126
+START: 390.60
+END: 392.38
+DURATION: 1.78
+
+NARRATION:
+Miller grabs his pack, then stops.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller hurriedly lifting a survival backpack from the shoe store floor before suddenly freezing., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 127
+START: 392.90
+END: 395.58
+DURATION: 2.68
+
+NARRATION:
+He left a photo of his daughter on a shelf in the back of the shop.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Small framed photograph of a young girl sitting alone on a shelf behind the shoe store counter, surrounded by abandoned merchandise., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 128
+START: 395.82
+END: 396.54
+DURATION: 0.72
+
+NARRATION:
+He turns around.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller turning away from the escape route and looking back toward the rear shelf containing the photograph., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 129
+START: 396.82
+END: 397.62
+DURATION: 0.80
+
+NARRATION:
+You grab his jacket.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee grabbing the back of Miller's jacket to stop him from returning into the shop., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 130
+START: 397.92
+END: 402.32
+DURATION: 4.40
+
+NARRATION:
+He tears free, gets the photo, and on the way out he slams into a shattered display case.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller pulling free, snatching the framed photograph, and colliding with a shattered glass display case near the shoe store exit., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 131
+START: 402.76
+END: 404.92
+DURATION: 2.16
+
+NARRATION:
+A sheet of glass opens his calf from knee to ankle.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Close view of Miller's injured lower leg beside the broken display case, with the serious injury shown without graphic detail., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 132
+START: 405.08
+END: 406.70
+DURATION: 1.62
+
+NARRATION:
+He drops, bleeding onto the tile.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller collapsing onto the mall floor while clutching his injured leg, the framed photograph lying beside him., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 133
+START: 407.20
+END: 408.54
+DURATION: 1.34
+
+NARRATION:
+There is no time to be angry.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee immediately kneeling beside Miller and preparing to lift him despite the danger approaching., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 134
+START: 408.98
+END: 413.16
+DURATION: 4.18
+
+NARRATION:
+You haul him up and drag him up the hidden stairs, locking each chained fire door behind you.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee supporting the injured Miller up a concealed stairwell, stopping to secure each chained fire door behind them., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 135
+START: 413.58
+END: 416.64
+DURATION: 3.06
+
+NARRATION:
+Below you, the first footsteps echo across the lower concourse.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View down the stairwell toward the dark lower concourse, where infected silhouettes begin appearing beneath the emergency lighting., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 136
+START: 417.30
+END: 419.04
+DURATION: 1.74
+
+NARRATION:
+You do not try to defend the ground floor.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee looking down from the upper stairwell at the enormous exposed ground-floor concourse, choosing not to fight the approaching herd., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 137
+START: 419.50
+END: 421.86
+DURATION: 2.36
+
+NARRATION:
+Holding four hundred thousand square feet is suicide.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Vast overhead view of the mall's enormous lower floor filled with approaching infected figures, emphasizing the impossibility of defending the entire space., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 138
+START: 422.30
+END: 423.58
+DURATION: 1.28
+
+NARRATION:
+It is time for Phase Three.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing beside the concealed escalator-release mechanism, preparing to activate the final defensive system., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 139
+START: 424.24
+END: 425.42
+DURATION: 1.18
+
+NARRATION:
+You pull the release pin.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the employee pulling the single steel release pin connected to the escalator cables., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 140
+START: 425.90
+END: 431.06
+DURATION: 5.16
+
+NARRATION:
+The cables snap taut, and both escalators drop four feet into the pit with a crash that rings through the building.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Both central escalators dropping into their structural pits as thick steel cables pull tight, creating a major physical separation between floors., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 141
+START: 431.42
+END: 432.40
+DURATION: 0.98
+
+NARRATION:
+They are no longer stairs.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide view of the central atrium showing the collapsed escalators no longer connecting the mall's two floors., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 142
+START: 432.92
+END: 433.42
+DURATION: 0.50
+
+NARRATION:
+They are walls.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View of the two collapsed escalator structures forming steep physical barriers between the ground floor and second-floor mezzanine., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 143
+START: 434.26
+END: 438.96
+DURATION: 4.70
+
+NARRATION:
+You drag Miller into the sporting goods store, drop the grate, and drive the four pins into the floor.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee dragging injured Miller inside the sporting goods store, lowering the heavy security grate and inserting four steel pins into the floor track., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 144
+START: 439.46
+END: 440.34
+DURATION: 0.88
+
+NARRATION:
+The vault is sealed.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Exterior view of the sporting goods store's reinforced entrance, with the heavy grate locked and all visible defensive barriers secured., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 145
+START: 441.06
+END: 443.18
+DURATION: 2.12
+
+NARRATION:
+For thirty-six hours, you sit in total darkness.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee and injured Miller sitting silently inside the completely dark sporting goods store, surrounded by sealed supplies and barricades., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 146
+START: 443.18
+END: 444.04
+DURATION: 0.86
+
+NARRATION:
+No candle.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of an extinguished candle lying unused on the store floor., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 147
+START: 444.24
+END: 444.60
+DURATION: 0.36
+
+NARRATION:
+No words.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee and Miller sitting motionless in complete darkness, separated by a short distance and maintaining absolute silence., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 148
+START: 444.60
+END: 449.40
+DURATION: 4.80
+
+NARRATION:
+Below you, glass explodes, racks crash over, and hundreds of footsteps scrape across the tile.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, View through the small peephole toward the lower mall as infected figures move through shattered storefronts, toppled merchandise racks, and broken glass., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 149
+START: 450.16
+END: 451.02
+DURATION: 0.86
+
+NARRATION:
+Miller breaks first.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller sitting in darkness, visibly struggling to maintain his composure as fear overwhelms him., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 150
+START: 451.60
+END: 454.56
+DURATION: 2.96
+
+NARRATION:
+On the second night, he starts whispering to his daughter's photograph.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller holding the small framed photograph close to his face, whispering to it in the darkness of the sporting goods store., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 151
+START: 455.02
+END: 457.90
+DURATION: 2.88
+
+NARRATION:
+You press a hand over his mouth and put your forehead against his ear.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee leaning close to Miller, gently covering his mouth with one hand and pressing their forehead near his ear to communicate silently., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 152
+START: 458.26
+END: 460.02
+DURATION: 1.76
+
+NARRATION:
+"If they hear us, we die in this room."
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the employee whispering urgently into Miller's ear, with both figures barely visible in the darkness., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 153
+START: 460.52
+END: 461.46
+DURATION: 0.94
+
+NARRATION:
+He nods, shaking.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller nodding silently, visibly trembling as he holds his daughter's photograph., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 154
+START: 461.90
+END: 463.00
+DURATION: 1.10
+
+NARRATION:
+He does not whisper again.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller sitting completely still with his lips closed, clutching the photograph in silence., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 155
+START: 463.20
+END: 467.04
+DURATION: 3.84
+
+NARRATION:
+But you stay awake, because you now know exactly what a frightened man can cost you.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee sitting awake beside the barricaded entrance, watching Miller while listening for sounds from the lower floor., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 156
+START: 467.60
+END: 469.18
+DURATION: 1.58
+
+NARRATION:
+You wrap his calf by touch alone.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee carefully bandaging Miller's injured calf in complete darkness, using their hands to guide the dressing., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 157
+START: 469.48
+END: 472.78
+DURATION: 3.30
+
+NARRATION:
+In a building like this, an infection is as deadly as anything outside.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the bandaged leg beside a first-aid kit, with the employee checking the dressing in the dimly lit store., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 158
+START: 473.54
+END: 474.48
+DURATION: 0.94
+
+NARRATION:
+The herd stays below.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide view of infected figures wandering across the devastated ground-floor concourse, unable to reach the second-floor store., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 159
+START: 475.00
+END: 479.32
+DURATION: 4.32
+
+NARRATION:
+You killed every light and sealed your scent behind heavy plastic, and they have no reason to climb.
+
+PROMPT:
+Medium interior shot in flat 2D cartoon animation style, Interior view of the sporting goods store showing completely darkened spaces, plastic-sealed barriers, and the concealed entrance preventing light and odors from escaping., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 160
+START: 479.92
+END: 482.24
+DURATION: 2.32
+
+NARRATION:
+By the evening of Day 58, the sounds begin to thin.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee sitting beside the peephole as the lower-floor chaos gradually subsides, with only a few distant infected figures remaining visible., Hero survivor character in backwards red cap #D63A2A and charcoal hoodie #333333 observes distant uniform olive-green infected figures with glowing white dot-pupil eyes., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 161
+START: 482.84
+END: 485.12
+DURATION: 2.28
+
+NARRATION:
+On Day 60, you press your eye to the peephole.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Extreme close-up of the employee looking through the small circular peephole drilled into the sporting goods store wall., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 162
+START: 485.80
+END: 487.06
+DURATION: 1.26
+
+NARRATION:
+The ground floor is destroyed.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide overhead view of the devastated mall ground floor, with shattered storefronts, damaged displays, broken glass, and scattered debris., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 163
+START: 487.56
+END: 492.38
+DURATION: 4.82
+
+NARRATION:
+Merchandise is scattered across the concourse, and a few dozen stragglers wander through the wreckage.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Desolate central concourse covered in fallen merchandise and overturned displays, with several dozen infected figures wandering among the debris., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 164
+START: 492.70
+END: 494.22
+DURATION: 1.52
+
+NARRATION:
+But the second floor is untouched.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide view of the mall's second-floor retail level, showing intact corridors, closed stores, and undamaged defensive barriers., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 165
+START: 494.64
+END: 495.62
+DURATION: 0.98
+
+NARRATION:
+Your barricades held.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the sporting goods store's reinforced security grate, steel floor pins, and sealed entrance still firmly in place., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 166
+START: 496.20
+END: 497.18
+DURATION: 0.98
+
+NARRATION:
+The cost is real.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee sitting inside the secured store, exhausted and surrounded by damaged supplies, with Miller resting nearby., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 167
+START: 497.54
+END: 500.32
+DURATION: 2.78
+
+NARRATION:
+The herd swept through the pharmacy, and the hidden cache is gone.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, First-floor pharmacy after the herd's passage, with overturned shelves, scattered medication boxes, damaged storage containers, and the concealed supply cache missing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 168
+START: 500.78
+END: 502.02
+DURATION: 1.24
+
+NARRATION:
+The roof catchment is gone.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Damaged mall rooftop beneath the broken skylight, with destroyed drainage equipment and empty collection buckets scattered by the storm., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 169
+START: 502.50
+END: 503.96
+DURATION: 1.46
+
+NARRATION:
+Miller cannot put weight on his leg.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Miller lying on a makeshift sleeping area inside the sporting goods store, his injured calf heavily bandaged and unable to support his weight., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 170
+START: 504.46
+END: 509.58
+DURATION: 5.12
+
+NARRATION:
+You count what is left on the yellow notepad: forty-four thousand calories and forty-seven gallons of water.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of the yellow notepad displaying the remaining inventory: 44,000 calories and 47 gallons of water, with the employee's hand holding a pencil., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 171
+START: 509.98
+END: 513.38
+DURATION: 3.40
+
+NARRATION:
+For two people, that is eleven days of food and twenty-three days of water.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Two-person survival ration arrangement with limited food packages and water containers, alongside handwritten calculations showing eleven days of food and twenty-three days of water., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 172
+START: 514.04
+END: 514.82
+DURATION: 0.78
+
+NARRATION:
+You did not win.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee sitting exhausted on the floor of the secured sporting goods store, looking toward the damaged mall through the peephole., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 173
+START: 515.12
+END: 515.76
+DURATION: 0.64
+
+NARRATION:
+You bought time.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a ticking wristwatch beside the yellow survival notepad and the remaining food and water supplies., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 174
+START: 516.44
+END: 518.94
+DURATION: 2.50
+
+NARRATION:
+Most people look at a huge building and see a fortress.
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Exterior establishing view of the enormous shopping mall, its glass dome and multiple floors giving it the imposing appearance of a fortress., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 175
+START: 519.64
+END: 521.78
+DURATION: 2.14
+
+NARRATION:
+But a building that big is too large to control.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Overhead architectural view of the entire sprawling mall, with its enormous concourse, multiple corridors, storefronts, and entrances emphasizing its scale., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 176
+START: 522.30
+END: 524.60
+DURATION: 2.30
+
+NARRATION:
+Real survival is not about owning the whole castle.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee looking out across the enormous ruined mall from the protected second floor, with the entire building extending far beyond the secured shelter., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 177
+START: 525.02
+END: 530.94
+DURATION: 5.92
+
+NARRATION:
+It is about building a smaller fortress inside it, and letting the world break against the walls while you wait quietly in the dark.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Sporting goods store transformed into a compact survival fortress, with a reinforced grate, sealed plastic barriers, organized supplies, and two survivors sitting silently inside while destruction remains outside., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 178
+START: 531.84
+END: 533.56
+DURATION: 1.72
+
+NARRATION:
+The ground floor belongs to the dead now.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Dark, devastated ground-floor concourse filled with wandering infected figures and ruined retail displays., Infected figures feature uniform olive-green #8A9A66 skin, blank white circular eyes with black dot pupils, sharp jagged cartoon teeth, and tattered brown clothing., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 179
+START: 533.96
+END: 535.14
+DURATION: 1.18
+
+NARRATION:
+Up here, you are still alive.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, The employee standing inside the intact second-floor sporting goods store, with Miller resting nearby and the secured barricades behind them., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 180
+START: 535.86
+END: 537.36
+DURATION: 1.50
+
+NARRATION:
+So how long would you have lasted?
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Reflective view of the surviving employee sitting inside the store, looking directly toward the viewer through the dim interior., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 181
+START: 537.88
+END: 543.26
+DURATION: 5.38
+
+NARRATION:
+Which store would you have fortified first, and what mistake do you think most people would make in this exact building?
+
+PROMPT:
+Wide establishing shot in flat 2D cartoon animation style, Wide view of the abandoned mall's multiple retail stores, including the sporting goods store, pharmacy, supermarket, and shoe store, suggesting different possible survival locations., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 182
+START: 543.72
+END: 544.70
+DURATION: 0.98
+
+NARRATION:
+Tell me in the comments.
+
+PROMPT:
+Detailed close-up shot in flat 2D cartoon animation style, Close-up of a smartphone displaying a video comment section, with the ruined mall faintly visible in the background., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 183
+START: 545.60
+END: 550.90
+DURATION: 5.30
+
+NARRATION:
+If you like realistic survival stories and what-if crisis simulations, subscribe and turn on notifications.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, A clean visual of a video subscription interface with a subscribe indicator and notification bell, set against a subtle background of the darkened shopping mall., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 184
+START: 551.42
+END: 552.66
+DURATION: 1.24
+
+NARRATION:
+A new one drops every week.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Calendar showing successive weekly dates beside a screen displaying a series of survival-story video thumbnails., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.
+
+---
+
+IMAGE 185
+START: 552.66
+END: 555.54
+DURATION: 2.88
+
+NARRATION:
+Stay quiet, stay prepared, and thanks for watching.
+
+PROMPT:
+Cinematic scene in flat 2D cartoon animation style, Final cinematic view of the fortified sporting goods store in darkness, with the employee and Miller alive inside, supplies organized, and the devastated mall visible beyond the secured entrance., Hero survivor character features backwards red baseball cap #D63A2A, charcoal grey hoodie #333333, white t-shirt collar #FFFFFF, and brown crossbody strap #4A2E1B., Clean flat vector fills, heavy solid black #1A1A1A line art contours, stark theatrical lighting, dramatic survival atmosphere, zero blood or gore, no 3D shading, no gradients.

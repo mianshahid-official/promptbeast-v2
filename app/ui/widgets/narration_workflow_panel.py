@@ -542,21 +542,50 @@ class NarrationWorkflowPanel(QWidget):
         main_layout.addWidget(step3_box)
 
         # ---------------------------------------------------------------------
-        # STEP 4: VISUAL STYLE & SETTINGS
+        # STEP 4: VISUAL STYLE & SETTINGS (READ-ONLY STYLE LAUNCHED VIA .BAT)
         # ---------------------------------------------------------------------
-        step4_box, s4_lay = self._create_card("🎨 STEP 4: Visual Art Style Presets & Output Settings")
+        step4_box, s4_lay = self._create_card("🎨 STEP 4: Active Visual Art Style & Output Settings")
         s4_lay.setSpacing(10)
 
-        # Visual Style Matrix
+        # Active Style Read-Only Display
+        from app.core.style_manager import StyleManager
+        active_style = StyleManager.get_active_style()
+
+        style_info_row = QHBoxLayout()
+        style_info_row.setSpacing(12)
+
+        self.lbl_active_style_badge = QLabel(f"🎨 Style: {active_style.name}")
+        self.lbl_active_style_badge.setStyleSheet("""
+            QLabel {
+                background-color: #0F172A;
+                color: #38BDF8;
+                font-size: 13px;
+                font-weight: 700;
+                border: 1px solid rgba(56, 189, 248, 0.4);
+                border-left: 4px solid #10B981;
+                border-radius: 6px;
+                padding: 8px 16px;
+            }
+        """)
+        style_info_row.addWidget(self.lbl_active_style_badge)
+
+        self.lbl_style_bat_hint = QLabel("(Active style locked via launcher. To switch styles, close and launch its dedicated .bat file)")
+        self.lbl_style_bat_hint.setStyleSheet("color: #64748B; font-size: 11px; font-style: italic;")
+        style_info_row.addWidget(self.lbl_style_bat_hint)
+        style_info_row.addStretch()
+
+        s4_lay.addLayout(style_info_row)
+
+        # Compatibility hidden style matrix (not visible in UI, no other styles selectable)
         self.style_matrix = StyleThumbnailMatrix(self)
-        self.style_matrix.style_selected.connect(self._on_style_selected)
-        s4_lay.addWidget(self.style_matrix)
+        self.style_matrix.setVisible(False)
+        self.style_matrix.select_style(active_style.id)
 
         # Style Directives & AI Master Prompt Bar
         style_prompt_bar = QHBoxLayout()
         style_prompt_bar.setSpacing(10)
 
-        self.btn_copy_style_prompt = QPushButton("📋 Copy Master AI Prompt for External AI")
+        self.btn_copy_style_prompt = QPushButton(f"📋 Copy Master AI Prompt ({active_style.name})")
         self.btn_copy_style_prompt.setFixedHeight(32)
         self.btn_copy_style_prompt.setCursor(Qt.PointingHandCursor)
         self.btn_copy_style_prompt.setStyleSheet("""
@@ -577,7 +606,7 @@ class NarrationWorkflowPanel(QWidget):
         self.btn_copy_style_prompt.clicked.connect(self._on_copy_style_prompt)
         style_prompt_bar.addWidget(self.btn_copy_style_prompt)
 
-        self.btn_view_style_prompt = QPushButton("👁️ View Full Style Prompt & Directives")
+        self.btn_view_style_prompt = QPushButton("👁️ View Active Style Master Prompt")
         self.btn_view_style_prompt.setFixedHeight(32)
         self.btn_view_style_prompt.setCursor(Qt.PointingHandCursor)
         self.btn_view_style_prompt.setStyleSheet("""
@@ -621,8 +650,8 @@ class NarrationWorkflowPanel(QWidget):
         """)
         s4_lay.addWidget(self.lbl_style_feature_banner)
 
-        # Initialize style features banner for default selection
-        self._on_style_selected(self.style_matrix.current_style_id())
+        # Initialize style features banner for active style
+        self._on_style_selected(active_style.id)
 
         # Options Row: Aspect Ratio, Model, Batch Size
         opt_row = QHBoxLayout()
@@ -803,8 +832,8 @@ class NarrationWorkflowPanel(QWidget):
     def _on_align_visuals(self):
         raw_text = self.txt_visual_ideas.toPlainText().strip()
         if not raw_text:
-            # Check if sample data.txt exists in root and offer to load it
-            sample_file = Path("sample data.txt")
+            # Check if sample data.txt exists in data/ or root and offer to load it
+            sample_file = Path("data/sample data.txt") if Path("data/sample data.txt").exists() else Path("sample data.txt")
             if sample_file.exists():
                 raw_text = sample_file.read_text(encoding="utf-8")
                 self.txt_visual_ideas.setPlainText(raw_text)
@@ -1154,16 +1183,20 @@ class NarrationWorkflowPanel(QWidget):
 
     def _on_style_selected(self, style_id: str):
         """Updates feature highlights banner and button text when user selects a visual style."""
-        norm_id = style_id.lower().strip()
+        from app.core.style_manager import StyleManager
+        style_prof = StyleManager.get_style(style_id)
+        norm_id = style_prof.id
+        style_name = style_prof.name
+
         features_text = STYLE_FEATURE_HIGHLIGHTS.get(
             norm_id,
-            f"Active Style: {style_id}. Visual directives and constraints loaded from configuration."
+            style_prof.description or f"Active Style: {style_name}. Visual directives and constraints loaded from styles/{norm_id}/."
         )
         if hasattr(self, "lbl_style_feature_banner"):
             self.lbl_style_feature_banner.setText(features_text)
 
-        style_preset = PresetManager.get_style_by_id(norm_id)
-        style_name = style_preset.name if style_preset else norm_id.replace("_", " ").title()
+        if hasattr(self, "lbl_active_style_badge"):
+            self.lbl_active_style_badge.setText(f"🎨 Style: {style_name}")
 
         if hasattr(self, "btn_copy_style_prompt"):
             self.btn_copy_style_prompt.setText(f"📋 Copy Master AI Prompt ({style_name})")
@@ -1174,37 +1207,35 @@ class NarrationWorkflowPanel(QWidget):
 
     def _on_copy_style_prompt(self):
         """Copies the dedicated Master AI Prompt for the active style to the system clipboard."""
-        style_id = self.style_matrix.current_style_id()
-        p = self._get_prompt_path_for_style(style_id)
-        style_preset = PresetManager.get_style_by_id(style_id)
-        style_name = style_preset.name if style_preset else style_id.replace("_", " ").title()
+        from app.core.style_manager import StyleManager
+        style_prof = StyleManager.get_active_style()
+        content = StyleManager.get_active_master_prompt()
+        style_name = style_prof.name
 
-        if p and p.exists():
+        if content and len(content.strip()) > 20:
             try:
-                content = p.read_text(encoding="utf-8")
                 from app.core.export import copy_to_system_clipboard
                 copy_to_system_clipboard(content)
                 if hasattr(self, "lbl_prompt_copy_status"):
                     self.lbl_prompt_copy_status.setText(f"✓ Copied {style_name} prompt to clipboard! Paste into ChatGPT/Claude.")
                     self.lbl_prompt_copy_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")
             except Exception as e:
-                QMessageBox.warning(self, "Copy Error", f"Could not read prompt file:\n{e}")
+                QMessageBox.warning(self, "Copy Error", f"Could not copy prompt:\n{e}")
         else:
-            QMessageBox.warning(self, "Prompt Not Found", f"Prompt file for style '{style_name}' was not found at:\n{p}")
+            QMessageBox.warning(self, "Prompt Not Found", f"Prompt for style '{style_name}' was empty.")
 
     def _on_view_style_prompt(self):
         """Opens a viewer dialog allowing inspection and full copy of the active style's Master AI Prompt."""
-        style_id = self.style_matrix.current_style_id()
-        p = self._get_prompt_path_for_style(style_id)
-        style_preset = PresetManager.get_style_by_id(style_id)
-        style_name = style_preset.name if style_preset else style_id.replace("_", " ").title()
+        from app.core.style_manager import StyleManager
+        style_prof = StyleManager.get_active_style()
+        content = StyleManager.get_active_master_prompt()
+        style_name = style_prof.name
 
-        if p and p.exists():
+        if content and len(content.strip()) > 20:
             try:
-                content = p.read_text(encoding="utf-8")
                 dialog = PromptViewerDialog(style_name=style_name, prompt_text=content, parent=self)
                 dialog.exec()
             except Exception as e:
                 QMessageBox.warning(self, "Viewer Error", f"Could not open prompt viewer:\n{e}")
         else:
-            QMessageBox.warning(self, "Prompt Not Found", f"Prompt file for style '{style_name}' was not found at:\n{p}")
+            QMessageBox.warning(self, "Prompt Not Found", f"Prompt for style '{style_name}' was empty.")

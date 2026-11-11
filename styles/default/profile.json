@@ -1,0 +1,10 @@
+{
+  "id": "default",
+  "name": "Default",
+  "category": "Cinematic",
+  "description": "Standard high-fidelity cinematic narrative style guided by project story bibles.",
+  "output_format": "16:9",
+  "subtitle_style": "standard_clean",
+  "hero_lock": "Protagonist appearance strictly adheres to the user-provided Character Bible.",
+  "style_lock": "High-fidelity cinematic visual style matching the user-provided Visual Style Bible. Consistent lighting, framing, and compositional depth."
+}

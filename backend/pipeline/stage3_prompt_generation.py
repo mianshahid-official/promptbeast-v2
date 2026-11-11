@@ -18,8 +18,20 @@ from backend.pipeline.stage_validation import validate_storyboard
 from app.core.narration_workflow import robust_extract_scenes_from_llm_output
 
 
-def load_image_prompt_system_prompt() -> str:
-    """Loads system prompt from editable file on disk."""
+def load_image_prompt_system_prompt(style_id: Optional[str] = None) -> str:
+    """Loads system prompt for the specified or active style, falling back to disk prompt."""
+    try:
+        from app.core.style_manager import StyleManager
+        if style_id:
+            sp = StyleManager.get_style(style_id)
+            if sp and sp.master_prompt and len(sp.master_prompt.strip()) > 30:
+                return sp.master_prompt.strip()
+        active_prompt = StyleManager.get_active_master_prompt()
+        if active_prompt and len(active_prompt.strip()) > 30:
+            return active_prompt.strip()
+    except Exception:
+        pass
+
     prompt_file = Path("config/system_prompts/image_prompt_generation.txt")
     if prompt_file.exists():
         try:
@@ -136,7 +148,7 @@ class Stage3PromptGeneration:
         if engine is None:
             engine = GroqInferenceEngine(default_model=model)
 
-        system_prompt = load_image_prompt_system_prompt()
+        system_prompt = load_image_prompt_system_prompt(target_style_id)
 
         # Build bible context summaries
         char_summary = ""
@@ -429,7 +441,7 @@ INSTRUCTIONS:
         if engine is None:
             engine = kwargs.get("engine") or GroqInferenceEngine(default_model=model)
 
-        system_prompt = load_image_prompt_system_prompt()
+        system_prompt = load_image_prompt_system_prompt(target_style_id)
 
         char_summary = ""
         env_summary = ""

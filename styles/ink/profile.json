@@ -1,0 +1,10 @@
+{
+  "id": "ink",
+  "name": "Ink Wash & Graphic Sketch",
+  "category": "Graphic Art",
+  "description": "High-contrast dynamic black-and-white ink wash and expressively rendered comic ink sketch with stark chiaroscuro.",
+  "output_format": "16:9",
+  "subtitle_style": "white_bold_box",
+  "hero_lock": "Expressive ink-drawn hero defined by stark black brush contours, dramatic shadows, and distinctive silhouette.",
+  "style_lock": "Dynamic monochrome ink wash and sumi-e aesthetic with expressive brushstrokes, deep pooled blacks, raw paper-white highlights, deliberate splatter accents, and stark high-contrast chiaroscuro lighting."
+}

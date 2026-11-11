@@ -275,9 +275,11 @@ class StoryboardExporter:
         with open(prompts_only_file, "w", encoding="utf-8") as f:
             f.write(cls.export_to_prompts_only(scenes, thumbnail_prompt=thumbnail_prompt))
 
-        # Also keep a copy in workspace root
+        # Also keep a copy in data/ folder
         try:
-            with open("prompts_only.txt", "w", encoding="utf-8") as f:
+            data_dir = Path("data")
+            data_dir.mkdir(parents=True, exist_ok=True)
+            with open(data_dir / "prompts_only.txt", "w", encoding="utf-8") as f:
                 f.write(cls.export_to_prompts_only(scenes, thumbnail_prompt=thumbnail_prompt))
         except Exception:
             pass

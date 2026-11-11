@@ -644,7 +644,19 @@ def _legacy_parse_custom_bible_text(bible_text: str) -> Dict[str, Any]:
 # STEP 4 & 5: DEDICATED GROQ IMAGE PROMPT GENERATION (BATCHED & EXPANDED)
 # =============================================================================
 
-def load_image_prompt_system_prompt() -> str:
+def load_image_prompt_system_prompt(style_id: Optional[str] = None) -> str:
+    try:
+        from app.core.style_manager import StyleManager
+        if style_id:
+            sp = StyleManager.get_style(style_id)
+            if sp and sp.master_prompt and len(sp.master_prompt.strip()) > 30:
+                return sp.master_prompt.strip()
+        active_prompt = StyleManager.get_active_master_prompt()
+        if active_prompt and len(active_prompt.strip()) > 30:
+            return active_prompt.strip()
+    except Exception:
+        pass
+
     p = Path("config/system_prompts/image_prompt_generation.txt")
     if p.exists():
         try:
