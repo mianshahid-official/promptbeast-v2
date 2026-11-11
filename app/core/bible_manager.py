@@ -452,3 +452,4 @@ class BibleManager:
             objects_and_props=props,
             visual_style_bible=style
         )
+

@@ -1041,10 +1041,6 @@ class NarrationWorkflowPanel(QWidget):
                 total_chars = sum(len(b.get("characters", [])) for b in parsed_bulk.values())
                 self.lbl_bible_status.setText(f"✅ Loaded {len(parsed_bulk)} Bible(s) with {total_chars} total characters.")
                 self.lbl_bible_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 700;")
-                f"{len(parsed.get('environments', []))} locations, "
-                f"{len(parsed.get('key_objects', []))} props)"
-            )
-            self.lbl_bible_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 700;")
 
     # =========================================================================
     # STEP 5 ACTIONS: BATCH PROMPT GENERATION
