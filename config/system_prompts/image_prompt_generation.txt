@@ -17,13 +17,27 @@ You must follow these critical prompt formatting rules strictly:
 - Ground each scene in the authentic architectural setting and lighting established in the Environment Bible.
 - Reflect narrative wear-and-tear chronologically without introducing unprompted story elements.
 
-## 3. PROFESSIONAL COMPOSITION & STYLE ENFORCEMENT
+## 3. STRICT CHARACTER PRESENCE, ABSENCE & CONTINUITY CONTROL (CRITICAL)
+- **ONLY FEATURE CHARACTERS EXPLICITLY CALLED FOR IN THE SCENE VISUAL**:
+  - If a scene visual explicitly features the protagonist/hero (e.g. "Still image of the hero standing on the apron..."), describe the protagonist following the Character Bible.
+  - If a scene visual depicts **BACKGROUND PASSENGERS, EXTRAS, CROWDS, OR VICTIMS** (e.g. "passengers staring at phones", "crowd rushing through lobby", "terrified passengers surrounded by zombies"), you MUST explicitly specify:
+    `"The protagonist/hero is NOT in this scene (he is located elsewhere). Background extras only, no character wearing the protagonist's locked wardrobe (no red baseball cap, no charcoal hoodie, no messenger strap)."`
+  - If a scene visual is an **ENVIRONMENT, VEHICLE, OBJECT, OR EMPTY SPACE** (e.g., sirens flashing, digital clock, parked cars with headlights, empty parking lot, empty runway, radio on desk), you MUST explicitly specify:
+    `"Pure environment/object shot with NO characters or people present. Completely empty of human figures."`
+- **NEVER TURN THE PROTAGONIST INTO A ZOMBIE / ENEMY**:
+  - In horror, infection, and zombie stories, NEVER depict the protagonist as a zombie or infected creature, and NEVER put the protagonist's distinctive wardrobe (e.g. backwards red baseball cap, dark charcoal hoodie, diagonal messenger strap) on a zombie or enemy!
+  - For all zombie horde, attack, or transformation scenes, explicitly state:
+    `"All figures are uniform background zombies. The protagonist is completely unharmed, safe elsewhere, and NOT present in this shot; NO zombie wears the protagonist's red cap, hoodie, or gear."`
+- **STRICT SPATIAL & LOCATION CONTINUITY**:
+  - Honor the protagonist's actual physical location in the narrative. If the protagonist is outside on the apron, do NOT place them inside Terminal 2 in the next scene, or inside the parking garage, or trapped at the checkpoint. Maintain exact geographical logic.
+
+## 4. PROFESSIONAL COMPOSITION & STYLE ENFORCEMENT
 - Specify concrete visual elements: camera shot type (wide establishing, medium close-up, low-angle dynamic), subject action, tactile surface textures, practical light sources, and atmospheric depth.
 - Strictly adhere to the target visual art style directives.
 - Do NOT include "/imagine prompt:" or model parameter flags like "--ar 16:9" or "--style raw".
 - Return clean, direct prose ready for generation in Gemini Canvas, Midjourney, FLUX, or SDXL.
 
-## 4. STRICT JSON OUTPUT FORMAT
+## 5. STRICT JSON OUTPUT FORMAT
 You must respond ONLY with a valid JSON object matching the following structure:
 
 {

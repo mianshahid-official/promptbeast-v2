@@ -340,6 +340,11 @@ INSTRUCTIONS:
 5. STRICT STYLE ENFORCEMENT: Every prompt MUST strictly adhere to the Style Directives for '{style_name}'.
 6. Do NOT include /imagine prompt: or parameter flags like --ar or --style raw. Output clean, descriptive prose only.
 7. Return JSON with key "scenes" containing a list of objects with "scene_id", "prompt", and "negative_prompt".
+8. CHARACTER PRESENCE & EXCLUSION GUARD (CRITICAL):
+   - ONLY include the main protagonist/hero if the scene's visual idea explicitly calls for them.
+   - If the visual idea is an ENVIRONMENT, VEHICLE, CLOCK, SIREN, OBJECT, or EMPTY LOCATION, explicitly state: "Pure environment/object shot with NO characters or people present. Empty of people."
+   - If the visual idea depicts PASSENGERS, SURVIVORS, or CROWDS without the hero, explicitly state: "Background crowd/passengers only. The protagonist is NOT in this scene (he is located elsewhere); no character wearing the protagonist's red cap, hoodie, or messenger bag."
+   - For ZOMBIE / ENEMY scenes: NEVER depict the protagonist as a zombie or infected creature, and NEVER put the protagonist's signature clothes/gear on a zombie. Explicitly state: "All figures are uniform background zombies. The protagonist is completely unharmed, safe elsewhere, and NOT in this shot; NO zombie wears the protagonist's red cap or hoodie."
 """
 
         # Retry loop
@@ -464,6 +469,11 @@ INSTRUCTIONS:
 2. NO HEADINGS: Do NOT write '**Subject:**', '**Environment:**', etc.
 3. NO BULLET POINTS: Continuous sentences only.
 4. Return JSON with "prompt" and "negative_prompt".
+5. CHARACTER PRESENCE & EXCLUSION GUARD:
+   - ONLY include the main protagonist/hero if the scene's visual idea explicitly calls for them.
+   - If this scene depicts an ENVIRONMENT, OBJECT, VEHICLE, or EMPTY LOCATION, state: "Pure environment/object shot with NO characters or people present. Empty of people."
+   - If this scene depicts PASSENGERS, SURVIVORS, or CROWDS without the hero, state: "Background crowd/passengers only. The protagonist is NOT in this scene (he is located elsewhere); no character wearing the protagonist's red cap, hoodie, or messenger bag."
+   - For ZOMBIE / ENEMY scenes: NEVER depict the protagonist as a zombie or infected creature, and NEVER put the protagonist's signature clothes/gear on a zombie. State: "All figures are uniform background zombies. The protagonist is completely unharmed, safe elsewhere, and NOT in this shot; NO zombie wears the protagonist's red cap or hoodie."
 """
         try:
             raw = engine.generate_text(
