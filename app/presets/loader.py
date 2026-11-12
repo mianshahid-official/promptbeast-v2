@@ -87,23 +87,15 @@ class PresetManager:
         if sid in ("zombie", "zombies", "zombie_survival"):
             sid = "zombie_survival"
         elif sid in ("whatif", "what_if", "whatif_flat_vector", "flat_vector"):
-            sid = "whatif_flat_vector"
-        elif sid in ("vintage_photo", "vintage_photographs", "century_old_photographs"):
+            sid = "what_if"
+        elif sid in ("vintage_photo", "vintage_photographs", "century_old_photographs", "century_old_photograph", "century", "vintage_photograph"):
             sid = "century_old_photograph"
-        elif sid in ("red_blue_stickman_3d", "3d_red_blue_stickman"):
+        elif sid in ("red_blue_stickman_3d", "3d_red_blue_stickman", "stickman", "stick_figure", "2d_stickman", "3d_stickman"):
             sid = "3d_red_blue_stickman"
-        elif sid in ("2d_stick_figure", "2d_stickman"):
-            sid = "2d_stickman"
-        elif sid in ("3d_stick_figure", "3d_stickman"):
-            sid = "3d_stickman"
-        elif sid in ("black_white_historical_photography", "bw_historical_photography"):
+        elif sid in ("black_white_historical_photography", "bw_historical_photography", "bw_vintage_historical_photography", "black_and_white", "bw", "black_white"):
             sid = "bw_vintage_historical_photography"
-        elif sid in ("quilling", "paper_quill", "paper_quilling_illustration"):
-            sid = "paper_quilling"
-        elif sid in ("collage", "mixed_media", "mixed_media_collage_illustration"):
-            sid = "mixed_media_collage"
-        elif sid in ("cutout", "paper_cut", "paper_cutout_illustration"):
-            sid = "paper_cutout"
+        elif sid in ("ink", "ink_wash", "color_ink_wash", "color_ink", "graphic_sketch"):
+            sid = "ink"
 
         res = cls._styles_cache.get(sid)
         if not res and sid == "vintage_photograph":

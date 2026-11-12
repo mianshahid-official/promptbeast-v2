@@ -22,17 +22,12 @@ from app.presets.loader import PresetManager
 
 
 ALLOWED_STYLE_ORDER = [
-    ("zombie_survival", "Zombie Survival", "2D Animation / Survival"),
-    ("whatif_flat_vector", "What If Flat Vector", "2D Vector"),
-    ("3d_red_blue_stickman", "3D Red & Blue Stickman", "3D Animation"),
-    ("2d_stickman", "2D Stickman", "2D Animation"),
-    ("3d_stickman", "3D Stickman", "3D Animation"),
     ("century_old_photograph", "Century-Old Photograph", "Historical Archival"),
-    ("bw_vintage_historical_photography", "B&W Historical Photography", "Archival Monochrome"),
-    ("paper_quilling", "Paper Quilling", "Papercraft"),
-    ("mixed_media_collage", "Mixed-Media Collage", "Editorial Collage"),
-    ("paper_cutout", "Paper-Cutout", "Cut-Paper Craft"),
-    ("vintage_photograph", "Vintage Photograph", "Archival"),
+    ("3d_red_blue_stickman", "3D Red & Blue Stickman", "3D Animation / Stickman"),
+    ("bw_vintage_historical_photography", "Black & White", "Archival Monochrome"),
+    ("what_if", "What If?", "2D Vector / Speculative"),
+    ("zombie_survival", "Zombie Survival", "2D Animation / Survival"),
+    ("ink", "Color Ink Wash", "Graphic Art / Ink"),
 ]
 
 
@@ -244,19 +239,15 @@ class StyleThumbnailMatrix(QWidget):
         if sid in ("zombie", "zombies", "zombie_survival"):
             sid = "zombie_survival"
         elif sid in ("whatif", "what_if", "whatif_flat_vector", "flat_vector"):
-            sid = "whatif_flat_vector"
-        elif sid in ("vintage_photograph", "vintage_photo", "century_old_photographs"):
+            sid = "what_if"
+        elif sid in ("vintage_photograph", "vintage_photo", "century_old_photographs", "century_old_photograph", "century"):
             sid = "century_old_photograph"
-        elif sid in ("stick_figure", "stickman", "red_blue_stickman_3d", "2d_stick_figure"):
+        elif sid in ("stick_figure", "stickman", "red_blue_stickman_3d", "3d_red_blue_stickman", "2d_stick_figure", "2d_stickman", "3d_stickman"):
             sid = "3d_red_blue_stickman"
-        elif sid in ("black_white_historical_photography", "bw_historical_photography"):
+        elif sid in ("black_white_historical_photography", "bw_historical_photography", "bw_vintage_historical_photography", "black_and_white", "bw", "black_white"):
             sid = "bw_vintage_historical_photography"
-        elif sid in ("quilling", "paper_quill", "paper_quilling_illustration"):
-            sid = "paper_quilling"
-        elif sid in ("collage", "mixed_media", "mixed_media_collage_illustration"):
-            sid = "mixed_media_collage"
-        elif sid in ("cutout", "paper_cut", "paper_cutout_illustration"):
-            sid = "paper_cutout"
+        elif sid in ("ink", "ink_wash", "color_ink_wash", "color_ink"):
+            sid = "ink"
 
         self._selected_id = sid
         for c in self._cards:

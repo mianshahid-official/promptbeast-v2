@@ -72,17 +72,15 @@ class StyleManager:
             return "zombie_survival"
         elif s in ("whatif", "what_if", "whatif_flat_vector"):
             return "what_if"
-        elif s in ("ink", "ink_wash", "graphic_sketch"):
+        elif s in ("ink", "ink_wash", "graphic_sketch", "color_ink", "color_ink_wash"):
             return "ink"
         elif s in ("default", "fallback", "standard"):
             return "default"
         elif s in ("century", "century_old_photograph", "vintage_photo", "vintage_photograph"):
             return "century_old_photograph"
-        elif s in ("2d_stick", "2d_stickman", "2d_stick_figure"):
-            return "2d_stickman"
-        elif s in ("3d_stick", "3d_stickman", "3d_stick_figure"):
-            return "3d_stickman"
-        elif s in ("3d_red_blue_stickman", "red_blue_stickman"):
+        elif s in ("bw", "black_white", "black_and_white", "bw_vintage_historical_photography", "black_white_historical_photography"):
+            return "bw_vintage_historical_photography"
+        elif s in ("3d_red_blue_stickman", "red_blue_stickman", "2d_stick", "2d_stickman", "3d_stick", "3d_stickman", "stickman"):
             return "3d_red_blue_stickman"
         return s
 
