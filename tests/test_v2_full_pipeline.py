@@ -401,8 +401,11 @@ def test_exporter_prompts(tmp_path):
 
     with open(prompts_dir / "prompts_only.txt", "r", encoding="utf-8") as f:
         content = f.read()
-    assert "Scene 001 [0.00s - 3.00s]" in content
-    assert "Scene 002 [3.00s - 6.00s]" in content
+    assert "Prompt 1 text." in content
+    assert "Prompt 2 text." in content
+    assert "Scene 001" not in content
+    lines = content.strip().splitlines()
+    assert len(lines) == 2
 
 
 # =============================================================================

@@ -27,10 +27,11 @@ def export_prompts(
 
     for item in prompts_data:
         s_id = str(item.get("scene_id", "001")).zfill(3)
-        prompt_text = str(item.get("prompt", "")).strip()
+        raw_prompt = str(item.get("prompt", "")).strip()
+        clean_prompt = " ".join(raw_prompt.split())
         start = item.get("start", 0.0)
         end = item.get("end", 0.0)
-        word_count = len(prompt_text.split())
+        word_count = len(clean_prompt.split())
 
         filename = f"prompt_{s_id}.txt"
         expected_image = f"scene_{s_id}.png"
@@ -38,12 +39,11 @@ def export_prompts(
         # 1. Write individual prompt file
         single_file = p_dir / filename
         with open(single_file, "w", encoding="utf-8") as f:
-            f.write(prompt_text)
+            f.write(clean_prompt)
 
-        # 2. Append to combined prompts list
-        combined_lines.append(f"Scene {s_id} [{start:.2f}s - {end:.2f}s]")
-        combined_lines.append(prompt_text)
-        combined_lines.append("")  # Blank line separator
+        # 2. Append to combined prompts list (pure prompt only, no scene header)
+        if clean_prompt:
+            combined_lines.append(clean_prompt)
 
         # 3. Add to index
         index_map[s_id] = {
