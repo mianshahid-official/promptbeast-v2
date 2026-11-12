@@ -1050,20 +1050,12 @@ class MainWindow(QMainWindow):
                     p_name = self.generate_project_name_from_script(raw_s) if raw_s else f"Project_{datetime.now().strftime('%Y%m%d_%H%M')}"
                     if hasattr(self, "proj_name_input"):
                         self.proj_name_input.setText(p_name)
-                candidate1 = Path(self.settings.workspace_directory) / p_name
-                candidate2 = Path(self.settings.workspace_directory) / "projects" / p_name
-                candidate3 = Path("projects") / p_name
-                if candidate1.exists():
-                    self.project.project_dir = str(candidate1.resolve())
-                elif candidate2.exists():
-                    self.project.project_dir = str(candidate2.resolve())
-                elif candidate3.exists():
-                    self.project.project_dir = str(candidate3.resolve())
-                else:
-                    candidate1.mkdir(parents=True, exist_ok=True)
-                    self.project.project_dir = str(candidate1.resolve())
+                from app.config.settings import resolve_project_dir
+                canonical_p = resolve_project_dir(self.settings.workspace_directory, p_name)
+                canonical_p.mkdir(parents=True, exist_ok=True)
+                self.project.project_dir = str(canonical_p.resolve())
 
-            p_dir = Path(self.project.project_dir) if self.project.project_dir else Path("data/project").resolve()
+            p_dir = Path(self.project.project_dir)
             scenes_data = []
             if hasattr(self, "workflow_pipeline_data") and self.workflow_pipeline_data:
                 scenes_data = self.workflow_pipeline_data.get("prompts") or self.workflow_pipeline_data.get("scenes") or []
@@ -1104,6 +1096,17 @@ class MainWindow(QMainWindow):
     def _on_pipeline_succeeded(self, result: dict):
         """Called when workflow pipeline completes Steps 0 to 5."""
         self.workflow_pipeline_data = result
+        proj_dir_str = result.get("project_dir")
+        if proj_dir_str:
+            self.project.project_dir = proj_dir_str
+            self.project.name = result.get("project_name", Path(proj_dir_str).name)
+            if hasattr(self, "proj_name_input"):
+                self.proj_name_input.setText(self.project.name)
+            if hasattr(self, "active_project_lbl"):
+                self.active_project_lbl.setText(f"📁 {self.project.name}")
+            from app.config.settings import SettingsManager
+            SettingsManager.add_recent_project(proj_dir_str)
+
         inputs = result.get("inputs")
         if inputs:
             self.project.state.audio_file_path = str(inputs.audio_path)
@@ -1395,8 +1398,8 @@ class MainWindow(QMainWindow):
             self.project.name = auto_name
             self.proj_name_input.setText(auto_name)
 
-            proj_dir = Path(self.settings.workspace_directory) / auto_name
-            proj_dir.mkdir(parents=True, exist_ok=True)
+            from app.config.settings import resolve_project_dir
+            proj_dir = resolve_project_dir(self.settings.workspace_directory, auto_name)
             self.project.project_dir = str(proj_dir.resolve())
 
             # Copy narration audio into projects/<auto_name>/audio/
@@ -1997,8 +2000,8 @@ class MainWindow(QMainWindow):
             )
             if not proj_name or proj_name == "Untitled_Project":
                 proj_name = self.generate_project_name_from_script(story_text)
-            proj_dir = Path(self.settings.workspace_directory) / proj_name
-            proj_dir.mkdir(parents=True, exist_ok=True)
+            from app.config.settings import resolve_project_dir
+            proj_dir = resolve_project_dir(self.settings.workspace_directory, proj_name)
             self.project.project_dir = str(proj_dir.resolve())
             self.project.name = proj_name
             if hasattr(self, "proj_name_input"):
@@ -2451,7 +2454,8 @@ class MainWindow(QMainWindow):
                 if not p_name or p_name == "Untitled_Project":
                     raw_s = self.story_text_edit.toPlainText().strip() if hasattr(self, "story_text_edit") else ""
                     p_name = self.generate_project_name_from_script(raw_s) if raw_s else f"Project_{datetime.now().strftime('%Y%m%d_%H%M')}"
-                self.project.project_dir = str((Path(self.settings.workspace_directory) / "projects" / p_name).resolve())
+                from app.config.settings import resolve_project_dir
+                self.project.project_dir = str(resolve_project_dir(self.settings.workspace_directory, p_name).resolve())
 
             p_dir = Path(self.project.project_dir)
             p_dir.mkdir(parents=True, exist_ok=True)

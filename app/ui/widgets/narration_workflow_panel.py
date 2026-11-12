@@ -185,7 +185,9 @@ class NarrationWorkflowPanel(QWidget):
     def __init__(self, parent=None, active_style_id: str = "default"):
         super().__init__(parent)
         self.active_style_id = active_style_id
-        self.active_project_dir: Path = Path("data/project").resolve()
+        from app.config.settings import SettingsManager, resolve_project_dir
+        settings = SettingsManager.load_settings()
+        self.active_project_dir: Path = resolve_project_dir(settings.workspace_directory, "Active_Project")
         self.worker: Optional[PipelineExecutionWorker] = None
         self._init_ui()
 
@@ -355,6 +357,27 @@ class NarrationWorkflowPanel(QWidget):
         self.btn_run_pipeline.setEnabled(False)
         self.progress_bar.setValue(0)
         self.log_box.clear()
+
+        # Derive canonical project name and directory from inputs
+        import re
+        from datetime import datetime
+        stem = Path(script_p).stem
+        stem = re.sub(r"\s*\(\d+\)$", "", stem).strip()
+        clean_stem = "".join(c for c in stem if c.isalnum() or c in (" ", "_", "-")).strip()
+        parent_name = Path(script_p).parent.name
+        if parent_name and parent_name not in ("output", "Desktop", "Downloads", "Documents", "audio and files") and len(parent_name) > 3:
+            p_name = parent_name
+        elif clean_stem:
+            p_name = clean_stem
+        else:
+            p_name = f"Project_{datetime.now().strftime('%Y%m%d_%H%M')}"
+
+        from app.config.settings import SettingsManager, resolve_project_dir
+        settings = SettingsManager.load_settings()
+        self.active_project_dir = resolve_project_dir(settings.workspace_directory, p_name)
+        self.active_project_dir.mkdir(parents=True, exist_ok=True)
+
+        self._append_log(f"Active Project Directory: {self.active_project_dir}")
         self._append_log("Starting PromptBeast-V2 7-stage production pipeline...")
 
         self.worker = PipelineExecutionWorker(
@@ -377,8 +400,11 @@ class NarrationWorkflowPanel(QWidget):
     def _on_pipeline_completed(self, result: Dict[str, Any]):
         self.btn_run_pipeline.setEnabled(True)
         self.progress_bar.setValue(100)
+        result["project_dir"] = str(self.active_project_dir)
+        result["project_name"] = self.active_project_dir.name
         self._append_log("✅ Pipeline Steps 0–5 Completed Successfully.")
-        self._append_log("Prompts exported. Switching to Images tab for Step 5 manual image drop...")
+        self._append_log(f"All checkpoints and prompts saved to: {self.active_project_dir}")
+        self._append_log("Switching to Images tab for Step 5 manual image drop...")
         self.pipeline_succeeded.emit(result)
         self.navigate_to_images.emit()
 

@@ -665,7 +665,12 @@ class RenderPanel(QWidget):
 
         win = self.window()
         project = getattr(win, "project", None)
-        out_dir = Path(project.project_dir) if project and getattr(project, "project_dir", None) else Path.cwd() / "projects" / "output"
+        if project and getattr(project, "project_dir", None):
+            out_dir = Path(project.project_dir)
+        else:
+            from app.config.settings import SettingsManager, resolve_project_dir
+            settings = SettingsManager.load_settings()
+            out_dir = resolve_project_dir(settings.workspace_directory, "default_render")
         renders_dir = out_dir / "renders"
         renders_dir.mkdir(parents=True, exist_ok=True)
 

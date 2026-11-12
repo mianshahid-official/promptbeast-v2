@@ -354,8 +354,8 @@ class TTSPanel(QWidget):
         if not voice_id:
             return
 
-        temp_preview = Path.cwd() / "projects" / "temp" / "voice_preview.wav"
-        temp_preview.parent.mkdir(parents=True, exist_ok=True)
+        import tempfile
+        temp_preview = Path(tempfile.gettempdir()) / "pb_voice_preview.wav"
 
         self.preview_voice_btn.setEnabled(False)
         self.status_lbl.setText("🔊 Generating voice sample...")

@@ -1256,7 +1256,12 @@ class SceneSyncPanel(QWidget):
             self.narration = SubtitleEngine.synthesize_narration_from_scenes(self.scenes)
 
         # Output file destination
-        out_dir = Path(self._project_dir) if self._project_dir else Path("projects/output")
+        if self._project_dir:
+            out_dir = Path(self._project_dir)
+        else:
+            from app.config.settings import SettingsManager, resolve_project_dir
+            settings = SettingsManager.load_settings()
+            out_dir = resolve_project_dir(settings.workspace_directory, "Rendered_Output")
         renders_dir = out_dir / "renders"
         renders_dir.mkdir(parents=True, exist_ok=True)
 

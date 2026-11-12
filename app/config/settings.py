@@ -23,6 +23,27 @@ def get_default_workspace_dir() -> Path:
     return proj_dir
 
 
+def resolve_project_dir(workspace_dir: Union[str, Path], project_name: str) -> Path:
+    """
+    Resolves canonical project directory without duplicate 'projects/projects' nesting.
+    Guarantees project is placed directly in <workspace_projects>/<project_name>.
+    """
+    ws = Path(workspace_dir).resolve()
+    while ws.name.lower() == "projects" and ws.parent.name.lower() == "projects":
+        ws = ws.parent
+
+    if ws.name.lower() != "projects":
+        proj_root = ws / "projects"
+    else:
+        proj_root = ws
+
+    proj_root.mkdir(parents=True, exist_ok=True)
+    clean_name = "".join(c for c in project_name if c.isalnum() or c in (" ", "_", "-")).strip()
+    if not clean_name:
+        clean_name = "Untitled_Project"
+    return proj_root / clean_name
+
+
 class AppSettings(BaseModel):
     modal_api_url: str = Field(default="")
     api_key: Optional[str] = Field(default="")
@@ -73,13 +94,38 @@ class SettingsManager:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             settings = AppSettings(**data)
-            # Guarantee workspace directory stays in current project repository
             default_ws = str(get_default_workspace_dir())
-            if not settings.workspace_directory or "PromptBeast_Projects" in settings.workspace_directory:
+            ws_path = Path(settings.workspace_directory) if settings.workspace_directory else None
+            needs_save = False
+
+            # Ensure workspace directory points to active project repository without double projects
+            if (
+                not settings.workspace_directory
+                or "PromptBeast_Projects" in settings.workspace_directory
+                or not ws_path
+                or not ws_path.exists()
+                or (ws_path.name.lower() == "projects" and ws_path.parent.name.lower() == "projects")
+                or (Path(__file__).resolve().parent.parent.parent.name.lower() == "v2promptbeast" and "promptbeast-v2" not in str(ws_path).lower() and "v2promptbeast" not in str(ws_path).lower())
+            ):
                 settings.workspace_directory = default_ws
-                cls.save_settings(settings)
-            elif not Path(settings.workspace_directory).exists():
-                settings.workspace_directory = default_ws
+                needs_save = True
+
+            # Normalize recent projects list to remove stale or double-nested paths
+            cleaned_recents: List[str] = []
+            for rp in settings.recent_projects:
+                norm_rp = rp.replace("/projects/projects", "/projects").replace("\\projects\\projects", "\\projects")
+                # Also check if it exists in current workspace
+                candidate_curr = str(Path(default_ws) / Path(norm_rp).name)
+                if Path(candidate_curr).exists() and candidate_curr not in cleaned_recents:
+                    cleaned_recents.append(candidate_curr)
+                elif Path(norm_rp).exists() and norm_rp not in cleaned_recents:
+                    cleaned_recents.append(norm_rp)
+
+            if cleaned_recents != settings.recent_projects:
+                settings.recent_projects = cleaned_recents
+                needs_save = True
+
+            if needs_save:
                 cls.save_settings(settings)
             return settings
         except Exception:

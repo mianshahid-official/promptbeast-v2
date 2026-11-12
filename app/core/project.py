@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.core.project_manager import ProjectManager
 from app.models.project import ProjectConfig, ProjectState, StoryProject
+from app.config.settings import resolve_project_dir
 
 
 STAGE_CHECKPOINTS = [

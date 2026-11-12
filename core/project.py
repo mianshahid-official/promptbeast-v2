@@ -1,3 +1,3 @@
 from app.core.project import *
-from app.core.project import ProjectManager, StoryProject, ProjectConfig, ProjectState, ProjectCheckpointManager, STAGE_CHECKPOINTS
+from app.core.project import ProjectManager, StoryProject, ProjectConfig, ProjectState, ProjectCheckpointManager, STAGE_CHECKPOINTS, resolve_project_dir
 

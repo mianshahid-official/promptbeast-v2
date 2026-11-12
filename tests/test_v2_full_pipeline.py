@@ -496,3 +496,27 @@ def test_validation_omnivoice_speech_json_format(tmp_path):
     assert loaded.audio_duration == 5.0
 
 
+def test_resolve_project_dir_no_double_nesting(tmp_path):
+    """Guarantees projects are never nested as projects/projects/<name>."""
+    from app.config.settings import resolve_project_dir
+
+    # Case 1: Workspace directory already ends in 'projects'
+    ws_projects = tmp_path / "projects"
+    p1 = resolve_project_dir(ws_projects, "Story_A")
+    assert p1 == ws_projects / "Story_A"
+    assert "projects/projects" not in str(p1).replace("\\", "/")
+
+    # Case 2: Workspace directory is the repo root without 'projects'
+    ws_root = tmp_path / "app_root"
+    p2 = resolve_project_dir(ws_root, "Story_B")
+    assert p2 == ws_root / "projects" / "Story_B"
+    assert "projects/projects" not in str(p2).replace("\\", "/")
+
+    # Case 3: Accidental nested 'projects/projects' passed as workspace
+    ws_double = tmp_path / "projects" / "projects"
+    p3 = resolve_project_dir(ws_double, "Story_C")
+    assert p3 == ws_projects / "Story_C"
+    assert "projects/projects" not in str(p3).replace("\\", "/")
+
+
+

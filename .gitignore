@@ -62,6 +62,9 @@ htmlcov/
 .nox/
 
 # Temporary, archives & cache artifacts
+# Projects & user data
+projects/**
+!projects/.gitkeep
 tmp/
 temp/
 exports/temp/

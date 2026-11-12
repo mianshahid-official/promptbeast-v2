@@ -175,7 +175,11 @@ class PipelineOrchestrator:
                     system_instructions=request.custom_style or "High-tension survival aesthetics, gritty lighting, cinematic depth."
                 )
 
-            p_dir = Path(project_dir) if project_dir else Path.cwd() / "projects" / (request.project_name or "default_project")
+            if project_dir:
+                p_dir = Path(project_dir)
+            else:
+                from app.config.settings import resolve_project_dir
+                p_dir = resolve_project_dir(Path.cwd(), request.project_name or "default_project")
             p_dir.mkdir(parents=True, exist_ok=True)
 
             # =========================================================================

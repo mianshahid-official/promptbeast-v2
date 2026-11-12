@@ -88,8 +88,11 @@ class ImagesPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.project_dir: Path = Path("data/project").resolve()
+        from app.config.settings import SettingsManager, resolve_project_dir
+        settings = SettingsManager.load_settings()
+        self.project_dir: Path = resolve_project_dir(settings.workspace_directory, "Active_Project")
         self.images_dir: Path = self.project_dir / "images"
+        self.images_dir.mkdir(parents=True, exist_ok=True)
         self.scenes_data: List[Dict[str, Any]] = []
         self.audio_path: Optional[Path] = None
         self.audio_duration: float = 0.0

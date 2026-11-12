@@ -29,8 +29,8 @@ class ProjectManager:
         else:
             folder_name = sanitized_name
 
-        proj_dir = Path(base_dir) / folder_name
-        proj_dir.mkdir(parents=True, exist_ok=True)
+        from app.config.settings import resolve_project_dir
+        proj_dir = resolve_project_dir(base_dir, folder_name)
         now = datetime.now(timezone.utc)
 
         project = StoryProject(
@@ -262,17 +262,26 @@ class ProjectManager:
 
         dirs_to_check = []
         if p_dir.exists():
-            dirs_to_check.append(p_dir)
             for child in p_dir.iterdir():
-                if child.is_dir() and child.name not in ("temp", "audio_exports", "__pycache__"):
-                    dirs_to_check.append(child)
+                if child.is_dir():
+                    if child.name.lower() == "projects":
+                        for sub_child in child.iterdir():
+                            if sub_child.is_dir() and sub_child.name not in ("temp", "audio_exports", "__pycache__"):
+                                dirs_to_check.append(sub_child)
+                    elif child.name not in ("temp", "audio_exports", "__pycache__"):
+                        dirs_to_check.append(child)
 
         # Also check default ./projects folder if workspace_dir differs
         default_p = Path("projects")
         if default_p.resolve() != p_dir.resolve() and default_p.exists():
             for child in default_p.iterdir():
-                if child.is_dir() and child.name not in ("temp", "audio_exports", "__pycache__"):
-                    dirs_to_check.append(child)
+                if child.is_dir():
+                    if child.name.lower() == "projects":
+                        for sub_child in child.iterdir():
+                            if sub_child.is_dir() and sub_child.name not in ("temp", "audio_exports", "__pycache__"):
+                                dirs_to_check.append(sub_child)
+                    elif child.name not in ("temp", "audio_exports", "__pycache__"):
+                        dirs_to_check.append(child)
 
         # Also check recent projects list from Settings
         from app.config.settings import SettingsManager
@@ -293,17 +302,23 @@ class ProjectManager:
             has_ts = (folder / "narration_timestamps.json").exists()
             has_timeline = (folder / "timeline.json").exists()
             has_unfinished = (folder / ".unfinished_job.json").exists()
+            has_v2_checkpoints = (
+                (folder / "01_chunks.json").exists()
+                or (folder / "05_final_prompts.json").exists()
+                or (folder / "prompts").exists()
+                or (folder / "output").exists()
+            )
 
             # Check for audio files
             audio_text = "—"
             has_audio = False
-            for aname in ("narration.wav", "narration.mp3", "voiceover.wav", "voiceover.mp3"):
+            for aname in ("narration.wav", "narration.mp3", "voiceover.wav", "voiceover.mp3", "speech.mp3", "speech.wav"):
                 if (folder / aname).exists():
                     has_audio = True
                     break
 
             # If none of the signature files exist, skip non-project subfolders
-            if not (has_proj_json or has_story or has_audio or has_ts or has_timeline or has_unfinished):
+            if not (has_proj_json or has_story or has_audio or has_ts or has_timeline or has_unfinished or has_v2_checkpoints):
                 continue
 
             # Read basic meta
