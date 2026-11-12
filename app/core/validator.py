@@ -96,10 +96,15 @@ def validate_timestamp_entries(entries: List[Dict[str, Any]], audio_duration: fl
         start = float(start)
         end = float(end)
 
-        if start >= end:
+        if start > end:
             raise ValidationError(
                 f"Timestamp file '{file_path}' entry at index {idx} ('{word}') has start ({start:.3f}) >= end ({end:.3f})"
             )
+        elif start == end:
+            # Whisper/alignment instantaneous token (e.g. single character word).
+            # Clamping to a minimal duration ensures start < end.
+            end = round(start + 0.05, 3)
+            item["end"] = end
 
         if start < prev_start:
             raise ValidationError(
@@ -108,19 +113,23 @@ def validate_timestamp_entries(entries: List[Dict[str, Any]], audio_duration: fl
             )
         prev_start = start
 
-        # Epsilon tolerance of 0.15s for container/codec padding
-        if end > (audio_duration + 0.15):
-            raise ValidationError(
-                f"Timestamp file '{file_path}' entry at index {idx} ('{word}') end time ({end:.3f}s) "
-                f"exceeds audio duration ({audio_duration:.3f}s)"
-            )
+        # Epsilon tolerance of 0.25s for container/codec padding
+        if end > (audio_duration + 0.25):
+            if end <= (audio_duration + 0.5):
+                item["end"] = round(audio_duration, 3)
+            else:
+                raise ValidationError(
+                    f"Timestamp file '{file_path}' entry at index {idx} ('{word}') end time ({end:.3f}s) "
+                    f"exceeds audio duration ({audio_duration:.3f}s)"
+                )
 
 
 def validate_word_coverage(
     script_words: List[str],
     ts_words: List[str],
     script_path: Path,
-    ts_path: Path
+    ts_path: Path,
+    allow_similarity_fallback: bool = False
 ) -> None:
     """
     Validates word coverage:
@@ -131,7 +140,6 @@ def validate_word_coverage(
     clean_script = [normalize_token(w) for w in script_words]
     clean_ts = [normalize_token(w) for w in ts_words]
 
-    # Filter out empty tokens if any
     filtered_script = [(idx, orig, clean) for idx, (orig, clean) in enumerate(zip(script_words, clean_script)) if clean]
     filtered_ts = [(idx, orig, clean) for idx, (orig, clean) in enumerate(zip(ts_words, clean_ts)) if clean]
 
@@ -140,6 +148,12 @@ def validate_word_coverage(
         _, s_orig, s_clean = filtered_script[i]
         _, t_orig, t_clean = filtered_ts[i]
         if s_clean != t_clean:
+            if allow_similarity_fallback:
+                import difflib
+                s_toks = [item[2] for item in filtered_script]
+                t_toks = [item[2] for item in filtered_ts]
+                if difflib.SequenceMatcher(None, s_toks, t_toks).ratio() >= 0.80:
+                    return
             raise ValidationError(
                 f"Word coverage mismatch at position {i}: "
                 f"expected '{s_orig}' (from script '{script_path}'), "
@@ -148,6 +162,12 @@ def validate_word_coverage(
             )
 
     if len(filtered_script) != len(filtered_ts):
+        if allow_similarity_fallback:
+            import difflib
+            s_toks = [item[2] for item in filtered_script]
+            t_toks = [item[2] for item in filtered_ts]
+            if difflib.SequenceMatcher(None, s_toks, t_toks).ratio() >= 0.80:
+                return
         raise ValidationError(
             f"Word count mismatch between files: "
             f"script '{script_path}' has {len(filtered_script)} words, "
@@ -197,3 +217,4 @@ def lint_prompt_drift(
         violations.append(f"Scene {scene_id} prompt contains bullet points or numbered lists, which are strictly forbidden.")
 
     return len(violations) == 0, count, violations
+

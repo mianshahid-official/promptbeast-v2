@@ -235,6 +235,12 @@ class GroqEngine(BaseInferenceEngine):
     def api_keys(self) -> List[str]:
         return self.key_manager.keys
 
+    @api_keys.setter
+    def api_keys(self, keys: List[str]) -> None:
+        valid_keys = [k.strip() for k in keys if k and k.strip()]
+        self.key_manager.keys = valid_keys
+        self.key_manager.current_index = 0
+
     @property
     def current_key(self) -> str:
         return self.key_manager.get_current_key()
@@ -579,7 +585,12 @@ class GroqEngine(BaseInferenceEngine):
         except ImportError:
             raise RuntimeError("faster-whisper is not installed. Please install faster-whisper or use Groq Whisper.")
 
-        model = WhisperModel(model_size, device="cpu", compute_type="int8")
+        try:
+            model = WhisperModel(model_size, device="cuda", compute_type="float16")
+            logger.info(f"Loaded faster-whisper on CUDA ({model_size}, float16)")
+        except Exception as e:
+            logger.info(f"CUDA initialization failed or unavailable ({e}), falling back to CPU int8")
+            model = WhisperModel(model_size, device="cpu", compute_type="int8")
         segments, info = model.transcribe(str(p.resolve()), word_timestamps=True)
 
         word_objects: List[WordTimestamp] = []

@@ -238,3 +238,4 @@ def generate_story_bible(
             json.dump(master_bible, f, indent=2, ensure_ascii=False)
 
     return raw_chunks, master_bible
+

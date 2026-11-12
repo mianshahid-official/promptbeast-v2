@@ -108,6 +108,7 @@ def compose_prompt_request(
         "  4. Exact narration words as context",
         "  5. Direct negative instruction: 'Image must contain no text.'",
         "- Style: simple flowing direct prose only. NO headings (no '#', '##', or 'Scene:'), and NO bullet points or lists.",
+        "- Strict character presence: only depict characters listed in the scene's bible entries. If the scene depicts background crowds, passengers, or zombies, explicitly specify that the protagonist is not present in the scene, and never depict the protagonist as an infected zombie.",
         ""
     ]
 
@@ -309,3 +310,4 @@ def generate_image_prompts(
             json.dump(final_prompts, f, indent=2, ensure_ascii=False)
 
     return final_prompts, still_failed
+

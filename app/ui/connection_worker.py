@@ -78,3 +78,4 @@ class ConnectionCheckWorker(QThread):
                     message=f"Groq connection error: {e}"
                 )
             )
+

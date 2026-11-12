@@ -44,8 +44,15 @@ STORYBOARD_SYSTEM_PROMPT = """You are a master storyboard artist and film direct
 For each narration scene, plan exactly ONE visual beat:
 1. visual_action: What happens visually on screen to illustrate the exact narration words.
 2. composition: Camera framing and motion (e.g. wide establishing shot, medium shot, close up, slow zoom-in, pan left).
-3. bible_refs: Names of characters, locations, or props from the LOCKED BIBLE that appear in this beat.
-4. missing_elements: If a scene needs an entity not present in the locked bible, describe it generically in visual_action and list its generic name here. DO NOT invent new named entities.
+3. bible_refs: Names of characters, locations, or props from the LOCKED BIBLE that physically appear in this beat.
+4. missing_elements: If a scene needs an entity not present in the locked bible (e.g. anonymous passengers, fleeing crowd, parking structure, security doors), describe it generically in visual_action and list its generic name here. DO NOT invent new named entities.
+
+CRITICAL CHARACTER PRESENCE & CONTINUITY RULES:
+- ONLY include the Protagonist/Hero in 'bible_refs' and 'visual_action' when the narration explicitly places the hero at that specific location and moment.
+- If the scene describes other people (e.g., passengers inside a terminal, crowds fleeing, civilians, victims in a parking lot, or zombie hordes), DO NOT include the Protagonist. The protagonist is NOT in the crowd, NOT inside Terminal 2 when working outside on the apron/tarmac, and NOT among fleeing civilians.
+- INVIOLABILITY OF THE PROTAGONIST: The protagonist must NEVER be depicted as an infected zombie, monster, or corpse unless the script explicitly states that the protagonist gets bitten and transformed. All zombies and victims in crowd/attack scenes are uniform background figures, never the hero.
+- PHYSICAL LOCATION CONSISTENCY: Maintain strict geographical separation. If the protagonist is outside on the apron/tarmac with a clipboard/radio or up in the control tower, they cannot appear inside the terminal, at baggage claim, or in the parking garage.
+
 Strictly adhere to the provided JSON schema."""
 
 
@@ -168,3 +175,4 @@ def plan_storyboard_beats(
             json.dump(out_data, f, indent=2, ensure_ascii=False)
 
     return all_beats, warnings
+

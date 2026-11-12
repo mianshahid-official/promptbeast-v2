@@ -172,8 +172,14 @@ class SettingsDialog(QDialog):
         # Audio Transcription Engine
         gg_layout.addWidget(QLabel("Default Audio Transcription Engine:"))
         self.whisper_combo = PBComboBox()
+        self.whisper_combo.addItem("Local Faster-Whisper (100% Offline CUDA / CPU)", "local")
         self.whisper_combo.addItem("Groq Whisper Cloud (whisper-large-v3-turbo - Ultra-Fast <2s)", "groq")
-        self.whisper_combo.addItem("Local Faster-Whisper (100% Offline CPU/CUDA)", "local")
+        curr_engine = getattr(self.settings, "transcription_engine", "local")
+        eng_idx = self.whisper_combo.findData(curr_engine)
+        if eng_idx >= 0:
+            self.whisper_combo.setCurrentIndex(eng_idx)
+        else:
+            self.whisper_combo.setCurrentIndex(0)
         gg_layout.addWidget(self.whisper_combo)
 
         # Test Connection Button
@@ -413,8 +419,11 @@ class SettingsDialog(QDialog):
 
         if self.raw_api_keys:
             self.settings.api_key = self.raw_api_keys[0]
-            groq = get_groq_engine()
-            groq.api_keys = list(self.raw_api_keys)
+            try:
+                groq = get_groq_engine()
+                groq.api_keys = list(self.raw_api_keys)
+            except Exception as e:
+                logger.warning(f"Failed to update Groq keys: {e}")
             groq_file = Path("d:/AntiGravity/groq api.txt")
             if groq_file.exists():
                 try:
@@ -422,6 +431,7 @@ class SettingsDialog(QDialog):
                 except Exception:
                     pass
 
+        self.settings.transcription_engine = self.whisper_combo.currentData() or "local"
         self.settings.default_model = self.model_combo.currentText()
         self.settings.default_min_duration = self.min_spin.value()
         self.settings.default_preferred_duration = self.pref_spin.value()

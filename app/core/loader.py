@@ -118,23 +118,52 @@ def load_inputs(
     script_raw_words = script_text.split()
     ts_raw_words = [str(item["word"]).strip() for item in ts_entries]
 
-    validate_word_coverage(script_raw_words, ts_raw_words, s_path, t_path)
+    is_omnivoice = False
+    if isinstance(raw_ts, dict) and "text" in raw_ts:
+        raw_text_clean = normalize_token(str(raw_ts["text"]))
+        script_text_clean = normalize_token(script_text)
+        if raw_text_clean == script_text_clean or (raw_text_clean and script_text_clean and (raw_text_clean in script_text_clean or script_text_clean in raw_text_clean)):
+            is_omnivoice = True
 
-    # 6. Build WordToken list preserving exact original script words
+    if not is_omnivoice:
+        validate_word_coverage(script_raw_words, ts_raw_words, s_path, t_path, allow_similarity_fallback=True)
+
+    # 6. Build WordToken list
     tokens: List[WordToken] = []
-    # Both filtered lists matched in validate_word_coverage
-    # Align non-empty tokens with their original script words
     script_tokens = [w for w in script_raw_words if normalize_token(w)]
     ts_valid_entries = [e for e in ts_entries if normalize_token(str(e.get("word", "")))]
 
-    for s_word, ts_item in zip(script_tokens, ts_valid_entries):
-        tokens.append(
-            WordToken(
-                word=s_word,
-                start=float(ts_item["start"]),
-                end=float(ts_item["end"])
+    # If exact 1-to-1 word alignment, attach original script words with original casing
+    if len(script_tokens) == len(ts_valid_entries) and all(
+        normalize_token(s) == normalize_token(str(e.get("word", "")))
+        for s, e in zip(script_tokens, ts_valid_entries)
+    ):
+        for s_word, ts_item in zip(script_tokens, ts_valid_entries):
+            tokens.append(
+                WordToken(
+                    word=s_word,
+                    start=float(ts_item["start"]),
+                    end=float(ts_item["end"])
+                )
             )
-        )
+    else:
+        # For Whisper/Omnivoice timestamp JSONs where word counts differ due to phonetic/digit tokenization,
+        # use timestamp entry words with acoustic timestamps so scene splitting matches the audio exactly
+        for ts_item in ts_entries:
+            w_text = str(ts_item.get("word", "")).strip()
+            if not w_text:
+                continue
+            s_t = float(ts_item["start"])
+            e_t = float(ts_item["end"])
+            if s_t == e_t:
+                e_t = round(s_t + 0.05, 3)
+            tokens.append(
+                WordToken(
+                    word=w_text,
+                    start=s_t,
+                    end=e_t
+                )
+            )
 
     return LoadedInputs(
         script_text=script_text,
@@ -144,3 +173,4 @@ def load_inputs(
         timestamp_path=t_path,
         words=tokens
     )
+

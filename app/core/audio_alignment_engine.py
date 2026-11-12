@@ -92,7 +92,12 @@ class AudioAlignmentEngine:
         if self._local_model is None:
             try:
                 from faster_whisper import WhisperModel
-                self._local_model = WhisperModel(self.local_model_size, device="cpu", compute_type="int8")
+                try:
+                    self._local_model = WhisperModel(self.local_model_size, device="cuda", compute_type="float16")
+                    logger.info(f"Initialized faster-whisper on CUDA ({self.local_model_size}, float16)")
+                except Exception as cuda_err:
+                    logger.info(f"CUDA faster-whisper initialization failed or unavailable ({cuda_err}), falling back to CPU int8")
+                    self._local_model = WhisperModel(self.local_model_size, device="cpu", compute_type="int8")
             except Exception as e:
                 logger.warning(f"Could not load faster-whisper model ({self.local_model_size}): {e}")
                 self._local_model = None

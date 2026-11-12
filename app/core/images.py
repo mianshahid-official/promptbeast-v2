@@ -209,3 +209,4 @@ def scan_project_images(
         is_ready_for_render=is_ready,
         gate_message=gate_msg
     )
+

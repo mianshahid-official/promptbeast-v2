@@ -67,3 +67,4 @@ def export_prompts(
         json.dump(index_map, f, indent=2, ensure_ascii=False)
 
     return index_map
+

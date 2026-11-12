@@ -440,3 +440,59 @@ def test_post_render_checks_logic(tmp_path):
         pixels = list(gray.getdata())
         avg_luma = sum(pixels) / len(pixels)
     assert avg_luma < 2.0  # confirms black detection logic
+
+
+def test_validation_instantaneous_point_timestamp(tmp_path):
+    """Tests that Whisper point timestamps with start == end are clamped gracefully."""
+    entries = [
+        {"word": "hello", "start": 0.0, "end": 0.5},
+        {"word": "A", "start": 0.5, "end": 0.5},  # point timestamp
+        {"word": "world", "start": 0.55, "end": 1.0}
+    ]
+    validate_timestamp_entries(entries, 2.0, tmp_path / "ts.json")
+    assert entries[1]["end"] > entries[1]["start"]
+    assert entries[1]["end"] == 0.55
+
+
+def test_validation_omnivoice_speech_json_format(tmp_path):
+    """Tests loading real-world Omnivoice speech.json with text, words, and duration."""
+    s_p = tmp_path / "script.txt"
+    s_p.write_text("It is 11:40 PM at a regional airport. You are the night-shift worker.", encoding="utf-8")
+
+    from app.core.validator import probe_audio_duration
+    # Mock audio file
+    import subprocess
+    a_p = tmp_path / "audio.wav"
+    cmd = ["ffmpeg", "-y", "-f", "lavfi", "-i", "sine=frequency=440:duration=5.0", "-c:a", "pcm_s16le", "-ar", "44100", str(a_p)]
+    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+    # Omnivoice speech.json format
+    ts_data = {
+        "text": "It is 11:40 PM at a regional airport. You are the night-shift worker.",
+        "duration": 5.0,
+        "narrator": "Alhaitham",
+        "words": [
+            {"word": "It", "start": 0.0, "end": 0.2},
+            {"word": "is", "start": 0.2, "end": 0.4},
+            {"word": "11", "start": 0.4, "end": 0.7},
+            {"word": ".40pm", "start": 0.7, "end": 1.2},
+            {"word": "at", "start": 1.2, "end": 1.4},
+            {"word": "a", "start": 1.4, "end": 1.5},
+            {"word": "regional", "start": 1.5, "end": 2.1},
+            {"word": "airport.", "start": 2.1, "end": 2.7},
+            {"word": "You", "start": 2.7, "end": 2.9},
+            {"word": "are", "start": 2.9, "end": 3.1},
+            {"word": "the", "start": 3.1, "end": 3.3},
+            {"word": "night", "start": 3.3, "end": 3.7},
+            {"word": "shift", "start": 3.7, "end": 4.1},
+            {"word": "worker.", "start": 4.1, "end": 4.8}
+        ]
+    }
+    t_p = tmp_path / "speech.json"
+    t_p.write_text(json.dumps(ts_data), encoding="utf-8")
+
+    loaded = load_inputs(s_p, a_p, t_p)
+    assert loaded.total_words == 14
+    assert loaded.audio_duration == 5.0
+
+

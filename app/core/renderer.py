@@ -281,41 +281,89 @@ class VideoRenderer:
             target_h=target_h
         )
 
-        self.progress_callback(25, "Building FFmpeg filtergraph...")
+        self.progress_callback(25, "Rendering scenes with Ken Burns motion...")
 
-        # 3. Build FFmpeg command with Ken Burns slow zoom, image scaling/cropping, and subtitles
+        # 3. Render individual scene clips with Ken Burns camera motion & transitions
         target_w, target_h = self.resolution
-        inputs = []
-        filter_complex = []
+        fps = 25
+        transition = "cut"
+        if profile_data:
+            transition = profile_data.get("transition", "cut")
 
-        # We construct a concat demuxer file for timeline images to avoid exceeding command line limits
+        clips_dir = temp_dir / "clips"
+        clips_dir.mkdir(parents=True, exist_ok=True)
+
+        def _render_clip(item: Tuple[int, Dict[str, Any]]) -> str:
+            idx, clip = item
+            dur = float(clip["duration"])
+            frames = max(1, int(fps * dur))
+            comp = str(clip.get("composition", "")).lower()
+            clip_out = clips_dir / f"clip_{idx:04d}.ts"
+
+            if "pan left" in comp:
+                z_expr = "1.12"
+                x_expr = f"(1.0-on/{frames})*(iw-iw/zoom)"
+                y_expr = "(ih-ih/zoom)/2"
+            elif "pan right" in comp:
+                z_expr = "1.12"
+                x_expr = f"(on/{frames})*(iw-iw/zoom)"
+                y_expr = "(ih-ih/zoom)/2"
+            elif "zoom-out" in comp:
+                z_expr = f"max(1.15-0.15*(on/{frames}),1.0)"
+                x_expr = "(iw-iw/zoom)/2"
+                y_expr = "(ih-ih/zoom)/2"
+            elif "static" in comp or "wide establishing" in comp:
+                z_expr = "min(pzoom+0.0006,1.06)"
+                x_expr = "(iw-iw/zoom)/2"
+                y_expr = "(ih-ih/zoom)/2"
+            else:  # default slow zoom-in
+                z_expr = "min(pzoom+0.0015,1.15)"
+                x_expr = "(iw-iw/zoom)/2"
+                y_expr = "(ih-ih/zoom)/2"
+
+            fade_filter = ""
+            if transition == "dip_to_black" and dur > 0.8:
+                fade_filter = f",fade=t=in:st=0:d=0.2,fade=t=out:st={dur-0.2:.3f}:d=0.2"
+
+            vf = (
+                f"scale={target_w*2}:{target_h*2}:force_original_aspect_ratio=increase,"
+                f"crop={target_w*2}:{target_h*2},"
+                f"zoompan=z='{z_expr}':d={frames}:x='{x_expr}':y='{y_expr}':s={target_w}x{target_h}:fps={fps}"
+                f"{fade_filter}"
+            )
+
+            cmd_clip = [
+                "ffmpeg", "-y",
+                "-loop", "1", "-i", str(clip["image_path"].resolve()),
+                "-vf", vf,
+                "-t", f"{dur:.3f}",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18",
+                "-pix_fmt", "yuv420p",
+                str(clip_out)
+            ]
+            subprocess.run(cmd_clip, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            return str(clip_out)
+
+        from concurrent.futures import ThreadPoolExecutor
+        workers = min(8, os.cpu_count() or 4)
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            clip_paths = list(executor.map(_render_clip, enumerate(timeline_clips)))
+
         concat_txt = temp_dir / "input_concat.txt"
         with open(concat_txt, "w", encoding="utf-8") as f:
-            for clip in timeline_clips:
-                # Escape backslashes for FFmpeg concat format
-                p_str = str(clip["image_path"].resolve()).replace("\\", "/")
+            for cp in clip_paths:
+                p_str = str(Path(cp).resolve()).replace("\\", "/")
                 f.write(f"file '{p_str}'\n")
-                f.write(f"duration {clip['duration']:.3f}\n")
-            # Concat demuxer requirement: repeat last file once
-            p_str_last = str(timeline_clips[-1]["image_path"].resolve()).replace("\\", "/")
-            f.write(f"file '{p_str_last}'\n")
 
         # Escaped subtitle path for libass filter
         ass_esc = str(ass_path.resolve()).replace("\\", "/").replace(":", "\\:")
 
-        # Zoompan filter: slow zoom-in crop to project resolution
-        # Then burn in ASS subtitles
-        vf_filter = (
-            f"scale={target_w}:{target_h}:force_original_aspect_ratio=increase,"
-            f"crop={target_w}:{target_h},"
-            f"ass='{ass_esc}'"
-        )
-
+        self.progress_callback(60, "Concatenating scenes and burning karaoke subtitles (H.264 CRF 18)...")
         cmd = [
             "ffmpeg", "-y",
             "-f", "concat", "-safe", "0", "-i", str(concat_txt),
             "-i", str(Path(audio_path).resolve()),
-            "-vf", vf_filter,
+            "-vf", f"ass='{ass_esc}'",
             "-c:v", "libx264", "-crf", "18", "-preset", "medium",
             "-c:a", "aac", "-b:a", "192k",
             "-pix_fmt", "yuv420p",

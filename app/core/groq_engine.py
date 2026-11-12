@@ -227,6 +227,15 @@ class GroqEngine:
         self._effective_cap_until = 0.0
         self._last_request_time = 0.0
 
+    @property
+    def api_keys(self) -> List[str]:
+        return self.key_manager.keys
+
+    @api_keys.setter
+    def api_keys(self, keys: List[str]) -> None:
+        self.key_manager.keys = [k.strip() for k in keys if k and k.strip()]
+        self.key_manager.current_index = 0
+
     def current_effective_max_tokens(self) -> int:
         if time.time() < self._effective_cap_until:
             return self._effective_cap
@@ -365,3 +374,4 @@ class GroqEngine:
             if m:
                 return json.loads(m.group(0))
             raise RuntimeError(f"Failed to parse structured JSON from Groq output: {raw_text}") from e
+

@@ -34,6 +34,7 @@ class AppSettings(BaseModel):
     default_preferred_duration: float = Field(default=4.5)
     default_max_duration: float = Field(default=6.0)
     default_batch_size: int = Field(default=DEFAULT_BATCH_SIZE)
+    transcription_engine: str = Field(default="local")
     workspace_directory: str = Field(default_factory=lambda: str(get_default_workspace_dir()))
     recent_projects: List[str] = Field(default_factory=list)
     auto_save_interval_seconds: int = Field(default=60)
