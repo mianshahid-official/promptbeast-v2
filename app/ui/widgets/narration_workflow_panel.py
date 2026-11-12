@@ -1,1241 +1,393 @@
 """
-Production Narration-Aware Studio Workflow Panel for PromptBeast.
-Implements Steps 1 to 5:
-- Step 1: Import Script JSON & Audio File
-- Step 2: Narration and Visual Ideas Input
-- Step 3: Story Intelligence & Dynamic Bibles Extraction
-- Step 4: Visual Style Selection & Target Settings
-- Step 5: Groq Image Prompt Generation & Expansion
+New 3-File Narration Workflow Panel for PromptBeast-V2.
+The user provides ONLY 3 files:
+1. Script (.txt)
+2. Audio (.mp3 / .wav)
+3. Timestamp JSON (.json)
+
+Executes Stages 0 to 5:
+- Step 0: Load & validate (fails loudly, audits word coverage and audio duration)
+- Step 1: Deterministic scene splitter (writes 01_chunks.json)
+- Step 2: Story bibles (Groq, writes 02_raw_entities.json & 03_master_bible.json)
+- Step 3: Storyboard beats (Groq, writes 04_storyboard_beats.json)
+- Step 4: Image prompts (Groq, 180-220 words, writes 05_final_prompts.json)
+- Step 5: Prompt export (writes prompts/prompt_XXX.txt, prompts_only.txt, prompts_index.json)
 """
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QApplication,
+    QFileDialog,
+    QFrame,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
-    QPushButton,
-    QPlainTextEdit,
     QLineEdit,
-    QFileDialog,
     QMessageBox,
-    QFrame,
-    QTabWidget,
     QProgressBar,
-    QSpinBox,
-    QComboBox,
-    QGroupBox,
-    QSizePolicy,
-    QDialog,
-    QDialogButtonBox,
-    QApplication,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 
-from app.models.scene import VisualScene
-from app.models.timeline import NarrationData
-from app.core.narration_workflow import (
-    import_script_json,
-    parse_visual_breakdown_text,
-    align_visuals_with_timestamps,
-    parse_custom_bible_text,
-)
-from app.core.bible_manager import BibleManager
-from app.ai.narration_worker import BatchPromptGenerationWorker
-from app.ui.widgets.style_thumbnail_matrix import StyleThumbnailMatrix
-from app.presets.loader import PresetManager
+from app.core.bible import generate_story_bible
+from app.core.exporter import export_prompts
+from app.core.groq_engine import GroqEngine
+from app.core.loader import LoadedInputs, load_inputs
+from app.core.project import ProjectCheckpointManager
+from app.core.prompt_generator import generate_image_prompts
+from app.core.splitter import split_scenes
+from app.core.storyboard import plan_storyboard_beats
+from app.core.validator import ValidationError
 
 
-STYLE_PROMPT_MAP = {
-    "zombie_survival": "01_zombie_survival_ai_prompt.txt",
-    "whatif_flat_vector": "02_whatif_flat_vector_ai_prompt.txt",
-    "century_old_photograph": "03_century_old_photograph_ai_prompt.txt",
-    "bw_vintage_historical_photography": "04_bw_vintage_historical_photography_ai_prompt.txt",
-    "3d_red_blue_stickman": "05_3d_red_blue_stickman_ai_prompt.txt",
-    "2d_stickman": "06_2d_stickman_ai_prompt.txt",
-    "3d_stickman": "07_3d_stickman_ai_prompt.txt",
-    "mixed_media_collage": "08_mixed_media_collage_ai_prompt.txt",
-    "paper_cutout": "09_paper_cutout_ai_prompt.txt",
-    "paper_quilling": "10_paper_quilling_ai_prompt.txt",
-    "vintage_photograph": "11_vintage_photograph_ai_prompt.txt",
-}
+class PipelineExecutionWorker(QThread):
+    """Background worker executing pipeline stages 0 through 5."""
+    step_progress = Signal(int, str)
+    stage_finished = Signal(str, object)
+    pipeline_completed = Signal(dict)
+    pipeline_failed = Signal(str)
 
-STYLE_FEATURE_HIGHLIGHTS = {
-    "zombie_survival": "🔒 Zombie Survival Directives: Locked Hero 'YOU' (Backwards Red Cap #D63A2A, Charcoal Hoodie #333333, Pure White T-Shirt #FFFFFF, Brown Crossbody Strap #4A2E1B) | Locked Horde (Uniform Olive-Green #8A9A66 Skin, White Eyes with Dot Pupils, Sharp Jagged Teeth, Tattered Brown Jacket #5C4033) | Thick Black #1A1A1A Outlines | Zero Blood/Gore.",
-    "whatif_flat_vector": "🔒 What-If Flat Vector Directives: Minimalist Black Stick Figure | Strictly Locked Vibrant Bright RED Hoodie (#FF0000) across all scenes | Exactly Uniform Limb Thickness | Midnight Navy Night-World (#12182E) with Warm Golden Light Pools (#F59E0B) | Zero Gradients.",
-    "century_old_photograph": "📜 Century-Old Photograph Directives: Authentic Damaged Archival Print | Faded Warm Sepia, Aged Albumen, or Silver Gelatin Monochrome | Naturally Torn & Chipped Paper Edges | Random Dust Specks & Thin Vertical Scratches | STRICTLY ZERO Modern RGB Colors.",
-    "bw_vintage_historical_photography": "📷 B&W Historical Photography Directives: Genuine Archival Documentary Photography | Realistic Photographic Anatomy & Authentic Period Uniforms | Natural Monochrome Grayscale Tonal Range & Subtle Film Grain | Realistic Animals & Architecture | No Caricature / No 3D.",
-    "3d_red_blue_stickman": "⚔️ 3D Red & Blue Stickman Directives: Strict Faction Separation | Attacking Forces = 100% Solid Bright Red 3D Stick Figures | Defending Forces = 100% Solid Blue 3D Stick Figures | No Color Mixing on Tasks | Featureless Smooth Spherical Heads | Rounded 3D Block Geometry | Zero Realistic Anatomy.",
-    "2d_stickman": "🎨 2D Stickman Directives: Inspired by OverSimplified Cartoon Aesthetic | Bold Black Outlines & Smooth Flat Pastel/Primary Fills | Large Spherical Heads with Expressive Comedic Line Mouths & Dot Eyes | Flat Theatrical Staging | Zero 3D Shading.",
-    "3d_stickman": "🧸 3D Stickman Directives: Soft-Toy Low-Poly CGI Hybrid | Tactile Matte Surface Finishes | Spherical Heads with Animated Eyebrow Shifts | Dimensional Tactile Environments (Wood, Stone, Cloth) | Dynamic Volumetric Lighting & Ambient Occlusion.",
-    "mixed_media_collage": "✂️ Mixed-Media Collage Directives: Sophisticated Editorial Collage | Layered Photographic Cutouts, Archival Newspapers, Maps, Blueprints & Halftone Prints | Visible Cut Edges & Paper Texture | Dynamic Script-Driven Material Integration.",
-    "paper_cutout": "📄 Paper-Cutout Directives: 2D Layered Cardstock Animation Style | Physically Cut Cardstock Shapes in Staggered Depth Planes | Visible Paper & Fiber Textures | Soft Delicate Drop Shadows Between Layers | Muted Historical Earth & Parchment Palette.",
-    "paper_quilling": "🌀 Paper Quilling Directives: 100% Handcrafted Paper Quilling | Every Character, Tree, Cloud & Architecture Constructed from Narrow Standing Paper Strips Rolled, Curled & Coiled on Edge | Directional Raking Light & Tactile Relief Shadows.",
-    "vintage_photograph": "🎞️ Vintage Photograph Directives: Timeless Analog Archival Print | Aged Warm Sepia & Silver Gelatin Tones | Natural Paper Grain, Corner Vignetting & Subtle Emulsion Hairlines | Period-Accurate Technology & Historic Staging.",
-}
-
-
-class PromptViewerDialog(QDialog):
-    """Dialog showing the complete Master AI Prompt with copy functionality."""
-    def __init__(self, style_name: str, prompt_text: str, parent=None):
+    def __init__(
+        self,
+        script_path: str,
+        audio_path: str,
+        timestamp_path: str,
+        project_dir: str,
+        style_id: str,
+        model_name: Optional[str] = None,
+        parent=None
+    ):
         super().__init__(parent)
-        self.setWindowTitle(f"PromptBeast Master AI Prompt — {style_name}")
-        self.resize(840, 620)
-        self.setStyleSheet("background-color: #0A0E17; color: #E2E8F0;")
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(18, 18, 18, 18)
-        lay.setSpacing(12)
+        self.script_path = script_path
+        self.audio_path = audio_path
+        self.timestamp_path = timestamp_path
+        self.project_dir = Path(project_dir).resolve()
+        self.style_id = style_id
+        self.model_name = model_name
 
-        hdr = QLabel(f"📋 Master AI Prompt for External LLM — {style_name}")
-        hdr.setStyleSheet("font-size: 14px; font-weight: 700; color: #10B981;")
-        lay.addWidget(hdr)
+    def run(self):
+        try:
+            dirs = ProjectCheckpointManager.get_project_dirs(self.project_dir)
+            engine = GroqEngine(default_model=self.model_name or "openai/gpt-oss-120b")
 
-        desc = QLabel(
-            "Instructions: Copy this complete prompt and send it to ChatGPT, Claude, or Gemini. "
-            "The AI will acknowledge that it is ready, ask for your story script, and return your "
-            "visual storyboard in PromptBeast's exact synchronized format. When you ask for bibles, "
-            "it will provide the complete production bibles matching this visual style."
-        )
-        desc.setWordWrap(True)
-        desc.setStyleSheet("color: #94A3B8; font-size: 11px; line-height: 1.4;")
-        lay.addWidget(desc)
+            # Check existing checkpoints to support resume-on-crash
+            cp_05 = ProjectCheckpointManager.load_checkpoint(self.project_dir, "05_final_prompts.json")
+            cp_04 = ProjectCheckpointManager.load_checkpoint(self.project_dir, "04_storyboard_beats.json")
+            cp_03 = ProjectCheckpointManager.load_checkpoint(self.project_dir, "03_master_bible.json")
+            cp_01 = ProjectCheckpointManager.load_checkpoint(self.project_dir, "01_chunks.json")
 
-        txt = QPlainTextEdit()
-        txt.setPlainText(prompt_text)
-        txt.setReadOnly(True)
-        txt.setStyleSheet("""
-            QPlainTextEdit {
-                background-color: #05080E;
-                color: #CBD5E1;
-                font-family: 'Consolas', 'Courier New', monospace;
-                font-size: 11px;
-                border: 1px solid #1E293B;
-                border-radius: 6px;
-                padding: 10px;
-            }
-        """)
-        lay.addWidget(txt)
+            # Step 0: Load & Validate (always verified to guarantee input integrity)
+            self.step_progress.emit(5, "Step 0: Validating script, audio, and word timestamps...")
+            inputs = load_inputs(self.script_path, self.audio_path, self.timestamp_path)
+            self.step_progress.emit(15, f"Step 0 Passed: {inputs.total_words} words validated, audio duration {inputs.audio_duration:.2f}s.")
 
-        btn_row = QHBoxLayout()
-        btn_copy = QPushButton("📋 Copy Entire Prompt to Clipboard")
-        btn_copy.setFixedHeight(36)
-        btn_copy.setCursor(Qt.PointingHandCursor)
-        btn_copy.setStyleSheet("""
-            QPushButton {
-                background-color: #10B981;
-                color: #05080E;
-                font-weight: 700;
-                font-size: 12px;
-                border-radius: 6px;
-                padding: 0 20px;
-            }
-            QPushButton:hover {
-                background-color: #34D399;
-            }
-        """)
-        btn_close = QPushButton("Close")
-        btn_close.setFixedHeight(36)
-        btn_close.setCursor(Qt.PointingHandCursor)
-        btn_close.setStyleSheet("""
-            QPushButton {
-                background-color: #1E293B;
-                color: #94A3B8;
-                font-size: 12px;
-                border-radius: 6px;
-                padding: 0 16px;
-            }
-            QPushButton:hover {
-                background-color: #334155;
-                color: #FFFFFF;
-            }
-        """)
+            # Step 1: Split scenes
+            if cp_01:
+                self.step_progress.emit(25, "Step 1: Loaded existing scene chunks from 01_chunks.json.")
+                scenes = cp_01
+            else:
+                self.step_progress.emit(20, "Step 1: Deterministically splitting scenes (2s-5s)...")
+                scenes = split_scenes(inputs.words)
+                ProjectCheckpointManager.save_checkpoint(self.project_dir, "01_chunks.json", scenes)
+                self.step_progress.emit(30, f"Step 1 Complete: {len(scenes)} visual scenes generated.")
+            self.stage_finished.emit("scenes", scenes)
 
-        def _do_copy():
-            from app.core.export import copy_to_system_clipboard
-            copy_to_system_clipboard(prompt_text)
-            btn_copy.setText("✓ Copied to Clipboard!")
-            btn_copy.setStyleSheet("background-color: #3B82F6; color: #FFFFFF; font-weight: 700; border-radius: 6px; padding: 0 20px;")
+            # Step 2: Story Bibles
+            if cp_03:
+                self.step_progress.emit(45, "Step 2: Loaded locked Master Story Bible from 03_master_bible.json.")
+                master_bible = cp_03
+            else:
+                self.step_progress.emit(35, "Step 2: Extracting entities and merging Master Story Bible...")
+                raw_entities_p = self.project_dir / "02_raw_entities.json"
+                master_bible_p = self.project_dir / "03_master_bible.json"
+                _, master_bible = generate_story_bible(
+                    scenes,
+                    engine,
+                    model=self.model_name,
+                    raw_entities_path=raw_entities_p,
+                    master_bible_path=master_bible_p
+                )
+                self.step_progress.emit(50, f"Step 2 Complete: Master Bible locked ({len(master_bible.get('characters', []))} chars, {len(master_bible.get('locations', []))} locs).")
+            self.stage_finished.emit("bible", master_bible)
 
-        btn_copy.clicked.connect(_do_copy)
-        btn_close.clicked.connect(self.accept)
+            # Step 3: Storyboard Beats
+            if cp_04:
+                self.step_progress.emit(65, "Step 3: Loaded storyboard beats from 04_storyboard_beats.json.")
+                beats_data = cp_04
+                beats = beats_data.get("beats", beats_data) if isinstance(beats_data, dict) else beats_data
+            else:
+                self.step_progress.emit(55, "Step 3: Planning storyboard visual beats with Groq...")
+                beats_cp = self.project_dir / "04_storyboard_beats.json"
+                from app.core.style_manager import StyleManager
+                style_profile = StyleManager.get_style_profile(self.style_id)
+                style_anchor = style_profile.style_prompt if style_profile else "Cinematic visual style"
+                beats, warnings = plan_storyboard_beats(
+                    scenes,
+                    master_bible,
+                    style_anchor,
+                    engine,
+                    model=self.model_name,
+                    checkpoint_path=beats_cp
+                )
+                self.step_progress.emit(70, f"Step 3 Complete: {len(beats)} beats planned.")
+            self.stage_finished.emit("beats", beats)
 
-        btn_row.addWidget(btn_copy)
-        btn_row.addStretch()
-        btn_row.addWidget(btn_close)
-        lay.addLayout(btn_row)
+            # Step 4: Image Prompts
+            if cp_05:
+                self.step_progress.emit(85, "Step 4: Loaded final prompts from 05_final_prompts.json.")
+                prompts = cp_05
+            else:
+                self.step_progress.emit(75, "Step 4: Generating 180-220 word image prompts with Groq...")
+                prompts_cp = self.project_dir / "05_final_prompts.json"
+                prompts, still_failed = generate_image_prompts(
+                    beats,
+                    master_bible,
+                    self.style_id,
+                    engine,
+                    model=self.model_name,
+                    checkpoint_path=prompts_cp
+                )
+                self.step_progress.emit(88, f"Step 4 Complete: {len(prompts)} prompts generated ({len(still_failed)} failed).")
+            self.stage_finished.emit("prompts", prompts)
+
+            # Step 5: Export Prompts
+            self.step_progress.emit(92, "Step 5: Exporting prompts files (prompts_only.txt, prompts_index.json)...")
+            index_map = export_prompts(prompts, dirs["prompts"])
+
+            self.step_progress.emit(100, f"Pipeline complete! {len(prompts)} prompts ready in {dirs['prompts']}.")
+            self.pipeline_completed.emit({
+                "inputs": inputs,
+                "scenes": scenes,
+                "master_bible": master_bible,
+                "beats": beats,
+                "prompts": prompts,
+                "index_map": index_map,
+                "prompts_dir": dirs["prompts"],
+                "images_dir": dirs["images"],
+                "output_dir": dirs["output"]
+            })
+        except Exception as e:
+            self.pipeline_failed.emit(str(e))
 
 
 class NarrationWorkflowPanel(QWidget):
-    """Unified Single-Page Narration Workflow Studio."""
+    """Studio Workflow Panel implementing the strict 3-file user input flow."""
+    pipeline_succeeded = Signal(dict)
+    navigate_to_images = Signal()
 
-    # Signals
-    story_script_imported = Signal(str, object)   # (story_text, narration_data)
-    visual_scenes_aligned = Signal(list)          # (List[VisualScene])
-    bibles_updated = Signal(dict)                 # (extracted bibles dict)
-    prompts_generated = Signal(list)              # (List[VisualScene])
-    style_selected = Signal(str)                  # (style_id)
-    navigate_requested = Signal(str)              # page key e.g. "studio", "scene_sync", "deliverables"
-
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, active_style_id: str = "default"):
         super().__init__(parent)
-        self.story_text: str = ""
-        self.narration: Optional[NarrationData] = None
-        self.scenes: List[VisualScene] = []
-        self.bibles: Dict[str, Any] = {}
-        self.loaded_bibles: Dict[str, Dict[str, Any]] = {}
-        self.json_path: Optional[str] = None
-        self.audio_path: Optional[str] = None
-
-        self._prompt_worker: Optional[BatchPromptGenerationWorker] = None
-
+        self.active_style_id = active_style_id
+        self.active_project_dir: Path = Path("data/project").resolve()
+        self.worker: Optional[PipelineExecutionWorker] = None
         self._init_ui()
-        self._auto_load_default_assets()
 
-    def _auto_load_default_assets(self):
-        """Auto-detects and preloads audio and files/speech.json and Bibles.txt if present. Leaves visual ideas input empty."""
-        sample_json = Path("audio and files/speech.json")
-        if sample_json.exists():
-            self.load_json_file(str(sample_json.resolve()))
-        sample_bibles = Path("audio and files/Bibles.txt")
-        if sample_bibles.exists():
-            self.load_bibles_from_path(str(sample_bibles.resolve()))
-        # User requested: Visual ideas box MUST start completely empty
-        self.txt_visual_ideas.setPlainText("")
+    def set_active_style(self, style_id: str):
+        self.active_style_id = style_id
+
+    def set_project_dir(self, p_dir: Path):
+        self.active_project_dir = Path(p_dir).resolve()
 
     def _init_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(12, 10, 12, 14)
-        main_layout.setSpacing(14)
+        layout = QVBoxLayout(self)
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
 
-        # ---------------------------------------------------------------------
-        # STEP 1: IMPORT SCRIPT JSON & AUDIO
-        # ---------------------------------------------------------------------
-        step1_box, s1_lay = self._create_card("🎙️ STEP 1: Import Script JSON & Audio File")
-        s1_lay.setSpacing(8)
-
-        # File actions row
-        f_row = QHBoxLayout()
-        f_row.setSpacing(10)
-
-        self.btn_browse_json = QPushButton("📁 Import Script JSON (speech.json)...")
-        self.btn_browse_json.setFixedHeight(36)
-        self.btn_browse_json.setCursor(Qt.PointingHandCursor)
-        self.btn_browse_json.setStyleSheet("""
-            QPushButton {
-                background-color: #1A2433;
-                color: #A3FF12;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid rgba(163, 255, 18, 0.35);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(163, 255, 18, 0.15);
-                border-color: #A3FF12;
-            }
-        """)
-        self.btn_browse_json.clicked.connect(self._on_browse_json)
-        f_row.addWidget(self.btn_browse_json)
-
-        self.btn_browse_audio = QPushButton("🎵 Select Audio File (speech.mp3)...")
-        self.btn_browse_audio.setFixedHeight(36)
-        self.btn_browse_audio.setCursor(Qt.PointingHandCursor)
-        self.btn_browse_audio.setStyleSheet("""
-            QPushButton {
-                background-color: #1A2433;
-                color: #38BDF8;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid rgba(56, 189, 248, 0.35);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(56, 189, 248, 0.15);
-                border-color: #38BDF8;
-            }
-        """)
-        self.btn_browse_audio.clicked.connect(self._on_browse_audio)
-        f_row.addWidget(self.btn_browse_audio)
-
-        f_row.addStretch()
-        s1_lay.addLayout(f_row)
-
-        # Status row
-        status_row = QHBoxLayout()
-        self.lbl_json_status = QLabel("JSON: No script file loaded.")
-        self.lbl_json_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        status_row.addWidget(self.lbl_json_status)
-
-        status_row.addStretch()
-
-        self.lbl_audio_status = QLabel("Audio: No audio file attached.")
-        self.lbl_audio_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        status_row.addWidget(self.lbl_audio_status)
-        s1_lay.addLayout(status_row)
-
-        main_layout.addWidget(step1_box)
-
-        # ---------------------------------------------------------------------
-        # STEP 2: NARRATION & VISUAL IDEAS INPUT
-        # ---------------------------------------------------------------------
-        step2_box, s2_lay = self._create_card("📝 STEP 2: Narration & Visual Ideas Breakdown")
-        s2_lay.setSpacing(8)
-
-        s2_desc = QLabel("Paste script narration lines, corresponding visual ideas (e.g. Visual 1 Words: ... Visual: ...), scene descriptions, or creative instructions:")
-        s2_desc.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        s2_lay.addWidget(s2_desc)
-
-        self.txt_visual_ideas = QPlainTextEdit()
-        self.txt_visual_ideas.setMinimumHeight(140)
-        self.txt_visual_ideas.setMaximumHeight(260)
-        self.txt_visual_ideas.setPlaceholderText(
-            "Visual 1 Words: Sixty people were locked inside this mall on the first night. Visual: Wide cinematic shot of a massive shopping mall with terrified shoppers trapped behind locked steel shutters.\n\n"
-            "Visual 2 Words: By Day 20, you will find proof that one of them is still alive. Visual: Dark underground mall corridor with mysterious fresh footprints in dusty concrete.\n..."
+        # Title / Description Banner
+        header = QFrame()
+        header.setStyleSheet("background: #18181b; border-radius: 8px; padding: 12px; border: 1px solid #27272a;")
+        h_layout = QVBoxLayout(header)
+        h_title = QLabel("🎬 Production Pipeline — 3 Input Files Only")
+        h_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #f4f4f5;")
+        h_desc = QLabel(
+            "Provide your Script (.txt), Narration Audio (.mp3/.wav), and Word Timestamp JSON. "
+            "PromptBeast deterministically splits scenes, extracts the story bible, plans storyboard beats, "
+            "and generates 180–220 word image prompts with Groq."
         )
-        self.txt_visual_ideas.setStyleSheet("""
-            QPlainTextEdit {
-                background-color: #0B0F17;
-                color: #E2E8F0;
-                font-family: 'Consolas', 'Segoe UI', monospace;
-                font-size: 11px;
-                border: 1px solid #1E293B;
-                border-radius: 6px;
-                padding: 8px;
-            }
-            QPlainTextEdit:focus {
-                border: 1px solid #10B981;
-            }
-        """)
-        s2_lay.addWidget(self.txt_visual_ideas)
+        h_desc.setStyleSheet("color: #a1a1aa; font-size: 12px;")
+        h_desc.setWordWrap(True)
+        h_layout.addWidget(h_title)
+        h_layout.addWidget(h_desc)
+        layout.addWidget(header)
 
-        # Alignment Action Row
-        align_row = QHBoxLayout()
-        self.btn_load_storyboard = QPushButton("📑 Load Storyboard File...")
-        self.btn_load_storyboard.setFixedHeight(34)
-        self.btn_load_storyboard.setCursor(Qt.PointingHandCursor)
-        self.btn_load_storyboard.setStyleSheet("""
+        # 3 Files Input Box
+        files_group = QGroupBox("1. Project Input Files")
+        files_group.setStyleSheet("QGroupBox { font-weight: bold; color: #38bdf8; }")
+        fg_layout = QVBoxLayout(files_group)
+        fg_layout.setSpacing(8)
+
+        # Script File Row
+        s_row = QHBoxLayout()
+        s_lbl = QLabel("Script (.txt):")
+        s_lbl.setFixedWidth(120)
+        self.txt_script_path = QLineEdit()
+        self.txt_script_path.setPlaceholderText("Path to narration script (.txt, UTF-8)...")
+        btn_browse_script = QPushButton("Browse...")
+        btn_browse_script.clicked.connect(self._browse_script)
+        s_row.addWidget(s_lbl)
+        s_row.addWidget(self.txt_script_path, 1)
+        s_row.addWidget(btn_browse_script)
+        fg_layout.addLayout(s_row)
+
+        # Audio File Row
+        a_row = QHBoxLayout()
+        a_lbl = QLabel("Audio (.mp3/.wav):")
+        a_lbl.setFixedWidth(120)
+        self.txt_audio_path = QLineEdit()
+        self.txt_audio_path.setPlaceholderText("Path to narration audio (.mp3, .wav)...")
+        btn_browse_audio = QPushButton("Browse...")
+        btn_browse_audio.clicked.connect(self._browse_audio)
+        a_row.addWidget(a_lbl)
+        a_row.addWidget(self.txt_audio_path, 1)
+        a_row.addWidget(btn_browse_audio)
+        fg_layout.addLayout(a_row)
+
+        # Timestamps File Row
+        t_row = QHBoxLayout()
+        t_lbl = QLabel("Timestamps (.json):")
+        t_lbl.setFixedWidth(120)
+        self.txt_ts_path = QLineEdit()
+        self.txt_ts_path.setPlaceholderText("Path to word-level timestamps JSON...")
+        btn_browse_ts = QPushButton("Browse...")
+        btn_browse_ts.clicked.connect(self._browse_ts)
+        t_row.addWidget(t_lbl)
+        t_row.addWidget(self.txt_ts_path, 1)
+        t_row.addWidget(btn_browse_ts)
+        fg_layout.addLayout(t_row)
+
+        # Auto-load defaults if available in workspace
+        self._populate_default_paths()
+
+        layout.addWidget(files_group)
+
+        # Action Buttons
+        act_row = QHBoxLayout()
+        self.btn_run_pipeline = QPushButton("🚀 Run Pipeline (Steps 0–5)")
+        self.btn_run_pipeline.setStyleSheet("""
             QPushButton {
-                background-color: #1A2433;
-                color: #A3FF12;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid rgba(163, 255, 18, 0.4);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(163, 255, 18, 0.2);
-            }
-        """)
-        self.btn_load_storyboard.clicked.connect(self._on_load_storyboard_dialog)
-        align_row.addWidget(self.btn_load_storyboard)
-
-        self.btn_align_visuals = QPushButton("⚡ Parse & Synchronize Visual Ideas with Audio Timestamps")
-        self.btn_align_visuals.setFixedHeight(34)
-        self.btn_align_visuals.setCursor(Qt.PointingHandCursor)
-        self.btn_align_visuals.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(16, 185, 129, 0.2);
-                color: #10B981;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid #10B981;
-                border-radius: 6px;
-                padding: 0 16px;
-            }
-            QPushButton:hover {
-                background-color: rgba(16, 185, 129, 0.35);
-            }
-        """)
-        self.btn_align_visuals.clicked.connect(self._on_align_visuals)
-        align_row.addWidget(self.btn_align_visuals)
-
-        self.btn_copy_ai_prompt_step2 = QPushButton("📋 Copy Master AI Prompt (External AI)")
-        self.btn_copy_ai_prompt_step2.setFixedHeight(34)
-        self.btn_copy_ai_prompt_step2.setCursor(Qt.PointingHandCursor)
-        self.btn_copy_ai_prompt_step2.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(168, 85, 247, 0.15);
-                color: #C084FC;
-                font-weight: 700;
-                font-size: 11px;
-                border: 1px solid rgba(168, 85, 247, 0.4);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(168, 85, 247, 0.3);
-                border-color: #C084FC;
-            }
-        """)
-        self.btn_copy_ai_prompt_step2.clicked.connect(self._on_copy_style_prompt)
-        align_row.addWidget(self.btn_copy_ai_prompt_step2)
-
-        self.lbl_align_stats = QLabel("0 visual beats aligned.")
-        self.lbl_align_stats.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 600; margin-left: 10px;")
-        align_row.addWidget(self.lbl_align_stats)
-
-        align_row.addStretch()
-        s2_lay.addLayout(align_row)
-
-        main_layout.addWidget(step2_box)
-
-        # ---------------------------------------------------------------------
-        # STEP 3: USER-PROVIDED PRODUCTION BIBLES (FLEXIBLE BULK / SINGLE)
-        # ---------------------------------------------------------------------
-        step3_box, s3_lay = self._create_card("📖 STEP 3: User Production Bibles & Context (Flexible Bulk / Single)")
-        s3_lay.setSpacing(8)
-
-        b_hdr = QHBoxLayout()
-        b_hdr.setSpacing(10)
-
-        self.btn_load_bibles = QPushButton("📁 Load Bible File / Folder...")
-        self.btn_load_bibles.setFixedHeight(34)
-        self.btn_load_bibles.setCursor(Qt.PointingHandCursor)
-        self.btn_load_bibles.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(163, 255, 18, 0.15);
-                color: #A3FF12;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid rgba(163, 255, 18, 0.45);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(163, 255, 18, 0.28);
-            }
-        """)
-        self.btn_load_bibles.clicked.connect(self._on_load_bibles_dialog)
-        b_hdr.addWidget(self.btn_load_bibles)
-
-        self.btn_paste_bibles = QPushButton("📋 Paste Custom Bible")
-        self.btn_paste_bibles.setFixedHeight(34)
-        self.btn_paste_bibles.setCursor(Qt.PointingHandCursor)
-        self.btn_paste_bibles.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(56, 189, 248, 0.16);
-                color: #38BDF8;
-                font-weight: 700;
-                font-size: 12px;
-                border: 1px solid rgba(56, 189, 248, 0.45);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(56, 189, 248, 0.28);
-            }
-        """)
-        self.btn_paste_bibles.clicked.connect(self._on_paste_custom_bibles)
-        b_hdr.addWidget(self.btn_paste_bibles)
-
-        lbl_active_bible = QLabel("Active Bible:")
-        lbl_active_bible.setStyleSheet("color: #CBD5E1; font-size: 12px; font-weight: 600; margin-left: 6px;")
-        b_hdr.addWidget(lbl_active_bible)
-
-        self.combo_active_bible = QComboBox()
-        self.combo_active_bible.setFixedHeight(32)
-        self.combo_active_bible.setMinimumWidth(180)
-        self.combo_active_bible.setStyleSheet("""
-            QComboBox {
-                background-color: #0F172A;
-                color: #F8FAFC;
-                border: 1px solid #334155;
-                border-radius: 6px;
-                padding: 4px 10px;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            QComboBox:hover {
-                border-color: #38BDF8;
-            }
-            QComboBox::drop-down {
-                border: none;
-                width: 20px;
-            }
-        """)
-        self.combo_active_bible.currentIndexChanged.connect(self._on_active_bible_changed)
-        b_hdr.addWidget(self.combo_active_bible)
-
-        b_hdr.addStretch()
-
-        self.btn_save_bibles = QPushButton("💾 Save Edited Bibles")
-        self.btn_save_bibles.setFixedHeight(30)
-        self.btn_save_bibles.setStyleSheet("""
-            QPushButton {
-                background-color: #1E293B;
-                color: #F8FAFC;
-                font-size: 11px;
-                border: 1px solid #334155;
-                border-radius: 4px;
-                padding: 0 12px;
-            }
-            QPushButton:hover {
-                border-color: #10B981;
-            }
-        """)
-        self.btn_save_bibles.clicked.connect(self._on_save_bibles_clicked)
-        b_hdr.addWidget(self.btn_save_bibles)
-        s3_lay.addLayout(b_hdr)
-
-        # Status row for bibles
-        b_status_row = QHBoxLayout()
-        self.lbl_bible_status = QLabel("No bibles loaded. Click 'Load Bible File / Folder' or 'Paste Custom Bible'.")
-        self.lbl_bible_status.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        b_status_row.addWidget(self.lbl_bible_status)
-        b_status_row.addStretch()
-        s3_lay.addLayout(b_status_row)
-
-        # Tabbed Bible Editors
-        self.bible_tabs = QTabWidget()
-        self.bible_tabs.setFixedHeight(180)
-        self.bible_tabs.setStyleSheet("""
-            QTabWidget::pane {
-                border: 1px solid #1E293B;
-                background: #0B0F17;
-                border-radius: 4px;
-            }
-            QTabBar::tab {
-                background: #111827;
-                color: #94A3B8;
-                padding: 4px 12px;
-                font-size: 11px;
-                font-weight: 600;
-                border: 1px solid #1E293B;
-                border-bottom: none;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                margin-right: 2px;
-            }
-            QTabBar::tab:selected {
-                background: #1E293B;
-                color: #A3FF12;
-                border-color: #10B981;
-            }
-        """)
-
-        self.txt_story_bible = QPlainTextEdit()
-        self.txt_story_bible.setPlaceholderText("Story Logline, Genre & Tone, Narrative Arc, Timeline Events...")
-        self.bible_tabs.addTab(self.txt_story_bible, "Story Bible")
-
-        self.txt_char_bible = QPlainTextEdit()
-        self.txt_char_bible.setPlaceholderText("Characters, Appearances, Clothing, Age, Consistency Rules...")
-        self.bible_tabs.addTab(self.txt_char_bible, "Character Bible")
-
-        self.txt_env_bible = QPlainTextEdit()
-        self.txt_env_bible.setPlaceholderText("Locations, Architecture, Atmospheric Lighting, Decay Progression...")
-        self.bible_tabs.addTab(self.txt_env_bible, "Environment Bible")
-
-        self.txt_objects_bible = QPlainTextEdit()
-        self.txt_objects_bible.setPlaceholderText("Key Objects, Tools, Weapons, Survival Props, Significance...")
-        self.bible_tabs.addTab(self.txt_objects_bible, "Key Objects & Props")
-
-        self.txt_style_bible = QPlainTextEdit()
-        self.txt_style_bible.setPlaceholderText("Color Palette, Lighting Rules, Camera Guidelines, Continuity Motifs...")
-        self.bible_tabs.addTab(self.txt_style_bible, "Style & Cinematography")
-
-        s3_lay.addWidget(self.bible_tabs)
-        main_layout.addWidget(step3_box)
-
-        # ---------------------------------------------------------------------
-        # STEP 4: VISUAL STYLE & SETTINGS (READ-ONLY STYLE LAUNCHED VIA .BAT)
-        # ---------------------------------------------------------------------
-        step4_box, s4_lay = self._create_card("🎨 STEP 4: Active Visual Art Style & Output Settings")
-        s4_lay.setSpacing(10)
-
-        # Active Style Read-Only Display
-        from app.core.style_manager import StyleManager
-        active_style = StyleManager.get_active_style()
-
-        style_info_row = QHBoxLayout()
-        style_info_row.setSpacing(12)
-
-        self.lbl_active_style_badge = QLabel(f"🎨 Style: {active_style.name}")
-        self.lbl_active_style_badge.setStyleSheet("""
-            QLabel {
-                background-color: #0F172A;
-                color: #38BDF8;
-                font-size: 13px;
-                font-weight: 700;
-                border: 1px solid rgba(56, 189, 248, 0.4);
-                border-left: 4px solid #10B981;
-                border-radius: 6px;
-                padding: 8px 16px;
-            }
-        """)
-        style_info_row.addWidget(self.lbl_active_style_badge)
-
-        self.lbl_style_bat_hint = QLabel("(Active style locked via launcher. To switch styles, close and launch its dedicated .bat file)")
-        self.lbl_style_bat_hint.setStyleSheet("color: #64748B; font-size: 11px; font-style: italic;")
-        style_info_row.addWidget(self.lbl_style_bat_hint)
-        style_info_row.addStretch()
-
-        s4_lay.addLayout(style_info_row)
-
-        # Compatibility hidden style matrix (not visible in UI, no other styles selectable)
-        self.style_matrix = StyleThumbnailMatrix(self)
-        self.style_matrix.setVisible(False)
-        self.style_matrix.select_style(active_style.id)
-
-        # Style Directives & AI Master Prompt Bar
-        style_prompt_bar = QHBoxLayout()
-        style_prompt_bar.setSpacing(10)
-
-        self.btn_copy_style_prompt = QPushButton(f"📋 Copy Master AI Prompt ({active_style.name})")
-        self.btn_copy_style_prompt.setFixedHeight(32)
-        self.btn_copy_style_prompt.setCursor(Qt.PointingHandCursor)
-        self.btn_copy_style_prompt.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(16, 185, 129, 0.15);
-                color: #10B981;
-                font-weight: 700;
-                font-size: 11px;
-                border: 1px solid rgba(16, 185, 129, 0.4);
-                border-radius: 6px;
-                padding: 0 14px;
-            }
-            QPushButton:hover {
-                background-color: rgba(16, 185, 129, 0.28);
-                border-color: #10B981;
-            }
-        """)
-        self.btn_copy_style_prompt.clicked.connect(self._on_copy_style_prompt)
-        style_prompt_bar.addWidget(self.btn_copy_style_prompt)
-
-        self.btn_view_style_prompt = QPushButton("👁️ View Active Style Master Prompt")
-        self.btn_view_style_prompt.setFixedHeight(32)
-        self.btn_view_style_prompt.setCursor(Qt.PointingHandCursor)
-        self.btn_view_style_prompt.setStyleSheet("""
-            QPushButton {
-                background-color: #1E293B;
-                color: #94A3B8;
-                font-size: 11px;
-                border: 1px solid #334155;
-                border-radius: 6px;
-                padding: 0 12px;
-            }
-            QPushButton:hover {
-                color: #F8FAFC;
-                border-color: #38BDF8;
-            }
-        """)
-        self.btn_view_style_prompt.clicked.connect(self._on_view_style_prompt)
-        style_prompt_bar.addWidget(self.btn_view_style_prompt)
-
-        self.lbl_prompt_copy_status = QLabel("")
-        self.lbl_prompt_copy_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")
-        style_prompt_bar.addWidget(self.lbl_prompt_copy_status)
-
-        style_prompt_bar.addStretch()
-        s4_lay.addLayout(style_prompt_bar)
-
-        # Style Features Highlight Box
-        self.lbl_style_feature_banner = QLabel()
-        self.lbl_style_feature_banner.setWordWrap(True)
-        self.lbl_style_feature_banner.setStyleSheet("""
-            QLabel {
-                background-color: #0B0F17;
-                color: #38BDF8;
-                font-size: 11px;
-                font-weight: 500;
-                border: 1px solid #1E293B;
-                border-left: 3px solid #10B981;
-                border-radius: 4px;
-                padding: 8px 12px;
-            }
-        """)
-        s4_lay.addWidget(self.lbl_style_feature_banner)
-
-        # Initialize style features banner for active style
-        self._on_style_selected(active_style.id)
-
-        # Options Row: Aspect Ratio, Model, Batch Size
-        opt_row = QHBoxLayout()
-        opt_row.setSpacing(12)
-
-        lbl_ar = QLabel("Aspect Ratio:")
-        lbl_ar.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600;")
-        opt_row.addWidget(lbl_ar)
-
-        self.combo_aspect = QComboBox()
-        self.combo_aspect.setFixedHeight(28)
-        self.combo_aspect.addItems(["16:9", "9:16", "1:1"])
-        opt_row.addWidget(self.combo_aspect)
-
-        lbl_model = QLabel("Groq Model:")
-        lbl_model.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; margin-left: 10px;")
-        opt_row.addWidget(lbl_model)
-
-        self.combo_model = QComboBox()
-        self.combo_model.setFixedHeight(28)
-        self.combo_model.addItems([
-            "qwen/qwen3.8-27b",
-            "openai/gpt-oss-120b",
-            "openai/gpt-oss-20b"
-        ])
-        opt_row.addWidget(self.combo_model)
-
-        lbl_batch = QLabel("Batch Size:")
-        lbl_batch.setStyleSheet("color: #94A3B8; font-size: 11px; font-weight: 600; margin-left: 10px;")
-        opt_row.addWidget(lbl_batch)
-
-        self.spin_batch = QSpinBox()
-        self.spin_batch.setFixedHeight(28)
-        self.spin_batch.setRange(1, 6)
-        self.spin_batch.setValue(4)
-        self.spin_batch.setToolTip("4 scenes per batch is optimal for fast, rate-limit-free Groq prompt expansion.")
-        opt_row.addWidget(self.spin_batch)
-
-        opt_row.addStretch()
-        s4_lay.addLayout(opt_row)
-
-        main_layout.addWidget(step4_box)
-
-        # ---------------------------------------------------------------------
-        # STEP 5: REVIEW STORYBOARD & PROCEED TO STUDIO
-        # ---------------------------------------------------------------------
-        step5_box, s5_lay = self._create_card("➔ STEP 5: Review Storyboard & Proceed to Studio")
-
-        s5_desc = QLabel(
-            "Your visual breakdown and style directives are configured. "
-            "Proceed to Stage 02 (Studio) to review your storyboard scenes and approve prompt expansion."
-        )
-        s5_desc.setStyleSheet("color: #94A3B8; font-size: 11px;")
-        s5_lay.addWidget(s5_desc)
-
-        self.btn_next_studio = QPushButton("➔ Next: Review & Approve in Studio")
-        self.btn_next_studio.setFixedHeight(46)
-        self.btn_next_studio.setCursor(Qt.PointingHandCursor)
-        self.btn_next_studio.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #10B981, stop:0.6 #34D399, stop:1 #A3FF12);
-                color: #080D0B;
-                font-weight: 800;
+                background: #2563eb;
+                color: white;
                 font-size: 14px;
-                border-radius: 8px;
-                border: none;
-                padding: 0 20px;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #34D399, stop:0.6 #A3FF12, stop:1 #B8FF24);
-            }
-        """)
-        self.btn_next_studio.clicked.connect(self._on_proceed_to_studio)
-        s5_lay.addWidget(self.btn_next_studio)
-
-        main_layout.addWidget(step5_box)
-
-    def _create_card(self, title: str) -> tuple[QFrame, QVBoxLayout]:
-        card = QFrame()
-        card.setStyleSheet("""
-            QFrame {
-                background-color: #0E1522;
-                border: 1px solid #1E293B;
-                border-radius: 10px;
-            }
-        """)
-        lay = QVBoxLayout(card)
-        lay.setContentsMargins(16, 14, 16, 16)
-        lay.setSpacing(10)
-
-        t_lbl = QLabel(title)
-        t_lbl.setStyleSheet("color: #F8FAFC; font-size: 13px; font-weight: 700; border: none; background: transparent;")
-        lay.addWidget(t_lbl)
-        return card, lay
-
-    # =========================================================================
-    # STEP 1 ACTIONS: SCRIPT JSON & AUDIO IMPORT
-    # =========================================================================
-
-    def _on_browse_json(self):
-        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
-        path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select Script / Speech JSON File",
-            start_dir,
-            "JSON Files (*.json);;All Files (*.*)"
-        )
-        if not path:
-            return
-        self.load_json_file(path)
-
-    def load_json_file(self, path: str):
-        res = import_script_json(path)
-        if not res.success:
-            QMessageBox.critical(self, "JSON Import Error", res.message)
-            return
-
-        self.json_path = path
-        self.story_text = res.story_text
-        self.narration = res.narration
-
-        dur_text = f"{res.narration.duration_seconds:.1f}s" if res.narration else "N/A"
-        word_count = len(res.narration.words) if res.narration and res.narration.words else len(res.story_text.split())
-        self.lbl_json_status.setText(f"✅ JSON: {Path(path).name} ({word_count} words · {dur_text})")
-        self.lbl_json_status.setStyleSheet("color: #34D399; font-size: 11px; font-weight: 600;")
-
-        # Auto-detect audio file in the same directory
-        parent_dir = Path(path).parent
-        for ext in [".mp3", ".wav", ".m4a"]:
-            cand = parent_dir / f"{Path(path).stem}{ext}"
-            if cand.exists():
-                self.set_audio_file(str(cand))
-                break
-            # Or general speech.mp3
-            speech_cand = parent_dir / f"speech{ext}"
-            if speech_cand.exists():
-                self.set_audio_file(str(speech_cand))
-                break
-
-        self.story_script_imported.emit(self.story_text, self.narration)
-
-    def _on_browse_audio(self):
-        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
-        path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select Voiceover Audio File",
-            start_dir,
-            "Audio Files (*.mp3 *.wav *.m4a *.aac);;All Files (*.*)"
-        )
-        if path:
-            self.set_audio_file(path)
-
-    def set_audio_file(self, path: str):
-        p = Path(path)
-        if p.exists():
-            self.audio_path = str(p.resolve())
-            self.lbl_audio_status.setText(f"✅ Audio: {p.name}")
-            self.lbl_audio_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 600;")
-
-            # Auto-catch matching JSON file in the same directory if not already loaded
-            if not self.json_path or not Path(self.json_path).exists():
-                parent_dir = p.parent
-                candidates = [
-                    parent_dir / f"{p.stem}.json",
-                    parent_dir / "speech.json",
-                    parent_dir / "narration.json",
-                    parent_dir / "transcript.json"
-                ]
-                for cand in candidates:
-                    if cand.exists() and cand.is_file():
-                        self.load_json_file(str(cand.resolve()))
-                        break
-
-    # =========================================================================
-    # STEP 2 ACTIONS: PARSE & ALIGN VISUAL IDEAS
-    # =========================================================================
-
-    def _on_align_visuals(self):
-        raw_text = self.txt_visual_ideas.toPlainText().strip()
-        if not raw_text:
-            # Check if sample data.txt exists in data/ or root and offer to load it
-            sample_file = Path("data/sample data.txt") if Path("data/sample data.txt").exists() else Path("sample data.txt")
-            if sample_file.exists():
-                raw_text = sample_file.read_text(encoding="utf-8")
-                self.txt_visual_ideas.setPlainText(raw_text)
-
-        if not raw_text:
-            QMessageBox.warning(self, "No Visual Ideas", "Please paste narration and visual ideas in the text field.")
-            return
-
-        items = parse_visual_breakdown_text(raw_text)
-        if not items:
-            QMessageBox.warning(self, "Parse Warning", "No visual breakdown lines could be extracted.")
-            return
-
-        total_audio_dur = self.narration.duration_seconds if self.narration else None
-        self.scenes = align_visuals_with_timestamps(
-            visual_items=items,
-            narration=self.narration,
-            total_audio_duration=total_audio_dur
-        )
-
-        self.lbl_align_stats.setText(f"✅ {len(self.scenes)} Visual Beats Aligned & Synchronized!")
-        self.lbl_align_stats.setStyleSheet("color: #A3FF12; font-size: 11px; font-weight: 700;")
-
-        self.visual_scenes_aligned.emit(self.scenes)
-
-    def _on_load_storyboard_dialog(self):
-        """Allows 1-click loading of a storyboard file (.txt or .json) into Step 2."""
-        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
-        path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select Storyboard File",
-            start_dir,
-            "Storyboard Files (*.txt *.json);;All Files (*.*)"
-        )
-        if not path:
-            return
-
-        try:
-            content = Path(path).read_text(encoding="utf-8")
-        except Exception:
-            try:
-                content = Path(path).read_text(encoding="latin-1")
-            except Exception as e:
-                QMessageBox.critical(self, "Read Error", f"Could not read storyboard file:\n{e}")
-                return
-
-        self.txt_visual_ideas.setPlainText(content)
-        self._on_align_visuals()
-
-    # =========================================================================
-    # STEP 3 ACTIONS: USER PRODUCTION BIBLES (FLEXIBLE BULK / SINGLE)
-    # =========================================================================
-
-    def load_bibles_from_path(self, path: str) -> bool:
-        """Loads single or bulk bibles from a file or folder path using BibleManager."""
-        loaded = BibleManager.load_bibles_from_path(path)
-        if not loaded:
-            return False
-
-        self.loaded_bibles.update(loaded)
-        first_name = list(loaded.keys())[0] if loaded else None
-        self._refresh_bible_selector(selected_name=first_name)
-        return True
-
-    def _refresh_bible_selector(self, selected_name: Optional[str] = None):
-        """Populates the Active Bible dropdown with all loaded bibles and selects the active one."""
-        self.combo_active_bible.blockSignals(True)
-        self.combo_active_bible.clear()
-        names = sorted(self.loaded_bibles.keys())
-        for name in names:
-            self.combo_active_bible.addItem(name)
-
-        target = selected_name or (names[0] if names else None)
-        if target and target in self.loaded_bibles:
-            idx = self.combo_active_bible.findText(target)
-            if idx >= 0:
-                self.combo_active_bible.setCurrentIndex(idx)
-            self._apply_active_bible(target)
-        self.combo_active_bible.blockSignals(False)
-
-    def _apply_active_bible(self, name: str):
-        """Applies the selected bible to the active workspace tabs and emits bibles_updated."""
-        if name not in self.loaded_bibles:
-            return
-
-        self.bibles = self.loaded_bibles[name]
-        chars = self.bibles.get("characters", [])
-        envs = self.bibles.get("environments", [])
-        props = self.bibles.get("key_objects", [])
-
-        story_b = self.bibles.get("story_bible", {})
-        self.txt_story_bible.setPlainText(json.dumps(story_b, indent=2))
-        self.txt_char_bible.setPlainText(json.dumps(chars, indent=2))
-        self.txt_env_bible.setPlainText(json.dumps(envs, indent=2))
-        self.txt_objects_bible.setPlainText(json.dumps(props, indent=2))
-        style_b = self.bibles.get("visual_style_bible", {})
-        self.txt_style_bible.setPlainText(json.dumps(style_b, indent=2))
-
-        self.lbl_bible_status.setText(
-            f"✅ Active Bible: '{name}' ({len(chars)} characters, {len(envs)} locations, {len(props)} props)"
-        )
-        self.lbl_bible_status.setStyleSheet("color: #34D399; font-size: 11px; font-weight: 600;")
-        self.bibles_updated.emit(self.bibles)
-
-    def _on_active_bible_changed(self, index: int):
-        """Handles user selecting a different bible from the active bible dropdown."""
-        active_name = self.combo_active_bible.currentText()
-        if active_name:
-            self._apply_active_bible(active_name)
-
-    def _on_load_bibles_dialog(self):
-        """Prompts user to select a Bible file or a folder containing multiple bibles."""
-        start_dir = str(Path("audio and files").resolve()) if Path("audio and files").exists() else "."
-        choice = QMessageBox.question(
-            self,
-            "Load Production Bibles",
-            "Click 'Yes' to select a single Bible file (e.g. Bibles.txt, .json, .md),\n"
-            "or 'No' to select a folder containing multiple Bible files.",
-            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
-            QMessageBox.Yes
-        )
-        if choice == QMessageBox.Cancel:
-            return
-        elif choice == QMessageBox.Yes:
-            path, _ = QFileDialog.getOpenFileName(
-                self,
-                "Select Production Bible File",
-                start_dir,
-                "Bible Files (*.txt *.json *.md);;All Files (*.*)"
-            )
-        else:
-            path = QFileDialog.getExistingDirectory(
-                self,
-                "Select Folder Containing Production Bibles",
-                start_dir
-            )
-
-        if not path:
-            return
-
-        success = self.load_bibles_from_path(path)
-        if not success:
-            QMessageBox.warning(self, "Load Warning", f"No valid bibles could be extracted from:\n{path}")
-
-    def _on_save_bibles_clicked(self):
-        try:
-            self.bibles["story_bible"] = json.loads(self.txt_story_bible.toPlainText() or "{}")
-            self.bibles["characters"] = json.loads(self.txt_char_bible.toPlainText() or "[]")
-            self.bibles["environments"] = json.loads(self.txt_env_bible.toPlainText() or "[]")
-            self.bibles["key_objects"] = json.loads(self.txt_objects_bible.toPlainText() or "[]")
-            self.bibles["visual_style_bible"] = json.loads(self.txt_style_bible.toPlainText() or "{}")
-            active_name = self.combo_active_bible.currentText() or "Custom Bible"
-            self.loaded_bibles[active_name] = self.bibles
-            self.lbl_bible_status.setText(f"✅ Saved edited bible: '{active_name}'")
-            self.lbl_bible_status.setStyleSheet("color: #A3FF12; font-size: 11px; font-weight: 600;")
-            self.bibles_updated.emit(self.bibles)
-        except Exception as e:
-            QMessageBox.warning(self, "JSON Format Warning", f"Could not parse edited bibles as JSON:\n{e}")
-
-    def _on_paste_custom_bibles(self):
-        """Opens a dialog for the user to paste human-readable or structured production bibles."""
-        dlg = QDialog(self)
-        dlg.setWindowTitle("Paste Custom Production Bibles (Character, Environment, Props, Style)")
-        dlg.resize(750, 550)
-        dlg.setStyleSheet("""
-            QDialog {
-                background-color: #0F172A;
-                color: #F8FAFC;
-            }
-            QPlainTextEdit {
-                background-color: #0B0F19;
-                color: #E2E8F0;
-                font-family: 'Consolas', 'Courier New', monospace;
-                font-size: 12px;
-                border: 1px solid #334155;
+                font-weight: bold;
+                padding: 10px 20px;
                 border-radius: 6px;
-                padding: 8px;
             }
-            QPushButton {
-                background-color: #38BDF8;
-                color: #0F172A;
-                font-weight: 700;
-                font-size: 12px;
-                border-radius: 6px;
-                padding: 6px 16px;
-            }
-            QPushButton:hover {
-                background-color: #7DD3FC;
-            }
+            QPushButton:hover { background: #1d4ed8; }
+            QPushButton:disabled { background: #3f3f46; color: #71717a; }
         """)
-        d_lay = QVBoxLayout(dlg)
-        d_lay.setSpacing(10)
+        self.btn_run_pipeline.clicked.connect(self._on_run_pipeline)
+        act_row.addWidget(self.btn_run_pipeline)
 
-        lbl = QLabel(
-            "<b>Paste your formatted Production Bibles below</b> (supports CHARACTER BIBLE, ENVIRONMENT BIBLE, "
-            "OBJECT AND PROP BIBLE, CINEMATIC STYLE BIBLE, and CONTINUITY RULES):",
-            dlg
-        )
-        lbl.setStyleSheet("color: #94A3B8; font-size: 12px;")
-        d_lay.addWidget(lbl)
+        layout.addLayout(act_row)
 
-        txt_input = QPlainTextEdit(dlg)
-        txt_input.setPlaceholderText(
-            "1. CHARACTER BIBLE\nCHARACTER 1: THE PROTAGONIST\nRole: Main survivor\nAppearance: ...\n\n"
-            "2. ENVIRONMENT BIBLE\nLOCATION 1: THE SHOPPING MALL\nArchitecture: ...\n\n"
-            "3. OBJECT AND PROP BIBLE\nYellow notepad\nFlashlight\n..."
-        )
-        d_lay.addWidget(txt_input)
-
-        btn_box = QHBoxLayout()
-        btn_box.addStretch()
-
-        btn_cancel = QPushButton("Cancel", dlg)
-        btn_cancel.setStyleSheet("background-color: #334155; color: #F8FAFC;")
-        btn_cancel.clicked.connect(dlg.reject)
-        btn_box.addWidget(btn_cancel)
-
-        btn_apply = QPushButton("Apply Bibles", dlg)
-        btn_apply.clicked.connect(dlg.accept)
-        btn_box.addWidget(btn_apply)
-
-        d_lay.addLayout(btn_box)
-
-        if dlg.exec() == QDialog.Accepted:
-            raw_text = txt_input.toPlainText().strip()
-            if not raw_text:
-                return
-
-            parsed_bulk = BibleManager.parse_bulk_bibles_text(raw_text, default_name="Pasted Bible")
-            if parsed_bulk:
-                self.loaded_bibles.update(parsed_bulk)
-                first_name = list(parsed_bulk.keys())[0]
-                self._refresh_bible_selector(selected_name=first_name)
-                total_chars = sum(len(b.get("characters", [])) for b in parsed_bulk.values())
-                self.lbl_bible_status.setText(f"✅ Loaded {len(parsed_bulk)} Bible(s) with {total_chars} total characters.")
-                self.lbl_bible_status.setStyleSheet("color: #38BDF8; font-size: 11px; font-weight: 700;")
-
-    # =========================================================================
-    # STEP 5 ACTIONS: BATCH PROMPT GENERATION
-    # =========================================================================
-
-    def _on_start_prompt_generation(self):
-        if not self.scenes:
-            self._on_align_visuals()
-
-        if not self.scenes:
-            QMessageBox.warning(self, "No Scenes", "Please align visual ideas with timestamps before generating prompts.")
-            return
-
-        style_id = self.style_matrix.current_style_id()
-        aspect_ratio = self.combo_aspect.currentText()
-        model = self.combo_model.currentText()
-        batch_size = self.spin_batch.value()
-
-        # If bibles not yet extracted, construct a dynamic base
-        if not self.bibles:
-            self.bibles = {
-                "story_bible": {"logline": self.story_text[:160]},
-                "characters": [{"name": "Protagonist", "physical_description": "Survivor", "clothing_and_gear": "Standard survival gear"}],
-                "environments": [{"name": "Primary Setting", "architectural_style": "Story environment"}],
-                "visual_style_bible": {"color_palette": "Consistent with selected style"}
-            }
-
-        self.btn_generate_prompts.setEnabled(False)
-        self.btn_stop_prompts.setEnabled(True)
+        # Progress Section
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
-        self.lbl_progress_status.setText("Starting Groq prompt expansion worker...")
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                background-color: #27272a;
+                border: 1px solid #3f3f46;
+                border-radius: 4px;
+                text-align: center;
+                color: #f4f4f5;
+                font-weight: bold;
+            }
+            QProgressBar::chunk {
+                background-color: #38bdf8;
+                border-radius: 3px;
+            }
+        """)
+        layout.addWidget(self.progress_bar)
 
-        self._prompt_worker = BatchPromptGenerationWorker(
-            scenes=self.scenes,
-            bibles=self.bibles,
-            story_context=self.story_text or "Story Narrative",
-            visual_style_id=style_id,
-            aspect_ratio=aspect_ratio,
-            model=model,
-            batch_size=batch_size,
-            force_regenerate=False,
+        # Activity Log Box
+        self.log_box = QTextEdit()
+        self.log_box.setReadOnly(True)
+        self.log_box.setStyleSheet("background: #09090b; color: #e4e4e7; font-family: monospace; font-size: 11px; border: 1px solid #27272a;")
+        self.log_box.setPlaceholderText("Pipeline execution log will appear here...")
+        layout.addWidget(self.log_box, 1)
+
+    def _populate_default_paths(self):
+        """Auto-populates paths if sample/test files exist."""
+        script_cand = Path("audio and files/script only.txt")
+        audio_cand = Path("audio and files/speech.mp3")
+        ts_cand = Path("audio and files/speech.json")
+
+        if script_cand.exists():
+            self.txt_script_path.setText(str(script_cand.resolve()))
+        if audio_cand.exists():
+            self.txt_audio_path.setText(str(audio_cand.resolve()))
+        if ts_cand.exists():
+            self.txt_ts_path.setText(str(ts_cand.resolve()))
+
+    def _browse_script(self):
+        f, _ = QFileDialog.getOpenFileName(self, "Select Script File", "", "Text Files (*.txt);;All Files (*)")
+        if f:
+            self.txt_script_path.setText(f)
+
+    def _browse_audio(self):
+        f, _ = QFileDialog.getOpenFileName(self, "Select Narration Audio", "", "Audio Files (*.mp3 *.wav);;All Files (*)")
+        if f:
+            self.txt_audio_path.setText(f)
+
+    def _browse_ts(self):
+        f, _ = QFileDialog.getOpenFileName(self, "Select Word Timestamp JSON", "", "JSON Files (*.json);;All Files (*)")
+        if f:
+            self.txt_ts_path.setText(f)
+
+    def _on_run_pipeline(self):
+        script_p = self.txt_script_path.text().strip()
+        audio_p = self.txt_audio_path.text().strip()
+        ts_p = self.txt_ts_path.text().strip()
+
+        if not script_p or not audio_p or not ts_p:
+            QMessageBox.warning(self, "Missing Files", "Please provide all 3 input files: Script (.txt), Audio (.mp3/.wav), and Timestamp JSON.")
+            return
+
+        self.btn_run_pipeline.setEnabled(False)
+        self.progress_bar.setValue(0)
+        self.log_box.clear()
+        self._append_log("Starting PromptBeast-V2 7-stage production pipeline...")
+
+        self.worker = PipelineExecutionWorker(
+            script_path=script_p,
+            audio_path=audio_p,
+            timestamp_path=ts_p,
+            project_dir=str(self.active_project_dir),
+            style_id=self.active_style_id,
             parent=self
         )
-        self._prompt_worker.progress_updated.connect(self._on_prompt_progress)
-        self._prompt_worker.generation_finished.connect(self._on_prompt_generation_finished)
-        self._prompt_worker.generation_failed.connect(self._on_prompt_generation_failed)
-        self._prompt_worker.start()
+        self.worker.step_progress.connect(self._on_worker_progress)
+        self.worker.pipeline_completed.connect(self._on_pipeline_completed)
+        self.worker.pipeline_failed.connect(self._on_pipeline_failed)
+        self.worker.start()
 
-    def _on_stop_prompt_generation(self):
-        if self._prompt_worker:
-            self._prompt_worker.cancel()
-            self.lbl_progress_status.setText("Generation stopped by user.")
-            self.btn_generate_prompts.setEnabled(True)
-            self.btn_stop_prompts.setEnabled(False)
+    def _on_worker_progress(self, val: int, msg: str):
+        self.progress_bar.setValue(val)
+        self._append_log(msg)
 
-    def _on_prompt_progress(self, current: int, total: int, status_msg: str):
-        pct = int((current / total) * 100) if total > 0 else 0
-        self.progress_bar.setValue(pct)
-        self.lbl_progress_status.setText(status_msg)
-
-    def _on_prompt_generation_finished(self, updated_scenes: List[VisualScene]):
-        self.scenes = updated_scenes
-        self.btn_generate_prompts.setEnabled(True)
-        self.btn_stop_prompts.setEnabled(False)
+    def _on_pipeline_completed(self, result: Dict[str, Any]):
+        self.btn_run_pipeline.setEnabled(True)
         self.progress_bar.setValue(100)
-        self.lbl_progress_status.setText(f"✅ Generated {len(updated_scenes)} detailed image prompts matching selected style!")
-        self.lbl_progress_status.setStyleSheet("color: #34D399; font-size: 11px; font-weight: 600;")
-        self.prompts_generated.emit(self.scenes)
+        self._append_log("✅ Pipeline Steps 0–5 Completed Successfully.")
+        self._append_log("Prompts exported. Switching to Images tab for Step 5 manual image drop...")
+        self.pipeline_succeeded.emit(result)
+        self.navigate_to_images.emit()
 
-    def _on_prompt_generation_failed(self, error_msg: str):
-        self.btn_generate_prompts.setEnabled(True)
-        self.btn_stop_prompts.setEnabled(False)
-        self.lbl_progress_status.setText(f"❌ Generation error: {error_msg[:60]}")
-        self.lbl_progress_status.setStyleSheet("color: #EF4444; font-size: 11px;")
-        QMessageBox.critical(self, "Prompt Generation Error", f"Prompt generation error:\n{error_msg}")
+    def _on_pipeline_failed(self, error_msg: str):
+        self.btn_run_pipeline.setEnabled(True)
+        self.progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #ef4444; }")
+        self._append_log(f"❌ PIPELINE ERROR: {error_msg}")
+        QMessageBox.critical(self, "Pipeline Failure", f"Pipeline failed with error:\n\n{error_msg}")
 
-    def _on_proceed_to_studio(self):
-        """Validates alignment, synchronizes state, and navigates to Studio page for approval."""
-        raw_ideas = self.txt_visual_ideas.toPlainText().strip()
-        if raw_ideas and not self.scenes:
-            self._on_align_visuals()
-
-        style_id = self.style_matrix.current_style_id()
-        self.style_selected.emit(style_id)
-
-        if not self.bibles:
-            style_preset = PresetManager.get_style_by_id(style_id)
-            style_name = style_preset.name if style_preset else style_id.replace("_", " ").title()
-            self.bibles = {
-                "story_bible": {"logline": (self.story_text or "Production Story")[:200]},
-                "characters": [{"name": "Protagonist", "physical_description": "Survivor", "clothing_and_gear": "Standard gear"}],
-                "environments": [{"name": "Setting", "architectural_style": "Story environment"}],
-                "visual_style_bible": {"color_palette": f"Consistent with {style_name}"}
-            }
-            self.bibles_updated.emit(self.bibles)
-
-        if self.scenes:
-            self.visual_scenes_aligned.emit(self.scenes)
-
-        self.navigate_requested.emit("studio")
-
-    def _get_prompt_path_for_style(self, style_id: str) -> Optional[Path]:
-        """Resolves the dedicated Master AI Prompt file for a given style ID."""
-        prompts_dir = Path(__file__).resolve().parent.parent.parent.parent / "config" / "ai_prompts"
-        norm_id = style_id.lower().strip()
-        filename = STYLE_PROMPT_MAP.get(norm_id, "01_zombie_survival_ai_prompt.txt")
-        target_path = prompts_dir / filename
-        if target_path.exists():
-            return target_path
-        return None
-
-    def _on_style_selected(self, style_id: str):
-        """Updates feature highlights banner and button text when user selects a visual style."""
-        from app.core.style_manager import StyleManager
-        style_prof = StyleManager.get_style(style_id)
-        norm_id = style_prof.id
-        style_name = style_prof.name
-
-        features_text = STYLE_FEATURE_HIGHLIGHTS.get(
-            norm_id,
-            style_prof.description or f"Active Style: {style_name}. Visual directives and constraints loaded from styles/{norm_id}/."
-        )
-        if hasattr(self, "lbl_style_feature_banner"):
-            self.lbl_style_feature_banner.setText(features_text)
-
-        if hasattr(self, "lbl_active_style_badge"):
-            self.lbl_active_style_badge.setText(f"🎨 Style: {style_name}")
-
-        if hasattr(self, "btn_copy_style_prompt"):
-            self.btn_copy_style_prompt.setText(f"📋 Copy Master AI Prompt ({style_name})")
-        if hasattr(self, "lbl_prompt_copy_status"):
-            self.lbl_prompt_copy_status.setText("")
-
-        self.style_selected.emit(norm_id)
-
-    def _on_copy_style_prompt(self):
-        """Copies the dedicated Master AI Prompt for the active style to the system clipboard."""
-        from app.core.style_manager import StyleManager
-        style_prof = StyleManager.get_active_style()
-        content = StyleManager.get_active_master_prompt()
-        style_name = style_prof.name
-
-        if content and len(content.strip()) > 20:
-            try:
-                from app.core.export import copy_to_system_clipboard
-                copy_to_system_clipboard(content)
-                if hasattr(self, "lbl_prompt_copy_status"):
-                    self.lbl_prompt_copy_status.setText(f"✓ Copied {style_name} prompt to clipboard! Paste into ChatGPT/Claude.")
-                    self.lbl_prompt_copy_status.setStyleSheet("color: #10B981; font-size: 11px; font-weight: 600;")
-            except Exception as e:
-                QMessageBox.warning(self, "Copy Error", f"Could not copy prompt:\n{e}")
-        else:
-            QMessageBox.warning(self, "Prompt Not Found", f"Prompt for style '{style_name}' was empty.")
-
-    def _on_view_style_prompt(self):
-        """Opens a viewer dialog allowing inspection and full copy of the active style's Master AI Prompt."""
-        from app.core.style_manager import StyleManager
-        style_prof = StyleManager.get_active_style()
-        content = StyleManager.get_active_master_prompt()
-        style_name = style_prof.name
-
-        if content and len(content.strip()) > 20:
-            try:
-                dialog = PromptViewerDialog(style_name=style_name, prompt_text=content, parent=self)
-                dialog.exec()
-            except Exception as e:
-                QMessageBox.warning(self, "Viewer Error", f"Could not open prompt viewer:\n{e}")
-        else:
-            QMessageBox.warning(self, "Prompt Not Found", f"Prompt for style '{style_name}' was empty.")
+    def _append_log(self, text: str):
+        self.log_box.append(text)
+        self.log_box.verticalScrollBar().setValue(self.log_box.verticalScrollBar().maximum())

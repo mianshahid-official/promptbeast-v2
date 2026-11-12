@@ -90,3 +90,4 @@ class SceneSyncWindow(QMainWindow):
         central_layout.addWidget(self.scene_sync_panel, 1)
 
         self.setCentralWidget(central_widget)
+

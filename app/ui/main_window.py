@@ -73,7 +73,7 @@ from app.core.validation import TimelineValidator
 from app.core.project_manager import ProjectManager
 from app.core.export import StoryboardExporter
 from app.core.video_renderer import VideoRenderer
-from app.ai.api_client import CloudAPIClient, ConnectionCheckWorker
+from app.ui.connection_worker import ConnectionCheckWorker
 from app.ai.job_worker import CloudJobWorker, SceneRegenerateWorker
 from app.ai.schemas import JobCreateRequest, SceneRegenerateRequest
 
@@ -108,7 +108,6 @@ from app.ui.widgets.audio_transcription_panel import AudioTranscriptionPanel
 from app.ui.widgets.image_asset_panel import ImageAssetPanel
 from app.ui.widgets.images_panel import ImagesPanel
 from app.ui.widgets.render_panel import RenderPanel
-from app.ui.widgets.scene_sync_panel import SceneSyncPanel
 from app.ui.dialogs.settings_dialog import SettingsDialog
 from app.ui.dialogs.preset_editor_dialog import PresetEditorDialog
 from app.ui.dialogs.export_dialog import ExportDialog
@@ -200,7 +199,6 @@ class MainWindow(QMainWindow):
 
         # Populate presets
         self._populate_subject_combo()
-        self._populate_style_combo()
         self._populate_voice_combo()
         self._populate_project_combo()
 
@@ -452,14 +450,10 @@ class MainWindow(QMainWindow):
 
         sec1_layout.addLayout(s1_hdr)
 
-        # Narration-Aware Studio Workflow Panel (Steps 1 to 5)
-        self.workflow_panel = NarrationWorkflowPanel(self)
-        self.workflow_panel.story_script_imported.connect(self._on_workflow_story_imported)
-        self.workflow_panel.visual_scenes_aligned.connect(self._on_workflow_scenes_aligned)
-        self.workflow_panel.bibles_updated.connect(self._on_workflow_bibles_updated)
-        self.workflow_panel.prompts_generated.connect(self._on_workflow_prompts_generated)
-        self.workflow_panel.style_selected.connect(self._on_matrix_style_selected)
-        self.workflow_panel.navigate_requested.connect(self._on_sidebar_nav_changed)
+        # Narration-Aware Studio Workflow Panel (Steps 0 to 5)
+        self.workflow_panel = NarrationWorkflowPanel(self, active_style_id=self.active_style_profile.id)
+        self.workflow_panel.pipeline_succeeded.connect(self._on_pipeline_succeeded)
+        self.workflow_panel.navigate_to_images.connect(lambda: self.sidebar.set_current_page("images"))
         sec1_layout.addWidget(self.workflow_panel)
 
         # Audio Ingestion Panel (Headless compatibility instance)
@@ -599,15 +593,6 @@ class MainWindow(QMainWindow):
         self.subject_combo.setVisible(False)
         self.subject_combo.currentIndexChanged.connect(self._on_subject_changed)
 
-        # Hidden Style Dropdown + Preview Button for full compatibility
-        self.style_combo = PBComboBox()
-        self.style_combo.setVisible(False)
-        self.style_combo.currentIndexChanged.connect(self._on_style_changed)
-        is_layout.addWidget(self.style_combo)
-
-        self.preview_style_btn = QPushButton("Preview Style")
-        self.preview_style_btn.setVisible(False)
-        is_layout.addWidget(self.preview_style_btn)
 
         # Headless compatibility instances
         self.max_dur_spin = QDoubleSpinBox()
@@ -895,10 +880,9 @@ class MainWindow(QMainWindow):
         self.btn_goto_studio.clicked.connect(lambda: self.sidebar.set_current_page("studio"))
         scroll_layout.addWidget(self.btn_goto_studio)
 
-        # 03 — Images Panel (Image Generation Hub with Gemini Multi-Account Hub & Auto-Pacing)
+        # 03 — Images Panel (Step 5 Manual Image Checkpoint & Step 6 Render)
         self.images_panel = ImagesPanel(self)
-        self.images_panel.sync_completed.connect(self._on_scene_sync_completed)
-        self.images_panel.navigate_to_deliverables.connect(lambda: self.sidebar.set_current_page("deliverables"))
+        self.images_panel.render_completed.connect(self._on_render_completed)
 
         # RenderPanel (Deliverables) and ImageAssetPanel for headless compatibility
         self.tab3_images = ImageAssetPanel()
@@ -910,11 +894,6 @@ class MainWindow(QMainWindow):
         # 04 — RenderPanel (Deliverables)
         self.tab4_render = RenderPanel()
         self.tab4_render.render_completed.connect(self._on_render_completed)
-
-        # Standalone — Scene Sync Panel (One-Pager: Audio + Timestamps JSON + Storyboard + Images -> Render)
-        self.scene_sync_panel = SceneSyncPanel(self)
-        self.scene_sync_panel.sync_completed.connect(self._on_scene_sync_completed)
-        self.scene_sync_panel.navigate_to_deliverables.connect(lambda: self.sidebar.set_current_page("deliverables"))
 
         # 05 — ProfilesManagerPanel (Chrome browser profiles acc1..acc6)
         self.profiles_panel = ProfilesManagerPanel(self)
@@ -1084,63 +1063,65 @@ class MainWindow(QMainWindow):
                     candidate1.mkdir(parents=True, exist_ok=True)
                     self.project.project_dir = str(candidate1.resolve())
 
-            if self.project.project_dir:
-                self.images_panel.set_project(Path(self.project.project_dir))
+            p_dir = Path(self.project.project_dir) if self.project.project_dir else Path("data/project").resolve()
+            scenes_data = []
+            if hasattr(self, "workflow_pipeline_data") and self.workflow_pipeline_data:
+                scenes_data = self.workflow_pipeline_data.get("prompts") or self.workflow_pipeline_data.get("scenes") or []
+            elif self.project.state.scenes:
+                scenes_data = [
+                    {
+                        "scene_id": f"{s.index:03d}",
+                        "start": s.start_time,
+                        "end": s.end_time,
+                        "duration": s.duration,
+                        "narration_words": s.narration_text,
+                        "text": s.narration_text,
+                        "prompt": getattr(s, "image_prompt", "")
+                    }
+                    for s in self.project.state.scenes
+                ]
 
-            if self.project.state.audio_file_path and Path(self.project.state.audio_file_path).exists():
-                self.images_panel.set_audio_path(self.project.state.audio_file_path)
-            else:
-                self.images_panel.set_audio_path("")
+            audio_p = Path(self.project.state.audio_file_path) if self.project.state.audio_file_path else None
+            audio_dur = self.project.state.narration.duration if self.project.state.narration else 0.0
 
-            if self.project.state.narration:
-                self.images_panel.narration = self.project.state.narration
-            if self.project.state.scenes:
-                self.images_panel.scenes = self.project.state.scenes
-                self.images_panel._populate_table()
-                self.images_panel._refresh_generate_btn_label()
-                self.images_panel._scan_images()
+            t_words = []
+            s_words = []
+            if hasattr(self, "workflow_pipeline_data") and self.workflow_pipeline_data:
+                inp = self.workflow_pipeline_data.get("inputs")
+                if inp:
+                    t_words = [w.to_dict() for w in inp.words]
+                    s_words = inp.script_words
 
-    def _prepare_scene_sync_panel(self):
-        """Prepares scene_sync_panel project directory, audio, and scenes."""
-        if hasattr(self, "project") and self.project:
-            # Resolve project_dir if not yet set
-            if not self.project.project_dir:
-                p_name = (
-                    self.proj_name_input.text().strip()
-                    if hasattr(self, "proj_name_input") and self.proj_name_input.text().strip()
-                    else self.project.name
-                )
-                if not p_name or p_name == "Untitled_Project":
-                    raw_s = self.story_text_edit.toPlainText().strip() if hasattr(self, "story_text_edit") else ""
-                    p_name = self.generate_project_name_from_script(raw_s) if raw_s else f"Project_{datetime.now().strftime('%Y%m%d_%H%M')}"
-                    if hasattr(self, "proj_name_input"):
-                        self.proj_name_input.setText(p_name)
-                candidate1 = Path(self.settings.workspace_directory) / p_name
-                candidate2 = Path(self.settings.workspace_directory) / "projects" / p_name
-                candidate3 = Path("projects") / p_name
-                if candidate1.exists():
-                    self.project.project_dir = str(candidate1.resolve())
-                elif candidate2.exists():
-                    self.project.project_dir = str(candidate2.resolve())
-                elif candidate3.exists():
-                    self.project.project_dir = str(candidate3.resolve())
-                else:
-                    candidate1.mkdir(parents=True, exist_ok=True)
-                    self.project.project_dir = str(candidate1.resolve())
+            self.images_panel.set_project_context(
+                project_dir=p_dir,
+                scenes_data=scenes_data,
+                audio_path=audio_p,
+                audio_duration=audio_dur,
+                timestamp_words=t_words,
+                script_words=s_words
+            )
 
-            if self.project.project_dir:
-                self.scene_sync_panel.set_project(Path(self.project.project_dir))
-
-            if self.project.state.audio_file_path and Path(self.project.state.audio_file_path).exists():
-                self.scene_sync_panel.set_audio_path(self.project.state.audio_file_path)
-            else:
-                self.scene_sync_panel.set_audio_path("")
-
-            if self.project.state.narration:
-                self.scene_sync_panel.narration = self.project.state.narration
-            if self.project.state.scenes:
-                self.scene_sync_panel.scenes = self.project.state.scenes
-            self.scene_sync_panel._auto_sync_pipeline()
+    def _on_pipeline_succeeded(self, result: dict):
+        """Called when workflow pipeline completes Steps 0 to 5."""
+        self.workflow_pipeline_data = result
+        inputs = result.get("inputs")
+        if inputs:
+            self.project.state.audio_file_path = str(inputs.audio_path)
+            wt_list = [WordTimestamp(word=w.word, start=w.start, end=w.end) for w in inputs.words]
+            self.project.state.narration = NarrationData(words=wt_list, duration=inputs.audio_duration)
+        scenes = result.get("scenes", [])
+        self.project.state.scenes = [
+            VisualScene(
+                index=int(s.get("scene_id", idx + 1)),
+                start_time=s.get("start", 0.0),
+                end_time=s.get("end", 0.0),
+                duration=s.get("duration", 0.0),
+                narration_text=s.get("text", ""),
+                narration_words=s.get("words", [])
+            )
+            for idx, s in enumerate(scenes)
+        ]
+        self._prepare_images_panel()
 
     def _load_project_from_dir(self, dir_path: str):
         """Loads a project directly from disk directory path."""
@@ -1219,10 +1200,10 @@ class MainWindow(QMainWindow):
             self.tab4_render.load_project_data(scenes, audio_path, narration)
 
     def _on_matrix_style_selected(self, style_id: str):
-        if hasattr(self, "style_combo"):
-            idx = self.style_combo.findData(style_id)
-            if idx >= 0:
-                self.style_combo.setCurrentIndex(idx)
+        from app.core.style_manager import StyleManager
+        self.active_style_profile = StyleManager.set_active_style(style_id)
+        if hasattr(self, "lbl_main_active_style"):
+            self.lbl_main_active_style.setText(f"🎨 Active Style: {self.active_style_profile.name}")
         if hasattr(self, "project") and self.project:
             self.project.config.visual_style_id = style_id
             if hasattr(self.project, "state") and self.project.state:
@@ -1501,10 +1482,6 @@ class MainWindow(QMainWindow):
             self.images_panel.scenes = scenes
             self.images_panel._populate_table()
             self.images_panel._refresh_generate_btn_label()
-        if hasattr(self, "scene_sync_panel"):
-            if hasattr(self.workflow_panel, "audio_path") and self.workflow_panel.audio_path:
-                self.scene_sync_panel.set_audio_path(self.workflow_panel.audio_path)
-            self.scene_sync_panel.scenes = scenes
         if hasattr(self, "tab4_render"):
             self.tab4_render.load_project_data(
                 scenes=scenes,
@@ -1627,45 +1604,6 @@ class MainWindow(QMainWindow):
         if idx >= 0:
             self.subject_combo.setCurrentIndex(idx)
 
-    def _populate_style_combo(self):
-        self.style_combo.clear()
-        styles = PresetManager.get_all_styles()
-
-        # Curated styles: Century-Old Photograph, 3D Stickman, B&W Photo, Paper Quilling, Mixed-Media, Paper Cutout
-        priority_styles = [
-            ("century_old_photograph", "Century-Old Photograph"),
-            ("3d_red_blue_stickman", "3D Red & Blue Stickman Animation"),
-            ("bw_vintage_historical_photography", "Black & White Vintage Historical Photography"),
-            ("paper_quilling", "Paper Quilling Illustration"),
-            ("mixed_media_collage", "Mixed-Media Collage"),
-            ("paper_cutout", "Paper-Cutout Illustration"),
-        ]
-
-        added_ids = set()
-        for s_id, custom_label in priority_styles:
-            preset = PresetManager.get_style_by_id(s_id)
-            if preset:
-                self.style_combo.addItem(custom_label, preset.id)
-                added_ids.add(preset.id)
-
-        # Add remaining presets
-        for s in sorted(styles, key=lambda x: x.name):
-            if s.id not in added_ids and s.id != "custom":
-                self.style_combo.addItem(s.name, s.id)
-
-        custom_p = PresetManager.get_style_by_id("custom")
-        if custom_p:
-            self.style_combo.addItem("Custom Visual Style...", "custom")
-
-        # Select active style profile from launcher
-        target_prof = getattr(self, "active_style_profile", None)
-        active_id = target_prof.id if target_prof else self.settings.default_visual_style_id
-        idx = self.style_combo.findData(active_id)
-        if idx >= 0:
-            self.style_combo.setCurrentIndex(idx)
-        else:
-            self.style_combo.setCurrentIndex(0)
-
     def _populate_voice_combo(self):
         """Audio-first workflow: Self-TTS is disabled."""
         self.voice_combo.clear()
@@ -1681,38 +1619,39 @@ class MainWindow(QMainWindow):
         self.balance_guard_badge.setStyleSheet("color: #34D399; font-weight: 600; font-size: 10px; background-color: rgba(16, 185, 129, 0.15); padding: 4px 8px; border-radius: 6px; border: 1px solid #10B981;")
 
     def _on_open_style_preview(self):
-        current_id = self.style_combo.currentData() or "midjourney_hyper_realism"
+        current_id = self.active_style_profile.id if hasattr(self, "active_style_profile") else "century_old_photograph"
         dlg = StylePreviewDialog(current_id, self)
         if dlg.exec():
             selected = dlg.selected_style_id
             if selected:
-                idx = self.style_combo.findData(selected)
-                if idx >= 0:
-                    self.style_combo.setCurrentIndex(idx)
+                from app.core.style_manager import StyleManager
+                self.active_style_profile = StyleManager.set_active_style(selected)
+                if hasattr(self, "lbl_main_active_style"):
+                    self.lbl_main_active_style.setText(f"🎨 Active Style: {self.active_style_profile.name}")
 
     def _on_subject_changed(self, index: int):
         subject_id = self.subject_combo.currentData()
         self.custom_subject_edit.setVisible(subject_id == "custom")
         self.project.config.subject_id = subject_id or "history"
 
-    def _on_style_changed(self, index: int):
-        style_id = self.style_combo.currentData() or "century_old_photograph"
-        self.custom_style_edit.setVisible(style_id == "custom")
-        self.project.config.visual_style_id = style_id
+    def _on_style_changed(self, index: int = 0, style_id: Optional[str] = None):
+        target_id = style_id or (self.active_style_profile.id if hasattr(self, "active_style_profile") else "century_old_photograph")
+        self.custom_style_edit.setVisible(target_id == "custom")
+        self.project.config.visual_style_id = target_id
         if hasattr(self.project, "state") and self.project.state:
             try:
-                self.project.state.style_preset_id = style_id
+                self.project.state.style_preset_id = target_id
             except Exception:
                 pass
             th_h = getattr(self.project.state, "thumbnail_headline", "") or ""
             if th_h:
                 from app.core.thumbnail_prompt_builder import build_viral_thumbnail_prompt
-                new_th = build_viral_thumbnail_prompt(headline=th_h, style_id=style_id)
+                new_th = build_viral_thumbnail_prompt(headline=th_h, style_id=target_id)
                 self.project.state.thumbnail_prompt = new_th
                 if hasattr(self, "tab4_render"):
                     self.tab4_render.set_thumbnail_prompt(new_th)
 
-        preset = PresetManager.get_style_by_id(style_id)
+        preset = PresetManager.get_style_by_id(target_id)
         if preset and hasattr(self, "style_preview_name"):
             self.style_preview_name.setText(preset.name)
             self.style_preview_desc.setText(preset.description)
@@ -1786,9 +1725,11 @@ class MainWindow(QMainWindow):
         if proj.config.custom_subject:
             self.custom_subject_edit.setPlainText(proj.config.custom_subject)
 
-        v_idx = self.style_combo.findData(proj.config.visual_style_id)
-        if v_idx >= 0:
-            self.style_combo.setCurrentIndex(v_idx)
+        if proj.config.visual_style_id:
+            from app.core.style_manager import StyleManager
+            self.active_style_profile = StyleManager.set_active_style(proj.config.visual_style_id)
+            if hasattr(self, "lbl_main_active_style"):
+                self.lbl_main_active_style.setText(f"🎨 Active Style: {self.active_style_profile.name}")
         if proj.config.custom_style:
             self.custom_style_edit.setPlainText(proj.config.custom_style)
 
@@ -1828,16 +1769,6 @@ class MainWindow(QMainWindow):
                 self.images_panel._populate_table()
                 self.images_panel._refresh_generate_btn_label()
                 self.images_panel._scan_images()
-
-        if hasattr(self, "scene_sync_panel"):
-            if proj.project_dir:
-                self.scene_sync_panel.set_project(Path(proj.project_dir))
-            # Always call set_audio_path — if empty, triggers _auto_find_audio
-            self.scene_sync_panel.set_audio_path(proj.state.audio_file_path or "")
-            if proj.state.narration:
-                self.scene_sync_panel.narration = proj.state.narration
-            if proj.state.scenes:
-                self.scene_sync_panel.scenes = proj.state.scenes
 
         # 5. Auto-switch to the most appropriate tab
         if auto_switch_tab:
@@ -1942,7 +1873,7 @@ class MainWindow(QMainWindow):
         self.project.state.story_raw_text = self.story_text_edit.toPlainText().strip()
         self.project.config.subject_id = self.subject_combo.currentData() or "history"
         self.project.config.custom_subject = self.custom_subject_edit.toPlainText().strip() or None
-        self.project.config.visual_style_id = self.style_combo.currentData() or "century_old_photograph"
+        self.project.config.visual_style_id = self.active_style_profile.id if hasattr(self, "active_style_profile") else "century_old_photograph"
         self.project.config.custom_style = self.custom_style_edit.toPlainText().strip() or None
         self.project.config.image_count_mode = ImageCountMode.EXACT if self.count_exact_radio.isChecked() else ImageCountMode.AUTOMATIC
         self.project.config.target_image_count = self.target_count_spin.value()
@@ -2193,17 +2124,8 @@ class MainWindow(QMainWindow):
                     self.images_panel.scenes = planned_scenes
                     self.images_panel._populate_table()
                     self.images_panel._refresh_generate_btn_label()
-            if hasattr(self, "scene_sync_panel"):
-                if self.project.project_dir:
-                    self.scene_sync_panel.set_project(Path(self.project.project_dir))
-                if audio_path:
-                    self.scene_sync_panel.set_audio_path(audio_path)
-                if narration:
-                    self.scene_sync_panel.narration = narration
-                if planned_scenes:
-                    self.scene_sync_panel.scenes = planned_scenes
         except Exception as e:
-            print(f"[MainWindow] images_panel / scene_sync_panel notice: {e}")
+            print(f"[MainWindow] images_panel notice: {e}")
 
     def _on_job_planning_ready(self, analysis, planned_scenes):
         self.start_gen_btn.setEnabled(True)
@@ -2594,14 +2516,6 @@ class MainWindow(QMainWindow):
                 self.images_panel._populate_table()
                 self.images_panel._refresh_generate_btn_label()
                 self.images_panel._scan_images()
-
-            if hasattr(self, "scene_sync_panel"):
-                self.scene_sync_panel.set_project(p_dir)
-                self.scene_sync_panel.scenes = resp.scenes
-                # Always call set_audio_path — if empty triggers _auto_find_audio fallback
-                self.scene_sync_panel.set_audio_path(self.project.state.audio_file_path or "")
-                if self.project.state.narration:
-                    self.scene_sync_panel.narration = self.project.state.narration
 
             # Persist project state
             try:
@@ -3031,7 +2945,6 @@ class MainWindow(QMainWindow):
         dlg = PresetEditorDialog(self)
         if dlg.exec():
             self._populate_subject_combo()
-            self._populate_style_combo()
 
     def _on_export_dialog(self):
         if not self.project.state.scenes:

@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
 )
 from app.config.settings import AppSettings, SettingsManager
-from app.ai.api_client import ConnectionCheckWorker
+from app.ui.connection_worker import ConnectionCheckWorker
 from app.ai.groq_engine import get_groq_engine
 from app.ui.widgets.custom_combo import PBComboBox
 
