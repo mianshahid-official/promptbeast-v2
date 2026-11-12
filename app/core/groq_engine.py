@@ -214,7 +214,7 @@ class GroqEngine:
     def __init__(
         self,
         key_manager: Optional[GroqMultiKeyManager] = None,
-        default_model: str = "openai/gpt-oss-120b",
+        default_model: str = "qwen/qwen3.8-27b",
         timeout: float = 60.0
     ):
         if default_model not in ALLOWED_MODELS:
@@ -287,10 +287,12 @@ class GroqEngine:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
 
-            effective_tok = min(
-                max_tokens if max_tokens is not None else self.BASELINE_MAX_TOKENS,
-                self.current_effective_max_tokens()
-            )
+            if max_tokens is not None:
+                effective_tok = max_tokens
+                if time.time() < self._effective_cap_until:
+                    effective_tok = max(100, int(max_tokens * 0.85))
+            else:
+                effective_tok = self.current_effective_max_tokens()
 
             payload: Dict[str, Any] = {
                 "model": target_model,
@@ -333,6 +335,22 @@ class GroqEngine:
                         last_error = f"HTTP {resp.status_code}: {resp.text}"
                         continue
 
+                    elif resp.status_code == 400 and payload.get("response_format", {}).get("type") == "json_schema":
+                        # json_schema validation failed on Groq side; fallback to json_object
+                        payload["response_format"] = {"type": "json_object"}
+                        # add directive to prompt
+                        if messages and not any("JSON" in m.get("content", "") for m in messages):
+                            messages[-1]["content"] += "\nRespond in valid JSON format."
+                        resp_fallback = client.post(f"{self.API_BASE}/chat/completions", headers=headers, json=payload)
+                        if resp_fallback.status_code == 200:
+                            self.key_manager.record_success(key, dict(resp_fallback.headers))
+                            data = resp_fallback.json()
+                            choices = data.get("choices", [])
+                            msg = choices[0].get("message", {}) if choices else {}
+                            return msg.get("content") or ""
+                        last_error = f"HTTP {resp_fallback.status_code}: {resp_fallback.text}"
+                        continue
+
                     else:
                         last_error = f"HTTP {resp.status_code}: {resp.text}"
                         continue
@@ -349,9 +367,10 @@ class GroqEngine:
         system_prompt: Optional[str],
         schema: Dict[str, Any],
         schema_name: str = "structured_output",
-        model: Optional[str] = None
+        model: Optional[str] = None,
+        max_tokens: Optional[int] = 2048
     ) -> Dict[str, Any]:
-        """Performs structured JSON generation using Groq's json_schema response format."""
+        """Performs structured JSON generation with automatic failover to json_object mode."""
         resp_format = {
             "type": "json_schema",
             "json_schema": {
@@ -360,18 +379,30 @@ class GroqEngine:
                 "schema": schema
             }
         }
-        raw_text = self.generate(
-            prompt=prompt,
-            system_prompt=system_prompt,
-            model=model,
-            response_format=resp_format
-        )
         try:
+            raw_text = self.generate(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                model=model,
+                response_format=resp_format,
+                max_tokens=max_tokens
+            )
             return json.loads(raw_text)
-        except json.JSONDecodeError as e:
-            # Fallback regex search for json block if any wrapping occurred
-            m = re.search(r"\{.*\}", raw_text, re.DOTALL)
-            if m:
-                return json.loads(m.group(0))
-            raise RuntimeError(f"Failed to parse structured JSON from Groq output: {raw_text}") from e
+        except Exception:
+            # Fallback to json_object mode
+            fallback_prompt = prompt + "\n\nCRITICAL: Return strictly valid JSON adhering to the specified schema."
+            raw_text = self.generate(
+                prompt=fallback_prompt,
+                system_prompt=system_prompt,
+                model=model,
+                response_format={"type": "json_object"},
+                max_tokens=max_tokens
+            )
+            try:
+                return json.loads(raw_text)
+            except json.JSONDecodeError as e:
+                m = re.search(r"\{.*\}", raw_text, re.DOTALL)
+                if m:
+                    return json.loads(m.group(0))
+                raise RuntimeError(f"Failed to parse structured JSON from Groq output: {raw_text}") from e
 

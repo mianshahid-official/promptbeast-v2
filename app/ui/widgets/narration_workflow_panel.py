@@ -75,7 +75,7 @@ class PipelineExecutionWorker(QThread):
     def run(self):
         try:
             dirs = ProjectCheckpointManager.get_project_dirs(self.project_dir)
-            engine = GroqEngine(default_model=self.model_name or "openai/gpt-oss-120b")
+            engine = GroqEngine(default_model=self.model_name or "qwen/qwen3.8-27b")
 
             # Check existing checkpoints to support resume-on-crash
             cp_05 = ProjectCheckpointManager.load_checkpoint(self.project_dir, "05_final_prompts.json")
@@ -374,6 +374,7 @@ class NarrationWorkflowPanel(QWidget):
 
         from app.config.settings import SettingsManager, resolve_project_dir
         settings = SettingsManager.load_settings()
+        selected_model = settings.default_model or "qwen/qwen3.8-27b"
         self.active_project_dir = resolve_project_dir(settings.workspace_directory, p_name)
         self.active_project_dir.mkdir(parents=True, exist_ok=True)
 
@@ -386,6 +387,7 @@ class NarrationWorkflowPanel(QWidget):
             timestamp_path=ts_p,
             project_dir=str(self.active_project_dir),
             style_id=self.active_style_id,
+            model_name=selected_model,
             parent=self
         )
         self.worker.step_progress.connect(self._on_worker_progress)

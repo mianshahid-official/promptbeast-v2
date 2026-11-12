@@ -127,7 +127,17 @@ def plan_storyboard_beats(
             model=model
         )
 
-        planned_beats = {b["scene_id"]: b for b in res.get("beats", [])}
+        if isinstance(res, list):
+            beats_list = res
+        elif isinstance(res, dict):
+            beats_list = res.get("beats", [])
+        else:
+            beats_list = []
+
+        planned_beats = {}
+        for b in beats_list:
+            if isinstance(b, dict) and "scene_id" in b:
+                planned_beats[str(b["scene_id"])] = b
 
         for sc in batch:
             s_id = sc["scene_id"]

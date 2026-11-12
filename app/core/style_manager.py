@@ -25,6 +25,10 @@ class StyleProfile:
     master_prompt: str = ""
     is_fallback: bool = False
 
+    @property
+    def style_prompt(self) -> str:
+        return self.style_lock or self.description or ""
+
 
 class StyleManager:
     """Manages active visual styles, profiles, and per-style master prompts."""
@@ -32,6 +36,10 @@ class StyleManager:
     _active_style: Optional[StyleProfile] = None
     _profiles_cache: Dict[str, StyleProfile] = {}
     _styles_root: Optional[Path] = None
+
+    @classmethod
+    def get_style_profile(cls, style_id: str) -> StyleProfile:
+        return cls.get_style(style_id)
 
     @classmethod
     def get_styles_root(cls) -> Path:

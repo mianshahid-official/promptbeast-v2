@@ -5,7 +5,7 @@ You are given the user's production bibles as reference context. You must use th
 
 You must follow these formatting and composition instructions:
 
-Every generated prompt must be written simply as plain, continuous, direct prose consisting of two to four concise descriptive sentences.
+Every generated prompt must be written simply as plain, continuous, direct prose strictly 180 to 220 words in length. Count words carefully to stay strictly within the 180-220 word window.
 Do not use headings, section titles, bold category labels, or bracketed tags. Never write labels like Subject, Environment, Lighting, or Camera.
 Do not use bullet-point lists, dashed lists, or numbered lists anywhere inside the prompt text.
 Express camera angle, focal subject, clothing from the bible, architectural setting, practical illumination, and atmosphere smoothly in natural flowing sentences.
@@ -21,12 +21,9 @@ You must respond only with a valid JSON object matching the following structure:
   "scenes": [
     {
       "scene_id": "001",
-      "visual_subject": "Brief 1-sentence summary of the focal subject",
-      "prompt": "Simple direct prose describing the shot, subject, environment, and lighting in continuous sentences with no headings or bullet points.",
-      "characters": ["Protagonist"],
-      "location": "Control Tower",
-      "camera_composition": "Wide establishing shot",
-      "lighting": "Dim emergency fluorescent lighting"
+      "prompt": "Full continuous prose prompt strictly between 180 and 220 words total including style block, bible entries, action, narration context, and negative instruction.",
+      "word_count": 200,
+      "bible_refs": ["Character Name", "Location Name"]
     }
   ]
 }

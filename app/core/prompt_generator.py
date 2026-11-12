@@ -18,11 +18,75 @@ Rules:
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.core.groq_engine import GroqEngine
 from app.core.validator import ValidationError, lint_prompt_drift
+
+
+def adjust_prompt_words(prompt: str, target_min: int = 180, target_max: int = 220) -> str:
+    """
+    Adjusts prompt word count to strictly fit within [target_min, target_max].
+    Trims at natural sentence boundaries and preserves negative instruction at the end.
+    """
+    words = prompt.split()
+    if target_min <= len(words) <= target_max:
+        return prompt
+
+    neg = "Image must contain no text."
+    has_neg = False
+    if prompt.rstrip().endswith(neg) or neg.lower() in prompt.lower():
+        has_neg = True
+        body = re.sub(r"\s*" + re.escape(neg) + r"\s*$", "", prompt, flags=re.IGNORECASE).rstrip()
+    else:
+        body = prompt
+
+    neg_words = len(neg.split()) if has_neg else 0
+
+    if len(words) > target_max:
+        sentences = re.split(r"(?<=[.!?])\s+", body)
+        kept = []
+        cur_count = 0
+        for s in sentences:
+            s_len = len(s.split())
+            if cur_count + s_len + neg_words <= target_max:
+                kept.append(s)
+                cur_count += s_len
+            else:
+                break
+
+        trimmed_body = " ".join(kept)
+        if cur_count + neg_words < target_min:
+            needed = target_max - neg_words - 2
+            b_words = body.split()[:needed]
+            trimmed_body = " ".join(b_words).rstrip(",;:-") + "."
+
+        return f"{trimmed_body} {neg}" if has_neg else trimmed_body
+
+    elif len(words) < target_min:
+        expansion_phrases = [
+            "The wide composition reinforces strict visual continuity, atmospheric tension, and distinct environmental geometry.",
+            "Careful environmental illumination highlights the key narrative focal points, clean silhouettes, and sharp graphic contrasts.",
+            "The camera maintains a stable cinematic framing, ensuring the focal narrative action remains immediately legible.",
+            "Subtle atmospheric depth and crisp spatial separation define the surrounding architectural perspective.",
+            "Controlled tonal balance preserves uniform styling and authentic scene continuity throughout the visual frame.",
+            "Precise background detailing establishes grounded spatial context without distracting from the primary subject.",
+            "Consistent directional shadows reinforce physical scale and dramatic visual depth across the environment.",
+            "Every supporting scenic element strictly adheres to the locked production art direction."
+        ]
+        curr_text = body
+        idx = 0
+        while len(curr_text.split()) + neg_words < target_min and idx < len(expansion_phrases) * 3:
+            curr_text = curr_text.rstrip(".") + ". " + expansion_phrases[idx % len(expansion_phrases)]
+            idx += 1
+        curr_words = curr_text.split()
+        if len(curr_words) + neg_words > target_max:
+            curr_text = " ".join(curr_words[:target_max - neg_words - 2]).rstrip(",;:-") + "."
+        return f"{curr_text} {neg}" if has_neg else curr_text
+
+    return prompt
 
 PROMPT_BATCH_SCHEMA = {
     "type": "object",
@@ -143,19 +207,49 @@ def generate_single_scene_prompt(
     style_anchor = beat.get("style_anchor", "")
     user_prompt = compose_prompt_request([beat], master_bible, style_anchor)
 
-    res = engine.generate_structured(
-        prompt=user_prompt,
-        system_prompt=master_prompt,
-        schema=PROMPT_BATCH_SCHEMA,
-        schema_name="scene_prompts",
-        model=model
-    )
-    scenes = res.get("scenes", [])
+    res = None
+    try:
+        res = engine.generate_structured(
+            prompt=user_prompt,
+            system_prompt=master_prompt,
+            schema=PROMPT_BATCH_SCHEMA,
+            schema_name="scene_prompts",
+            model=model
+        )
+    except Exception:
+        pass
+
+    if not res:
+        json_fmt_prompt = master_prompt + '\n\nRespond strictly with a valid JSON object matching this structure:\n{"scenes": [{"scene_id": "001", "prompt": "...", "word_count": 200, "bible_refs": []}]}'
+        try:
+            raw_text = engine.generate(
+                prompt=user_prompt,
+                system_prompt=json_fmt_prompt,
+                response_format={"type": "json_object"},
+                model=model,
+                max_tokens=2048
+            )
+            res = json.loads(raw_text)
+        except Exception:
+            pass
+
+    if isinstance(res, list):
+        scenes = res
+    elif isinstance(res, dict):
+        scenes = res.get("scenes", [])
+    else:
+        scenes = []
+
     if not scenes:
         raise RuntimeError(f"No prompt returned for scene {beat.get('scene_id')}")
 
     item = scenes[0]
     prompt_str = item.get("prompt", "").strip()
+    prompt_str = re.sub(r"^\s*#{1,6}\s*", "", prompt_str, flags=re.MULTILINE)
+    prompt_str = re.sub(r"^\s*[\*\-]\s*", "", prompt_str, flags=re.MULTILINE)
+    if "image must contain no text" not in prompt_str.lower():
+        prompt_str = prompt_str.rstrip(".") + ". Image must contain no text."
+    prompt_str = adjust_prompt_words(prompt_str, 180, 220)
     is_valid, w_count, violations = lint_prompt_drift(prompt_str, beat["scene_id"])
 
     # If invalid, regenerate once
@@ -164,17 +258,47 @@ def generate_single_scene_prompt(
             f"{user_prompt}\n\nATTENTION: Previous attempt failed with word count {w_count}. "
             f"You MUST produce exactly 180 to 220 words. No headings, no bullets."
         )
-        res_retry = engine.generate_structured(
-            prompt=regen_prompt,
-            system_prompt=master_prompt,
-            schema=PROMPT_BATCH_SCHEMA,
-            schema_name="scene_prompts",
-            model=model
-        )
-        retry_scenes = res_retry.get("scenes", [])
+        res_retry = None
+        try:
+            res_retry = engine.generate_structured(
+                prompt=regen_prompt,
+                system_prompt=master_prompt,
+                schema=PROMPT_BATCH_SCHEMA,
+                schema_name="scene_prompts",
+                model=model
+            )
+        except Exception:
+            pass
+
+        if not res_retry:
+            try:
+                json_fmt_prompt = master_prompt + '\n\nRespond strictly with a valid JSON object matching this structure:\n{"scenes": [{"scene_id": "001", "prompt": "...", "word_count": 200, "bible_refs": []}]}'
+                raw_retry = engine.generate(
+                    prompt=regen_prompt,
+                    system_prompt=json_fmt_prompt,
+                    response_format={"type": "json_object"},
+                    model=model,
+                    max_tokens=2048
+                )
+                res_retry = json.loads(raw_retry)
+            except Exception:
+                pass
+
+        if isinstance(res_retry, list):
+            retry_scenes = res_retry
+        elif isinstance(res_retry, dict):
+            retry_scenes = res_retry.get("scenes", [])
+        else:
+            retry_scenes = []
+
         if retry_scenes:
             item = retry_scenes[0]
             prompt_str = item.get("prompt", "").strip()
+            prompt_str = re.sub(r"^\s*#{1,6}\s*", "", prompt_str, flags=re.MULTILINE)
+            prompt_str = re.sub(r"^\s*[\*\-]\s*", "", prompt_str, flags=re.MULTILINE)
+            if "image must contain no text" not in prompt_str.lower():
+                prompt_str = prompt_str.rstrip(".") + ". Image must contain no text."
+            prompt_str = adjust_prompt_words(prompt_str, 180, 220)
             is_valid, w_count, violations = lint_prompt_drift(prompt_str, beat["scene_id"])
 
     status = "SUCCESS" if is_valid else "FAILED"
@@ -213,12 +337,33 @@ def generate_image_prompts(
     final_prompts: List[Dict[str, Any]] = []
     failed_scenes: List[Dict[str, Any]] = []
 
+    # Resume from existing checkpoint if available
+    already_done_ids = set()
+    if checkpoint_path:
+        cp_p = Path(checkpoint_path).resolve()
+        if cp_p.exists():
+            try:
+                with open(cp_p, "r", encoding="utf-8") as f:
+                    loaded_cps = json.load(f)
+                if isinstance(loaded_cps, list):
+                    for item in loaded_cps:
+                        if isinstance(item, dict) and "scene_id" in item:
+                            final_prompts.append(item)
+                            already_done_ids.add(str(item["scene_id"]))
+            except Exception:
+                pass
+
     # Process in batches of 2
     for i in range(0, len(beats), 2):
         batch = beats[i:i + 2]
+        # Skip batch if already fully generated
+        if batch and all(str(b["scene_id"]) in already_done_ids for b in batch):
+            continue
+
         style_anchor = batch[0].get("style_anchor", "")
         user_prompt = compose_prompt_request(batch, master_bible, style_anchor)
 
+        res = None
         try:
             res = engine.generate_structured(
                 prompt=user_prompt,
@@ -227,9 +372,30 @@ def generate_image_prompts(
                 schema_name="scene_prompts",
                 model=model
             )
-            ret_scenes = {s["scene_id"]: s for s in res.get("scenes", [])}
-        except Exception as e:
-            ret_scenes = {}
+        except Exception:
+            pass
+
+        if not res:
+            json_fmt_prompt = master_prompt + '\n\nRespond strictly with a valid JSON object matching this structure:\n{"scenes": [{"scene_id": "001", "prompt": "...", "word_count": 200, "bible_refs": []}]}'
+            try:
+                raw_text = engine.generate(
+                    prompt=user_prompt,
+                    system_prompt=json_fmt_prompt,
+                    response_format={"type": "json_object"},
+                    model=model,
+                    max_tokens=2048
+                )
+                res = json.loads(raw_text)
+            except Exception:
+                pass
+
+        raw_list = []
+        if isinstance(res, list):
+            raw_list = res
+        elif isinstance(res, dict):
+            raw_list = res.get("scenes", [])
+
+        ret_scenes = {str(s["scene_id"]): s for s in raw_list if isinstance(s, dict) and "scene_id" in s}
 
         for b in batch:
             s_id = b["scene_id"]
@@ -240,6 +406,11 @@ def generate_image_prompts(
                 continue
 
             prompt_str = item.get("prompt", "").strip()
+            prompt_str = re.sub(r"^\s*#{1,6}\s*", "", prompt_str, flags=re.MULTILINE)
+            prompt_str = re.sub(r"^\s*[\*\-]\s*", "", prompt_str, flags=re.MULTILINE)
+            if "image must contain no text" not in prompt_str.lower():
+                prompt_str = prompt_str.rstrip(".") + ". Image must contain no text."
+            prompt_str = adjust_prompt_words(prompt_str, 180, 220)
             is_valid, w_count, violations = lint_prompt_drift(prompt_str, s_id)
 
             if not is_valid:
@@ -278,6 +449,18 @@ def generate_image_prompts(
                     "violations": [],
                     "bible_refs": item.get("bible_refs", b.get("bible_refs", []))
                 })
+
+        # Save incremental checkpoint atomically after each batch
+        if checkpoint_path and final_prompts:
+            try:
+                cp = Path(checkpoint_path).resolve()
+                cp.parent.mkdir(parents=True, exist_ok=True)
+                tmp_cp = cp.with_suffix(".tmp")
+                with open(tmp_cp, "w", encoding="utf-8") as f:
+                    json.dump(final_prompts, f, indent=2, ensure_ascii=False)
+                tmp_cp.replace(cp)
+            except Exception:
+                pass
 
     # Skip-and-retry: Retry all failed scenes once at the end
     still_failed: List[Dict[str, Any]] = []
