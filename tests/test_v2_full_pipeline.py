@@ -394,8 +394,6 @@ def test_exporter_prompts(tmp_path):
     ]
 
     index_map = export_prompts(prompts_data, prompts_dir)
-    assert (prompts_dir / "prompt_001.txt").exists()
-    assert (prompts_dir / "prompt_002.txt").exists()
     assert (prompts_dir / "prompts_only.txt").exists()
     assert (prompts_dir / "prompts_index.json").exists()
 

@@ -67,14 +67,14 @@ def adjust_prompt_words(prompt: str, target_min: int = 180, target_max: int = 22
 
     elif len(words) < target_min:
         expansion_phrases = [
-            "The wide composition reinforces strict visual continuity, atmospheric tension, and distinct environmental geometry.",
-            "Careful environmental illumination highlights the key narrative focal points, clean silhouettes, and sharp graphic contrasts.",
-            "The camera maintains a stable cinematic framing, ensuring the focal narrative action remains immediately legible.",
-            "Subtle atmospheric depth and crisp spatial separation define the surrounding architectural perspective.",
-            "Controlled tonal balance preserves uniform styling and authentic scene continuity throughout the visual frame.",
-            "Precise background detailing establishes grounded spatial context without distracting from the primary subject.",
-            "Consistent directional shadows reinforce physical scale and dramatic visual depth across the environment.",
-            "Every supporting scenic element strictly adheres to the locked production art direction."
+            "Precise background detailing establishes clear spatial context for the scene.",
+            "Careful environmental illumination highlights clean silhouettes and sharp graphic contrasts.",
+            "Stable cinematic framing ensures the focal narrative action remains immediately legible.",
+            "Crisp spatial separation and perspective define the surrounding architecture and physical layout.",
+            "Controlled practical lighting casts distinct graphical pools across the foreground floor.",
+            "Consistent directional shadows reinforce physical scale and visual depth across the environment.",
+            "Subtle environmental textures and clean edges anchor the composition without visual clutter.",
+            "Deep graphic contrast distinguishes foreground subjects from the distant background planes."
         ]
         curr_text = body
         idx = 0
@@ -172,7 +172,7 @@ def compose_prompt_request(
         "  4. Exact narration words as context",
         "  5. Direct negative instruction: 'Image must contain no text.'",
         "- Style: simple flowing direct prose only. NO headings (no '#', '##', or 'Scene:'), and NO bullet points or lists.",
-        "- Strict character presence: only depict characters listed in the scene's bible entries. If the scene depicts background crowds, passengers, or zombies, explicitly specify that the protagonist is not present in the scene, and never depict the protagonist as an infected zombie.",
+        "- Strict character presence: only depict characters directly present in the scene's bible entries. If the protagonist is not present in the scene, do not describe or mention the protagonist at all. Describe only the visible subjects, action, and environment.",
         ""
     ]
 

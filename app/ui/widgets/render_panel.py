@@ -159,6 +159,20 @@ class RenderPanel(QWidget):
         r4.addWidget(self.overlay_combo)
         vid_layout.addLayout(r4)
 
+        # Transition Style
+        r_tr = QHBoxLayout()
+        tr_lbl = QLabel("Transition Style:")
+        tr_lbl.setFixedWidth(95)
+        self.transition_combo = PBComboBox()
+        self.transition_combo.addItem("Cut (Hard Cut / Direct)", "cut")
+        self.transition_combo.addItem("Crossfade (Smooth 0.5s Dissolve)", "crossfade")
+        self.transition_combo.addItem("Dip to Black (Cinematic Fade)", "dip_to_black")
+        self.transition_combo.addItem("Smooth Fade", "fade")
+        self.transition_combo.currentIndexChanged.connect(self._on_settings_changed)
+        r_tr.addWidget(tr_lbl)
+        r_tr.addWidget(self.transition_combo)
+        vid_layout.addLayout(r_tr)
+
         left_layout.addWidget(vid_group)
 
         # Render Summary and Execution Group
@@ -248,84 +262,21 @@ class RenderPanel(QWidget):
         self.status_lbl.setStyleSheet("color: #9AA4B2; font-size: 11px;")
         summary_layout.addWidget(self.status_lbl)
 
-        # Thumbnail headline & dedicated prompt box
-        self.thumb_widget = QFrame()
-        self.thumb_widget.setStyleSheet("""
-            QFrame {
-                background-color: #0b111a;
-                border: 1px solid #1a2536;
-                border-radius: 6px;
-                padding: 8px;
-            }
-        """)
-        tw_layout = QVBoxLayout(self.thumb_widget)
-        tw_layout.setContentsMargins(6, 6, 6, 6)
-        tw_layout.setSpacing(6)
-
-        th_row = QHBoxLayout()
-        th_lbl = QLabel("Thumbnail Text:")
-        th_lbl.setStyleSheet("color: #fbbf24; font-size: 11px; font-weight: 700;")
-        self.thumb_headline_edit = QLineEdit()
-        self.thumb_headline_edit.setPlaceholderText("Auto-extracted viral headline from Groq AI...")
-        self.thumb_headline_edit.setStyleSheet(
-            "background-color: #111827; color: #F3F1EC; border: 1px solid #d97706; "
-            "border-radius: 4px; padding: 4px 8px; font-size: 11px; font-weight: 700;"
-        )
-        self.thumb_headline_edit.textEdited.connect(self._on_thumb_headline_edited)
-        th_row.addWidget(th_lbl)
-        th_row.addWidget(self.thumb_headline_edit, 1)
-        tw_layout.addLayout(th_row)
-
-        tp_row = QVBoxLayout()
-        tp_hdr = QHBoxLayout()
-        tp_lbl = QLabel("Thumbnail Prompt (Batch Image 01):")
-        tp_lbl.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: 700;")
-        tp_hdr.addWidget(tp_lbl)
-        tp_hdr.addStretch()
-
-        self.copy_thumb_prompt_btn = QPushButton("📋 Copy Thumb Prompt")
-        self.copy_thumb_prompt_btn.setFixedHeight(24)
-        self.copy_thumb_prompt_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #1e293b; color: #38bdf8; font-size: 10px; font-weight: 600;
-                border: 1px solid #38bdf8; border-radius: 3px; padding: 0 8px;
-            }
-            QPushButton:hover { background-color: #0284c7; color: #ffffff; }
-        """)
-        self.copy_thumb_prompt_btn.clicked.connect(self._copy_thumbnail_prompt)
-        tp_hdr.addWidget(self.copy_thumb_prompt_btn)
-
+        # Copy All Prompts Button
+        copy_row = QHBoxLayout()
         self.copy_all_batch_prompts_btn = QPushButton("📋 Copy All Prompts")
-        self.copy_all_batch_prompts_btn.setFixedHeight(24)
+        self.copy_all_batch_prompts_btn.setFixedHeight(32)
+        self.copy_all_batch_prompts_btn.setCursor(Qt.PointingHandCursor)
         self.copy_all_batch_prompts_btn.setStyleSheet("""
             QPushButton {
-                background-color: rgba(163, 255, 18, 0.15); color: #A3FF12; font-size: 10px; font-weight: 700;
-                border: 1px solid #A3FF12; border-radius: 3px; padding: 0 8px;
+                background-color: rgba(163, 255, 18, 0.15); color: #A3FF12; font-size: 11px; font-weight: 700;
+                border: 1px solid #A3FF12; border-radius: 4px; padding: 0 12px;
             }
             QPushButton:hover { background-color: #A3FF12; color: #080D0B; }
         """)
         self.copy_all_batch_prompts_btn.clicked.connect(self._copy_all_batch_prompts)
-        tp_hdr.addWidget(self.copy_all_batch_prompts_btn)
-        tp_row.addLayout(tp_hdr)
-
-        from PySide6.QtWidgets import QPlainTextEdit
-        from PySide6.QtGui import QTextOption
-        self.thumb_prompt_edit = QPlainTextEdit()
-        self.thumb_prompt_edit.setMinimumHeight(85)
-        self.thumb_prompt_edit.setMaximumHeight(120)
-        self.thumb_prompt_edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        self.thumb_prompt_edit.setWordWrapMode(QTextOption.WrapMode.WordWrap)
-        self.thumb_prompt_edit.setPlaceholderText("Groq AI thumbnail prompt for Gemini Canvas / Midjourney (Batch Image 01)...")
-        self.thumb_prompt_edit.setStyleSheet(
-            "background-color: #080c14; color: #E2E8F0; border: 1px solid #1e293b; "
-            "border-radius: 6px; padding: 6px 8px; font-size: 11px; font-family: Consolas, monospace; line-height: 1.4;"
-        )
-        self.thumb_prompt_edit.textChanged.connect(self._on_thumb_prompt_edited)
-        tp_row.addWidget(self.thumb_prompt_edit)
-        tw_layout.addLayout(tp_row)
-
-        self.thumb_widget.setVisible(False)
-        summary_layout.addWidget(self.thumb_widget)
+        copy_row.addWidget(self.copy_all_batch_prompts_btn)
+        summary_layout.addLayout(copy_row)
 
         # Post-render actions
         self.post_render_box = QHBoxLayout()
@@ -344,13 +295,6 @@ class RenderPanel(QWidget):
         self.open_folder_btn.setVisible(False)
         self.post_render_box.addWidget(self.open_folder_btn)
 
-        self.make_thumb_btn = QPushButton("🖼️ YouTube Thumbnail")
-        self.make_thumb_btn.setFixedHeight(30)
-        self.make_thumb_btn.setStyleSheet("background-color: #141821; color: #fbbf24; border-radius: 4px; border: 1px solid #d97706; font-weight: 600;")
-        self.make_thumb_btn.clicked.connect(self._on_generate_thumbnail)
-        self.make_thumb_btn.setVisible(False)
-        self.post_render_box.addWidget(self.make_thumb_btn)
-
         self.qr_share_btn = QPushButton("📱 Phone Share (QR)")
         self.qr_share_btn.setFixedHeight(30)
         self.qr_share_btn.setStyleSheet("background-color: #141821; color: #34d399; border-radius: 4px; border: 1px solid #059669; font-weight: 600;")
@@ -362,7 +306,14 @@ class RenderPanel(QWidget):
         left_layout.addWidget(summary_group)
         left_layout.addStretch()
 
-        splitter.addWidget(left_widget)
+        left_scroll = QScrollArea()
+        left_scroll.setWidgetResizable(True)
+        left_scroll.setFrameShape(QFrame.NoFrame)
+        left_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        left_scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }")
+        left_scroll.setWidget(left_widget)
+
+        splitter.addWidget(left_scroll)
 
         # =====================================================================
         # RIGHT PANE: Subtitle and Karaoke Styling Studio
@@ -458,22 +409,6 @@ class RenderPanel(QWidget):
             if hasattr(win, "project") and win.project and getattr(win.project.state, "narration", None):
                 self.narration = win.project.state.narration
 
-        win = self.window()
-        th_head = getattr(win.project.state, "thumbnail_headline", "") if (win and hasattr(win, "project") and win.project) else ""
-        th_prompt = getattr(win.project.state, "thumbnail_prompt", "") if (win and hasattr(win, "project") and win.project) else ""
-
-        if th_head:
-            self.set_thumbnail_headline(th_head)
-        elif hasattr(self, "thumb_headline_edit") and not self.thumb_headline_edit.text():
-            hl = self._auto_extract_story_headline()
-            if hl:
-                self.set_thumbnail_headline(hl)
-
-        if th_prompt:
-            self.set_thumbnail_prompt(th_prompt)
-
-        if hasattr(self, "thumb_widget"):
-            self.thumb_widget.setVisible(True)
         self._update_summary()
 
     def _update_summary(self):
@@ -515,11 +450,14 @@ class RenderPanel(QWidget):
         mp = getattr(self.settings, "motion_preset", MotionPreset.SUBTLE_ALTERNATING)
         mp_val = getattr(mp, "value", str(mp))
 
+        tr_val = getattr(self.settings, "transition_style", "cut")
+
         text = (
             f"<b>Storyboard:</b> {total_scenes} scenes ({total_dur:.1f}s total duration)<br>"
             f"<b>Images:</b> {matched_images}/{total_scenes} bound (placeholders used for remaining)<br>"
             f"<b>Voiceover:</b> {audio_status}<br>"
             f"<b>Aspect Ratio:</b> {ar_val} ({ar_dims[0]}x{ar_dims[1]})<br>"
+            f"<b>Transition:</b> {tr_val.title()}<br>"
             f"<b>Subtitles:</b> {sub_status}<br>"
             f"<b>Motion:</b> {mp_val} ({self.settings.motion_intensity:.2f}x zoom)"
         )
@@ -578,6 +516,8 @@ class RenderPanel(QWidget):
             self.settings.motion_preset = self.motion_combo.currentData() or MotionPreset.SUBTLE_ALTERNATING
         self.settings.motion_intensity = round(1.0 + self.zoom_slider.value() / 100.0, 2)
         self.settings.video_overlay = self.overlay_combo.currentData() or VideoOverlay.SUBTLE_VIGNETTE
+        if hasattr(self, "transition_combo"):
+            self.settings.transition_style = self.transition_combo.currentData() or "cut"
         self._update_summary()
 
     def _on_sub_config_changed(self, cfg: SubtitleConfig):

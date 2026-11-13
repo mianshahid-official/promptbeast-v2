@@ -10,7 +10,7 @@ Do not use headings, section titles, bold category labels, or bracketed tags. Ne
 Do not use bullet-point lists, dashed lists, or numbered lists anywhere inside the prompt text.
 Express camera angle, bold brushstroke textures, ink splatters, stark lighting, and dramatic silhouettes smoothly in natural flowing sentences.
 
-Follow the locked Ink aesthetic rules strictly. The aesthetic is dynamic monochrome sumi-e ink wash and graphic novel ink illustration in widescreen 16:9, featuring deep pooled India inks, expressive dry-brush strokes, paper grain texture, and stark chiaroscuro lighting.
+Follow the locked Ink aesthetic rules strictly. The aesthetic is dynamic monochrome sumi-e ink wash and graphic novel ink illustration featuring deep pooled India inks, expressive dry-brush strokes, paper grain texture, and stark chiaroscuro lighting.
 Strictly observe character presence and absence instructions. Only feature characters explicitly requested in the scene. For environment, mood, or landscape shots, specify that it is a pure landscape or architectural ink composition completely empty of human figures.
 
 Return clean, direct prose ready for generation in Gemini Canvas, Midjourney, FLUX, or SDXL without parameter flags or command prefixes.

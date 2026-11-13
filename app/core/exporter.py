@@ -33,22 +33,15 @@ def export_prompts(
         end = item.get("end", 0.0)
         word_count = len(clean_prompt.split())
 
-        filename = f"prompt_{s_id}.txt"
         expected_image = f"scene_{s_id}.png"
 
-        # 1. Write individual prompt file
-        single_file = p_dir / filename
-        with open(single_file, "w", encoding="utf-8") as f:
-            f.write(clean_prompt)
-
-        # 2. Append to combined prompts list (pure prompt only, no scene header)
+        # Append to combined prompts list (pure prompt only, 1 line per scene, no headers)
         if clean_prompt:
             combined_lines.append(clean_prompt)
 
-        # 3. Add to index
+        # Add to index
         index_map[s_id] = {
             "scene_id": s_id,
-            "prompt_file": filename,
             "expected_image": expected_image,
             "start": start,
             "end": end,

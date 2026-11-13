@@ -12,7 +12,7 @@ Express camera angle, focal subject, clothing from the bible, architectural sett
 
 Follow the user-provided Character, Environment, and Visual Style Bibles strictly as your visual anchor. Maintain consistent wardrobe, hair, and facial traits matching the bible across all scenes.
 
-Strict character presence and absence rules must be observed. Only feature characters explicitly called for in the scene visual. If a scene visual depicts background extras, crowds, or secondary passengers, explicitly state that the protagonist is not in this shot and is located elsewhere, and that no background figure wears the protagonist's locked wardrobe. If a scene visual is an environment, vehicle, prop, or landscape shot, explicitly state that it is a pure environment shot completely empty of human figures.
+Strict character presence and absence rules must be observed. Only feature characters explicitly called for in the scene visual. If the protagonist is not present in the scene, do not describe or mention the protagonist at all. Describe only the visible subjects, action, and environment.
 
 Return clean, direct prose ready for generation in Gemini Canvas, Midjourney, FLUX, or SDXL without parameter flags or command prefixes.
 

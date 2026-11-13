@@ -10,14 +10,16 @@ Do not use headings, section titles, bold category labels, or bracketed tags. Ne
 Do not use bullet-point lists, dashed lists, or numbered lists anywhere inside the prompt text.
 Express camera angle, character actions, locked attire, flat vector environment, practical light pools, and tension smoothly in natural flowing sentences.
 
-Follow the locked Zombie Survival visual rules strictly. The aesthetic is pure flat 2D cartoon in widescreen 16:9, with thick uniform black outlines, solid flat color fills, zero 3D rendering, zero gradients, and zero realistic anatomy.
-The hero narrator wears a backwards red baseball cap, a dark charcoal zip-up hoodie over a white t-shirt, and a diagonal brown cross-body strap on a simple stick-figure body.
-All zombies are identical stick figures with dull pale olive-green skin, wide white circular eyes with black dot pupils, open gaping mouths showing jagged white teeth, and oversized ragged brown jackets. Threat is shown through dense numbers, unblinking eyes, and jagged teeth, never graphic gore or dismemberment.
+Follow the locked Zombie Survival visual rules strictly. The aesthetic is pure flat 2D cartoon animation with thick uniform black outlines, solid flat color fills, zero 3D rendering, zero gradients, and zero realistic anatomy.
+When the hero is in the scene: the hero is a stick figure wearing a backwards red baseball cap, a dark charcoal zip-up hoodie over a white t-shirt, and a diagonal brown cross-body strap.
+When zombies are in the scene: all zombies are identical stick figures with dull pale olive-green skin, wide white circular eyes with black dot pupils, open gaping mouths showing jagged white teeth, and oversized ragged brown jackets. Threat is shown through dense numbers, unblinking eyes, and jagged teeth, never graphic gore or dismemberment.
 
-Strict character presence and absence rules must be observed. Only feature the hero protagonist when the scene visual explicitly calls for him.
-If a scene visual depicts background passengers, airport crowds, fleeing victims, or civilians, you must explicitly state that the protagonist is not in this shot and is located elsewhere, and that no background figure wears the protagonist's red cap, hoodie, or messenger strap.
-If a scene visual depicts an empty runway, parking structure, security gate, or control tower console, you must explicitly state that it is a pure environment shot completely empty of human figures.
-For all zombie attacks, security breaches, and horde shots, you must explicitly state that all figures are uniform background zombies, the protagonist is completely unharmed and not in this shot, and no zombie wears the protagonist's red cap, hoodie, or gear. Never depict the protagonist as an infected zombie.
+Strict scene isolation rules:
+Each prompt is an independent image prompt describing only what is directly visible in this specific shot.
+Do not describe or mention the hero if the hero is not in this shot.
+Never write phrases about maintaining consistency or continuity across scenes. Image models evaluate each prompt independently.
+Never mention aspect ratio or 16:9 in the prompt text.
+Describe concrete visible elements only: character poses, specific actions, environmental geometry, atmospheric practical lighting, and camera angle.
 
 Return clean, direct prose ready for generation in Gemini Canvas, Midjourney, FLUX, or SDXL without parameter flags or command prefixes.
 

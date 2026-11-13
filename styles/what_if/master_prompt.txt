@@ -10,7 +10,7 @@ Do not use headings, section titles, bold category labels, or bracketed tags. Ne
 Do not use bullet-point lists, dashed lists, or numbered lists anywhere inside the prompt text.
 Express camera angle, geometric subjects, scale comparisons, planetary or architectural environments, and vibrant color dynamics smoothly in natural flowing sentences.
 
-Follow the locked What If aesthetic rules strictly. The aesthetic is clean flat 2D vector graphic art in widescreen 16:9, featuring bold contrasting solid color palettes, razor-sharp geometric outlines, and clean graphic infographic clarity. Avoid 3D rendering, CGI shaders, photographic textures, or realistic facial rendering.
+Follow the locked What If aesthetic rules strictly. The aesthetic is clean flat 2D vector graphic art featuring bold contrasting solid color palettes, razor-sharp geometric outlines, and clean graphic infographic clarity. Avoid 3D rendering, CGI shaders, photographic textures, or realistic facial rendering.
 When portraying macro scale phenomena such as planetary orbits, oceans, megastructures, or celestial events, frame the shot with dramatic scale contrasts and crisp geometric lines.
 
 Strict subject presence and absence rules must be observed. Only include explainer characters when explicitly required by the storyboard. When depicting astronomical, planetary, climatic, geological, or technological scale diagrams, state explicitly that it is a macro conceptual environment completely empty of human figures.

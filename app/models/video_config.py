@@ -96,6 +96,7 @@ class VideoRenderSettings(BaseModel):
     hook_clips_count: int = 3                 # First N scenes rendered with high-retention animated motion / clips
     hook_motion_intensity: float = 1.25       # Dynamic camera intensity for hook scenes
     video_overlay: VideoOverlay = VideoOverlay.SUBTLE_VIGNETTE
+    transition_style: str = "cut"
     subtitle_config: SubtitleConfig = Field(default_factory=SubtitleConfig)
     tts_config: TTSConfig = Field(default_factory=TTSConfig)
     output_filename: str = "final_video.mp4"

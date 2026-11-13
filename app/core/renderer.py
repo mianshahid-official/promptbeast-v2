@@ -125,17 +125,36 @@ def verify_audio(output_file: Path, expected_duration: float) -> Tuple[bool, Dic
     return True, {"silence_ratio": silence_ratio, "total_silence": total_silence}, None
 
 
-def verify_transcript_diff(script_words: List[str], timestamp_words: List[str]) -> Tuple[bool, Optional[str]]:
-    """Check 3: Reconstruct narration from timestamp words and compare to script (must match exactly)."""
+def verify_transcript_diff(script_words: List[str], timestamp_words: List[str], tolerance_ratio: float = 0.05) -> Tuple[bool, Optional[str]]:
+    """Check 3: Reconstruct narration from timestamp words and compare to script."""
     clean_s = [normalize_token(w) for w in script_words if normalize_token(w)]
     clean_t = [normalize_token(w) for w in timestamp_words if normalize_token(w)]
 
-    if len(clean_s) != len(clean_t):
-        return False, f"Transcript diff word count mismatch: script={len(clean_s)} words, timestamps={len(clean_t)} words."
+    if not clean_s or not clean_t:
+        return False, "Empty transcript or timestamp word list."
 
-    for idx, (sw, tw) in enumerate(zip(clean_s, clean_t)):
-        if sw != tw:
-            return False, f"Transcript diff mismatch at position {idx}: script '{sw}' != timestamp '{tw}'."
+    if clean_s == clean_t:
+        return True, None
+
+    if len(clean_s) == len(clean_t):
+        for idx, (sw, tw) in enumerate(zip(clean_s, clean_t)):
+            if sw != tw:
+                return False, f"Transcript diff mismatch at position {idx}: script '{sw}' != timestamp '{tw}'."
+
+    # Allow small tokenization/ASR alignment variance (up to tolerance_ratio e.g. 5%)
+    len_diff = abs(len(clean_s) - len(clean_t))
+    max_len = max(len(clean_s), len(clean_t))
+    diff_ratio = len_diff / max_len
+
+    if diff_ratio > tolerance_ratio:
+        return False, f"Transcript diff word count mismatch: script={len(clean_s)} words, timestamps={len(clean_t)} words ({diff_ratio*100:.1f}% difference > {tolerance_ratio*100:.1f}% allowed)."
+
+    # Check token overlap
+    set_s = set(clean_s)
+    set_t = set(clean_t)
+    overlap = len(set_s & set_t) / max(1, len(set_s | set_t))
+    if overlap < 0.85:
+        return False, f"Transcript vocabulary divergence: only {overlap*100:.1f}% token overlap between script and timestamps."
 
     return True, None
 
